@@ -19,6 +19,7 @@ import {
   X,
   User,
 } from "lucide-react";
+import PortalAIAssistant from "@/components/portal/PortalAIAssistant";
 
 const navigation = [
   { name: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
@@ -172,6 +173,9 @@ export default function PortalLayout({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* AI Assistant */}
+      <PortalAIAssistant />
     </div>
   );
 }
