@@ -1,97 +1,67 @@
-import { supabase, supabaseAdmin } from "./supabase";
+import { SignJWT, jwtVerify } from "jose";
+import bcrypt from "bcryptjs";
 
-// Admin emails list
+// JWT secret - in production, use env variable
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "security-platform-jwt-secret-key-2024"
+);
+
+// Admin emails that get admin role
 const ADMIN_EMAILS = ["howard@chatmaninc.com"];
 
 export interface User {
   id: string;
   email: string;
-  role: "admin" | "customer";
-  name?: string;
+  name: string | null;
+  role: "admin" | "manager" | "customer";
+}
+
+export interface JWTPayload {
+  id: string;
+  email: string;
+  name: string | null;
+  role: "admin" | "manager" | "customer";
+  exp?: number;
 }
 
 export function isAdminEmail(email: string): boolean {
   return ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
-export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) throw error;
-
-  const role = isAdminEmail(email) ? "admin" : "customer";
-
-  return {
-    user: data.user,
-    session: data.session,
-    role,
-  };
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10);
 }
 
-export async function signUp(email: string, password: string, name?: string) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
-        role: isAdminEmail(email) ? "admin" : "customer",
-      },
-    },
-  });
-
-  if (error) throw error;
-
-  return {
-    user: data.user,
-    session: data.session,
-  };
+export async function verifyPassword(
+  password: string,
+  hash: string
+): Promise<boolean> {
+  return bcrypt.compare(password, hash);
 }
 
-export async function signOut() {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
-}
-
-export async function getCurrentUser(): Promise<User | null> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  return {
+export async function createToken(user: User): Promise<string> {
+  const token = await new SignJWT({
     id: user.id,
-    email: user.email!,
-    role: isAdminEmail(user.email!) ? "admin" : "customer",
-    name: user.user_metadata?.name,
-  };
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(JWT_SECRET);
+
+  return token;
 }
 
-export async function getSession() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return session;
+export async function verifyToken(token: string): Promise<JWTPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    return payload as unknown as JWTPayload;
+  } catch {
+    return null;
+  }
 }
 
-export function onAuthStateChange(
-  callback: (user: User | null) => void
-) {
-  return supabase.auth.onAuthStateChange(async (event, session) => {
-    if (session?.user) {
-      const user: User = {
-        id: session.user.id,
-        email: session.user.email!,
-        role: isAdminEmail(session.user.email!) ? "admin" : "customer",
-        name: session.user.user_metadata?.name,
-      };
-      callback(user);
-    } else {
-      callback(null);
-    }
-  });
-}
+// Cookie name for auth token
+export const AUTH_COOKIE_NAME = "security_auth_token";

@@ -7,13 +7,18 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { User, getCurrentUser, onAuthStateChange, signIn, signOut, signUp } from "@/lib/auth";
+
+interface User {
+  id: string;
+  email: string;
+  name: string | null;
+  role: "admin" | "manager" | "customer";
+}
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ role: string }>;
-  signUp: (email: string, password: string, name?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -23,35 +28,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Check for existing session on mount
   useEffect(() => {
-    // Check for existing session
-    getCurrentUser().then((user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = onAuthStateChange((user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    checkAuth();
   }, []);
 
-  const handleSignIn = async (email: string, password: string) => {
-    const result = await signIn(email, password);
-    return { role: result.role };
+  const checkAuth = async () => {
+    try {
+      const response = await fetch("/api/auth/me");
+      const data = await response.json();
+
+      if (data.success && data.user) {
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Auth check error:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSignUp = async (email: string, password: string, name?: string) => {
-    await signUp(email, password, name);
+  const signIn = async (email: string, password: string) => {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Login failed");
+    }
+
+    setUser(data.user);
+    return { role: data.user.role };
   };
 
-  const handleSignOut = async () => {
-    await signOut();
+  const signOut = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
     setUser(null);
   };
 
@@ -60,9 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         loading,
-        signIn: handleSignIn,
-        signUp: handleSignUp,
-        signOut: handleSignOut,
+        signIn,
+        signOut,
       }}
     >
       {children}

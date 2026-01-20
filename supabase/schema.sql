@@ -626,3 +626,31 @@ CREATE TRIGGER update_security_estimates_updated_at
 CREATE TRIGGER update_security_chat_updated_at
     BEFORE UPDATE ON security_chat_conversations
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ============================================
+-- ADMIN USERS TABLE
+-- Custom auth (bypasses Supabase Auth)
+-- ============================================
+CREATE TABLE IF NOT EXISTS security_admin_users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    role VARCHAR(50) DEFAULT 'customer' CHECK (role IN ('admin', 'manager', 'customer')),
+    is_active BOOLEAN DEFAULT true,
+    last_login TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_security_admin_users_email ON security_admin_users(email);
+
+-- RLS policies
+ALTER TABLE security_admin_users ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role full access to admin_users" ON security_admin_users
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE TRIGGER update_security_admin_users_updated_at
+    BEFORE UPDATE ON security_admin_users
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();

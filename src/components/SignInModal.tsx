@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Lock, User, Loader2, AlertCircle } from "lucide-react";
+import { X, Mail, Lock, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -12,13 +12,11 @@ interface SignInModalProps {
 }
 
 export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,18 +25,12 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
     setLoading(true);
 
     try {
-      if (mode === "signin") {
-        const result = await signIn(email, password);
-        onClose();
-        // Redirect based on role
-        if (result.role === "admin") {
-          router.push("/admin/dashboard");
-        } else {
-          router.push("/portal/dashboard");
-        }
+      const result = await signIn(email, password);
+      onClose();
+      // Redirect based on role
+      if (result.role === "admin") {
+        router.push("/admin/dashboard");
       } else {
-        await signUp(email, password, name);
-        onClose();
         router.push("/portal/dashboard");
       }
     } catch (err: unknown) {
@@ -50,18 +42,6 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const resetForm = () => {
-    setEmail("");
-    setPassword("");
-    setName("");
-    setError("");
-  };
-
-  const switchMode = (newMode: "signin" | "signup") => {
-    resetForm();
-    setMode(newMode);
   };
 
   return (
@@ -94,13 +74,9 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                 >
                   <X className="w-5 h-5" />
                 </button>
-                <h2 className="text-2xl font-bold text-white">
-                  {mode === "signin" ? "Welcome Back" : "Create Account"}
-                </h2>
+                <h2 className="text-2xl font-bold text-white">Welcome Back</h2>
                 <p className="text-gray-400 mt-2">
-                  {mode === "signin"
-                    ? "Sign in to access your account"
-                    : "Sign up to get started"}
+                  Sign in to access your account
                 </p>
               </div>
 
@@ -110,24 +86,6 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                   <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
                     <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     {error}
-                  </div>
-                )}
-
-                {mode === "signup" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="John Doe"
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                      />
-                    </div>
                   </div>
                 )}
 
@@ -174,40 +132,12 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      {mode === "signin" ? "Signing in..." : "Creating account..."}
+                      Signing in...
                     </>
-                  ) : mode === "signin" ? (
-                    "Sign In"
                   ) : (
-                    "Create Account"
+                    "Sign In"
                   )}
                 </button>
-
-                <div className="text-center pt-2">
-                  {mode === "signin" ? (
-                    <p className="text-sm text-gray-600">
-                      Don&apos;t have an account?{" "}
-                      <button
-                        type="button"
-                        onClick={() => switchMode("signup")}
-                        className="text-red-600 hover:text-red-700 font-medium"
-                      >
-                        Sign up
-                      </button>
-                    </p>
-                  ) : (
-                    <p className="text-sm text-gray-600">
-                      Already have an account?{" "}
-                      <button
-                        type="button"
-                        onClick={() => switchMode("signin")}
-                        className="text-red-600 hover:text-red-700 font-medium"
-                      >
-                        Sign in
-                      </button>
-                    </p>
-                  )}
-                </div>
               </form>
             </div>
           </motion.div>
