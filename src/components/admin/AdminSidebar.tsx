@@ -19,6 +19,11 @@ import {
   X,
   Package,
   Calculator,
+  Kanban,
+  FileCheck,
+  ClipboardList,
+  Bell,
+  BarChart3,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -33,18 +38,21 @@ const navigation = [
     section: "Dashboard",
     items: [
       { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
+      { name: "Reports", href: "/admin/reports", icon: BarChart3 },
     ],
   },
   {
     section: "CRM",
     items: [
       { name: "Leads", href: "/admin/leads", icon: Users },
+      { name: "Pipeline", href: "/admin/pipeline", icon: Kanban },
       { name: "Customers", href: "/admin/customers", icon: Building2 },
     ],
   },
   {
     section: "Sales",
     items: [
+      { name: "Quotes", href: "/admin/quotes", icon: FileCheck },
       { name: "Estimates", href: "/admin/estimates", icon: Calculator },
       { name: "Inventory", href: "/admin/inventory", icon: Package },
     ],
@@ -52,8 +60,15 @@ const navigation = [
   {
     section: "Operations",
     items: [
+      { name: "Work Orders", href: "/admin/work-orders", icon: ClipboardList },
       { name: "Tickets", href: "/admin/tickets", icon: Ticket },
       { name: "Schedule", href: "/admin/scheduling", icon: Calendar },
+    ],
+  },
+  {
+    section: "Monitoring",
+    items: [
+      { name: "Alarms", href: "/admin/monitoring", icon: Bell },
     ],
   },
   {
