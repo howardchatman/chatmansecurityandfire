@@ -73,13 +73,13 @@ export default function CTA() {
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/20 backdrop-blur-sm transition-colors"
               >
                 <Phone className="w-5 h-5" />
-                Talk to Chad
+                Speak With Our Team
               </a>
             </div>
 
             {/* Micro copy */}
             <p className="text-sm text-orange-200 mt-6">
-              Chad will need: address, inspection deadline, and any reports you have.
+              Please have ready: property address, inspection deadline, and any reports you have.
             </p>
 
             {/* Trust Badges */}

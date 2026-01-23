@@ -273,7 +273,7 @@ export default function StartPage() {
 
             {/* Subhead */}
             <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-              Chatman Security & Fire fixes failed inspections, life-safety deficiencies, and time-sensitive issues that delay openings. If this is urgent, call now. If not, submit details and Howard will review.
+              Chatman Security & Fire fixes failed inspections, life-safety deficiencies, and time-sensitive issues that delay openings. If this is urgent, call now. If not, submit details and our team will review.
             </p>
 
             {/* Dual CTAs */}

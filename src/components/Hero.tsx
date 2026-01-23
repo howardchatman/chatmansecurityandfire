@@ -80,14 +80,14 @@ export default function Hero() {
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full transition-all"
               >
                 <Phone className="w-5 h-5" />
-                Call Howard&apos;s Office
+                Call Our Office
               </a>
             </div>
 
             {/* What to Have Ready */}
             <div className="bg-gray-100 rounded-2xl p-6 max-w-2xl mx-auto mb-12">
               <p className="text-sm font-semibold text-gray-700 mb-3 text-center">
-                When you call, Chad will need:
+                When you call, please have ready:
               </p>
               <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
@@ -103,9 +103,6 @@ export default function Hero() {
                   Deadline date
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-3 text-center">
-                Chad&apos;s Howard&apos;s AI operations assistant — he handles intake so nothing important gets missed.
-              </p>
             </div>
           </motion.div>
 
