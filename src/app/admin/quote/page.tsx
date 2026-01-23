@@ -27,6 +27,8 @@ import {
   Eye,
   Loader2,
   Printer,
+  Sparkles,
+  Wand2,
 } from "lucide-react";
 import {
   TEMPLATE_PRESETS,
@@ -132,6 +134,10 @@ export default function QuoteBuilderPage() {
   const [editingItem, setEditingItem] = useState<LineItem | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [aiSuggestions, setAISuggestions] = useState<Array<{category: string; name: string; quantity: number; reason: string}> | null>(null);
+  const [showAISuggestions, setShowAISuggestions] = useState(false);
+  const [aiNarrative, setAINarrative] = useState<string | null>(null);
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const [quote, setQuote] = useState<QuoteState>({
@@ -395,6 +401,90 @@ export default function QuoteBuilderPage() {
       window.print();
     }, 500);
   }, []);
+
+  // Get AI suggestions for scope
+  const getAISuggestions = useCallback(async () => {
+    setIsAILoading(true);
+    setAISuggestions(null);
+
+    try {
+      const response = await fetch("/api/quotes/ai-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "suggest_scope",
+          quoteType: quote.quoteType,
+          site: quote.site,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data.suggestions) {
+        setAISuggestions(data.data.suggestions);
+        setShowAISuggestions(true);
+      } else {
+        setSaveMessage({ type: "error", text: data.error || "AI suggestions unavailable" });
+      }
+    } catch (error) {
+      console.error("AI suggestion error:", error);
+      setSaveMessage({ type: "error", text: "Failed to get AI suggestions" });
+    } finally {
+      setIsAILoading(false);
+    }
+  }, [quote.quoteType, quote.site]);
+
+  // Apply AI suggestions to line items
+  const applyAISuggestions = useCallback((suggestions: Array<{category: string; name: string; quantity: number; reason: string}>) => {
+    const newItems: LineItem[] = suggestions.map((s) => ({
+      id: generateItemId(),
+      category: s.category,
+      name: s.name,
+      description: s.reason,
+      unit: "ea",
+      quantity: s.quantity,
+      unitPrice: 145, // Default price, user should adjust
+      taxable: true,
+    }));
+
+    setQuote((prev) => ({
+      ...prev,
+      lineItems: [...prev.lineItems, ...newItems],
+    }));
+    setShowAISuggestions(false);
+    setAISuggestions(null);
+  }, []);
+
+  // Generate AI narrative for proposal
+  const generateNarrative = useCallback(async () => {
+    setIsAILoading(true);
+
+    try {
+      const response = await fetch("/api/quotes/ai-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generate_narrative",
+          quoteType: quote.quoteType,
+          site: quote.site,
+          existingItems: quote.lineItems.map((i) => ({ name: i.name, quantity: i.quantity })),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data.narrative) {
+        setAINarrative(data.data.narrative);
+      } else {
+        setSaveMessage({ type: "error", text: data.error || "Narrative generation failed" });
+      }
+    } catch (error) {
+      console.error("Narrative generation error:", error);
+      setSaveMessage({ type: "error", text: "Failed to generate narrative" });
+    } finally {
+      setIsAILoading(false);
+    }
+  }, [quote.quoteType, quote.site, quote.lineItems]);
 
   // Navigate steps
   const nextStep = () => {
@@ -853,11 +943,23 @@ export default function QuoteBuilderPage() {
                 </h2>
                 <div className="flex gap-2">
                   <button
+                    onClick={getAISuggestions}
+                    disabled={isAILoading}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white font-medium rounded-lg transition-colors"
+                  >
+                    {isAILoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4" />
+                    )}
+                    AI Suggest
+                  </button>
+                  <button
                     onClick={() => setShowRTUModal(true)}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
                   >
                     <Wind className="w-4 h-4" />
-                    Add RTU/Duct Smoke Package
+                    RTU Package
                   </button>
                   <button
                     onClick={addLineItem}
@@ -1261,6 +1363,39 @@ export default function QuoteBuilderPage() {
                 </div>
               </div>
 
+              {/* AI Narrative Generation */}
+              <div className="mb-8 p-4 bg-purple-50 rounded-xl border border-purple-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Wand2 className="w-5 h-5 text-purple-600" />
+                    <h3 className="text-sm font-semibold text-purple-900">
+                      AI Scope Narrative
+                    </h3>
+                  </div>
+                  <button
+                    onClick={generateNarrative}
+                    disabled={isAILoading || quote.lineItems.length === 0}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white text-sm font-medium rounded-lg transition-colors"
+                  >
+                    {isAILoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4" />
+                    )}
+                    Generate Narrative
+                  </button>
+                </div>
+                {aiNarrative ? (
+                  <div className="bg-white rounded-lg p-4 text-sm text-gray-700 whitespace-pre-line">
+                    {aiNarrative}
+                  </div>
+                ) : (
+                  <p className="text-sm text-purple-700">
+                    Click "Generate Narrative" to create a professional scope of work description using AI.
+                  </p>
+                )}
+              </div>
+
               {/* Delivery Actions */}
               <div className="flex flex-wrap gap-4">
                 <button
@@ -1339,6 +1474,78 @@ export default function QuoteBuilderPage() {
           onClose={() => setShowRTUModal(false)}
           onSave={handleRTUSave}
         />
+      )}
+
+      {/* AI Suggestions Modal */}
+      {showAISuggestions && aiSuggestions && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowAISuggestions(false)}
+          />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Sparkles className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">AI Suggestions</h2>
+                  <p className="text-sm text-gray-500">Based on your site information</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAISuggestions(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-160px)]">
+              <div className="space-y-3">
+                {aiSuggestions.map((suggestion, idx) => (
+                  <div key={idx} className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">{suggestion.name}</p>
+                        <p className="text-sm text-gray-500">{suggestion.category}</p>
+                      </div>
+                      <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
+                        Qty: {suggestion.quantity}
+                      </span>
+                    </div>
+                    {suggestion.reason && (
+                      <p className="mt-2 text-sm text-gray-600 italic">{suggestion.reason}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p className="text-sm text-yellow-800">
+                  <strong>Note:</strong> These are AI-generated suggestions based on typical requirements.
+                  Please verify quantities and adjust pricing after adding to your quote.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowAISuggestions(false)}
+                className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => applyAISuggestions(aiSuggestions)}
+                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+              >
+                Add All to Quote
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* PDF Preview Modal */}
