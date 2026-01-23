@@ -37,6 +37,18 @@ export interface LineItem {
   notes?: string;
 }
 
+export interface AddOn {
+  id: string;
+  name: string;
+  description: string;
+  defaultEnabled: boolean;
+  lineItems: Omit<LineItem, "id">[];
+  // Professional compliance language for proposals/PDFs/emails
+  complianceText?: string;
+  // Section-specific disclaimer (appears under this add-on's items)
+  sectionDisclaimer?: string;
+}
+
 export interface TemplatePreset {
   name: TemplateName;
   label: string;
@@ -48,13 +60,7 @@ export interface TemplatePreset {
   disclaimers: string[];
   paymentTerms: string;
   warranty: string;
-  addOns: {
-    id: string;
-    name: string;
-    description: string;
-    defaultEnabled: boolean;
-    lineItems: Omit<LineItem, "id">[];
-  }[];
+  addOns: AddOn[];
 }
 
 // Generate unique IDs for line items
@@ -77,11 +83,18 @@ export const FIRE_LANE_DEFAULTS = {
   lettering: "FIRE LANE – NO PARKING",
 };
 
+// Approved compliance language for proposals, estimates, PDFs, and emails
+export const FIRE_LANE_COMPLIANCE_TEXT = `Fire lane markings are installed to maintain clear, unobstructed access for fire department apparatus in accordance with applicable fire code requirements. The proposed fire lane layout provides adequate access to the building frontage and designated fire department approach areas, helping prevent vehicle obstruction and ensuring emergency responders can operate effectively. All markings and signage are installed using high-visibility materials consistent with Fire Marshal expectations and are subject to final approval by the Authority Having Jurisdiction.`;
+
+export const FIRE_LANE_DISCLAIMER = "Final fire lane layout and extent subject to Authority Having Jurisdiction approval.";
+
 // Global Fire Lane add-on (available in all templates)
 export const FIRE_LANE_ADDON = {
   id: "fire_lane",
   name: "Fire Lane Marking",
   description: "Fire lane striping and signage per AHJ requirements",
+  complianceText: FIRE_LANE_COMPLIANCE_TEXT,
+  sectionDisclaimer: FIRE_LANE_DISCLAIMER,
   defaultEnabled: false,
   lineItems: [
     {
