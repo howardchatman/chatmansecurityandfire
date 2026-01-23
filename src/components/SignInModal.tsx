@@ -63,9 +63,9 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mx-4">
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-md">
               {/* Header */}
               <div className="relative bg-gradient-to-r from-neutral-900 to-neutral-800 px-6 py-8 text-center">
                 <button
