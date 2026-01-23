@@ -24,6 +24,8 @@ import {
   ClipboardList,
   Bell,
   BarChart3,
+  Briefcase,
+  UsersRound,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -61,6 +63,7 @@ const navigation = [
   {
     section: "Operations",
     items: [
+      { name: "Jobs", href: "/admin/jobs", icon: Briefcase },
       { name: "Work Orders", href: "/admin/work-orders", icon: ClipboardList },
       { name: "Tickets", href: "/admin/tickets", icon: Ticket },
       { name: "Schedule", href: "/admin/scheduling", icon: Calendar },
@@ -82,6 +85,7 @@ const navigation = [
   {
     section: "Team",
     items: [
+      { name: "Team Management", href: "/admin/team", icon: UsersRound },
       { name: "Employees", href: "/admin/employees", icon: UserCog },
       { name: "Time Tracking", href: "/admin/time", icon: Clock },
     ],
