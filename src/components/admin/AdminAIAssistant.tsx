@@ -115,7 +115,7 @@ export default function AdminAIAssistant() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-full shadow-lg shadow-orange-600/30 transition-all hover:scale-105"
+        className="fixed bottom-20 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-full shadow-lg shadow-orange-600/30 transition-all hover:scale-105"
       >
         <Sparkles className="w-5 h-5" />
         <span className="font-medium">AI Assistant</span>
@@ -125,7 +125,7 @@ export default function AdminAIAssistant() {
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
+      className={`fixed bottom-20 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
         isMinimized ? "h-auto" : "h-[600px]"
       }`}
     >
