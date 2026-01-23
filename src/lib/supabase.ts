@@ -296,3 +296,201 @@ export async function getCallLogs() {
   if (error) throw error;
   return data;
 }
+
+// ============================================
+// QUOTE FUNCTIONS
+// ============================================
+
+export interface Quote {
+  id?: string;
+  quote_number: string;
+  quote_type: string;
+  template_name?: string;
+  status: "draft" | "sent" | "viewed" | "accepted" | "declined" | "expired" | "paid";
+  customer: {
+    name: string;
+    company?: string;
+    email?: string;
+    phone: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
+  site: {
+    name?: string;
+    address: string;
+    city: string;
+    state?: string;
+    zip?: string;
+    buildingType?: string;
+    squareFootage?: string;
+    floors?: string;
+    existingSystem?: string;
+    notes?: string;
+  };
+  line_items: Array<{
+    id: string;
+    category: string;
+    name: string;
+    description?: string;
+    unit: string;
+    quantity: number;
+    unitPrice: number;
+    laborHours?: number;
+    laborRate?: number;
+    allowanceLow?: number;
+    allowanceHigh?: number;
+    isAllowance?: boolean;
+    markup?: number;
+    taxable?: boolean;
+  }>;
+  totals: {
+    subtotal: number;
+    subtotalLow: number;
+    subtotalHigh: number;
+    laborTotal: number;
+    materialsTotal: number;
+    tax: number;
+    taxRate: number;
+    total: number;
+    totalLow: number;
+    totalHigh: number;
+  };
+  terms: {
+    paymentTerms: string;
+    warranty: string;
+    validDays: number;
+    assumptions: string[];
+    disclaimers: string[];
+  };
+  expires_at?: string;
+  sent_at?: string;
+  viewed_at?: string;
+  accepted_at?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export async function generateQuoteNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const { data, error } = await supabaseAdmin
+    .from("security_quotes")
+    .select("quote_number")
+    .like("quote_number", `QT-${year}-%`)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error) {
+    console.error("Error fetching quotes for number generation:", error);
+    // Fallback to timestamp-based number
+    return `QT-${year}-${Date.now().toString().slice(-6)}`;
+  }
+
+  if (data && data.length > 0) {
+    const lastNumber = data[0].quote_number;
+    const match = lastNumber.match(/QT-\d{4}-(\d+)/);
+    if (match) {
+      const nextNumber = (parseInt(match[1]) + 1).toString().padStart(3, "0");
+      return `QT-${year}-${nextNumber}`;
+    }
+  }
+
+  return `QT-${year}-001`;
+}
+
+export async function createQuote(quote: Omit<Quote, "id" | "quote_number" | "created_at" | "updated_at">) {
+  const quote_number = await generateQuoteNumber();
+
+  const { data, error } = await supabaseAdmin
+    .from("security_quotes")
+    .insert([
+      {
+        ...quote,
+        quote_number,
+        status: quote.status || "draft",
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateQuote(id: string, updates: Partial<Quote>) {
+  const { data, error } = await supabaseAdmin
+    .from("security_quotes")
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getQuotes(status?: string) {
+  let query = supabaseAdmin
+    .from("security_quotes")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (status) {
+    query = query.eq("status", status);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
+}
+
+export async function getQuoteById(id: string) {
+  const { data, error } = await supabaseAdmin
+    .from("security_quotes")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getQuoteByNumber(quoteNumber: string) {
+  const { data, error } = await supabaseAdmin
+    .from("security_quotes")
+    .select("*")
+    .eq("quote_number", quoteNumber)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteQuote(id: string) {
+  const { error } = await supabaseAdmin
+    .from("security_quotes")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
+
+export async function duplicateQuote(id: string) {
+  const original = await getQuoteById(id);
+  if (!original) throw new Error("Quote not found");
+
+  const { id: _id, quote_number: _qn, created_at: _ca, updated_at: _ua, ...quoteData } = original;
+
+  return createQuote({
+    ...quoteData,
+    status: "draft",
+    sent_at: undefined,
+    viewed_at: undefined,
+    accepted_at: undefined,
+  });
+}

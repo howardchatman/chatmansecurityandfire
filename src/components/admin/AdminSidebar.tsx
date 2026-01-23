@@ -52,6 +52,7 @@ const navigation = [
   {
     section: "Sales",
     items: [
+      { name: "Quote Builder", href: "/admin/quote", icon: Calculator },
       { name: "Quotes", href: "/admin/quotes", icon: FileCheck },
       { name: "Estimates", href: "/admin/estimates", icon: Calculator },
       { name: "Inventory", href: "/admin/inventory", icon: Package },
