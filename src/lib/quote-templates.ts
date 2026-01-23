@@ -66,6 +66,49 @@ export const DEFAULT_LABOR_RATE = 95;
 export const DEFAULT_MARKUP = 0.25; // 25%
 
 // ============================================
+// FIRE LANE DEFAULTS (System-Wide)
+// ============================================
+// Non-negotiable starting values for fire lane quotes
+export const FIRE_LANE_DEFAULTS = {
+  stripingPerLF: 15,
+  signInstalled: 125,
+  defaultSignQty: 2,
+  paint: "traffic-grade red with white lettering",
+  lettering: "FIRE LANE – NO PARKING",
+};
+
+// Global Fire Lane add-on (available in all templates)
+export const FIRE_LANE_ADDON = {
+  id: "fire_lane",
+  name: "Fire Lane Marking",
+  description: "Fire lane striping and signage per AHJ requirements",
+  defaultEnabled: false,
+  lineItems: [
+    {
+      category: "Site Life Safety / Fire Access",
+      name: "Fire Lane Striping",
+      description: `Traffic-grade red paint with white "${FIRE_LANE_DEFAULTS.lettering}" lettering`,
+      unit: "LF",
+      quantity: 100, // Default linear footage, user editable
+      unitPrice: FIRE_LANE_DEFAULTS.stripingPerLF,
+      taxable: true,
+      notes: "Measure actual fire lane length on site",
+    },
+    {
+      category: "Site Life Safety / Fire Access",
+      name: "Fire Lane Sign (Installed)",
+      description: "Metal fire lane sign with post, installed",
+      unit: "ea",
+      quantity: FIRE_LANE_DEFAULTS.defaultSignQty, // 2 for front-only, editable if AHJ requires more
+      unitPrice: FIRE_LANE_DEFAULTS.signInstalled,
+      markup: 0,
+      taxable: true,
+      notes: "2 signs standard for front-only fire lane; adjust quantity per AHJ requirements",
+    },
+  ],
+};
+
+// ============================================
 // TEMPLATE PRESETS
 // ============================================
 
@@ -196,6 +239,7 @@ export const TEMPLATE_PRESETS: Record<TemplateName, TemplatePreset> = {
     paymentTerms: "50% deposit due upon acceptance, balance due upon completion and inspection approval",
     warranty: "1-year parts and labor warranty on all installed equipment",
     addOns: [
+      FIRE_LANE_ADDON,
       {
         id: "cameras",
         name: "Security Cameras",
@@ -410,6 +454,7 @@ export const TEMPLATE_PRESETS: Record<TemplateName, TemplatePreset> = {
     paymentTerms: "40% deposit, 40% at rough-in, 20% upon final inspection",
     warranty: "1-year parts and labor warranty on all installed equipment",
     addOns: [
+      FIRE_LANE_ADDON,
       {
         id: "lockdown",
         name: "Lockdown Integration",
@@ -564,6 +609,7 @@ export const TEMPLATE_PRESETS: Record<TemplateName, TemplatePreset> = {
     paymentTerms: "50% deposit due upon acceptance, balance due upon completion",
     warranty: "1-year parts and labor warranty on all installed equipment",
     addOns: [
+      FIRE_LANE_ADDON,
       {
         id: "duct_smoke",
         name: "Duct Smoke Detection",
@@ -748,6 +794,7 @@ export const TEMPLATE_PRESETS: Record<TemplateName, TemplatePreset> = {
     paymentTerms: "50% deposit due upon acceptance, balance due upon completion",
     warranty: "1-year parts and labor warranty on all installed equipment",
     addOns: [
+      FIRE_LANE_ADDON,
       {
         id: "rtu_package",
         name: "RTU/Duct Smoke Package",
@@ -912,6 +959,7 @@ export const TEMPLATE_PRESETS: Record<TemplateName, TemplatePreset> = {
     paymentTerms: "50% deposit due upon acceptance, balance due upon completion",
     warranty: "1-year parts and labor warranty on all installed equipment",
     addOns: [
+      FIRE_LANE_ADDON,
       {
         id: "beam_smoke",
         name: "Beam Smoke Detection",
@@ -1084,6 +1132,7 @@ export const TEMPLATE_PRESETS: Record<TemplateName, TemplatePreset> = {
     paymentTerms: "50% deposit due upon acceptance, balance due upon completion",
     warranty: "1-year parts and labor warranty on all installed equipment",
     addOns: [
+      FIRE_LANE_ADDON,
       {
         id: "duct_smoke",
         name: "Duct Smoke Detection",
@@ -1208,6 +1257,7 @@ export const TEMPLATE_PRESETS: Record<TemplateName, TemplatePreset> = {
     paymentTerms: "Payment due upon completion of inspection",
     warranty: "N/A - Inspection service only",
     addOns: [
+      FIRE_LANE_ADDON,
       {
         id: "sprinkler_visual",
         name: "Sprinkler Visual Inspection",
