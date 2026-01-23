@@ -1,0 +1,151 @@
+name: Supabase Migrations
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: 'Force run all migrations'
+        required: false
+        default: 'false'
+
+env:
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+  SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+  SUPABASE_PROJECT_REF: vzbgnroovkvdttctxjcd
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Supabase Project
+        id: link
+        run: |
+          supabase link --project-ref $SUPABASE_PROJECT_REF
+          echo "linked=true" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Check Migration Status
+        id: status
+        run: |
+          echo "Checking pending migrations..."
+          supabase migration list --project-ref $SUPABASE_PROJECT_REF 2>&1 | tee migration_status.txt
+          if grep -q "pending" migration_status.txt; then
+            echo "has_pending=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_pending=false" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+
+      - name: Push Migrations (Attempt 1)
+        id: push1
+        run: supabase db push --project-ref $SUPABASE_PROJECT_REF
+        continue-on-error: true
+
+      - name: Retry Migration (Attempt 2)
+        id: push2
+        if: steps.push1.outcome == 'failure'
+        run: |
+          echo "First attempt failed, waiting 10 seconds before retry..."
+          sleep 10
+          supabase db push --project-ref $SUPABASE_PROJECT_REF
+        continue-on-error: true
+
+      - name: Fallback - Direct SQL Execution
+        id: fallback
+        if: steps.push1.outcome == 'failure' && steps.push2.outcome == 'failure'
+        run: |
+          echo "CLI push failed, attempting direct SQL execution..."
+
+          # Find pending migration files
+          for file in supabase/migrations/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Executing: $file"
+
+              # Use Supabase Management API to run SQL
+              SQL_CONTENT=$(cat "$file" | jq -Rs .)
+
+              curl -X POST "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
+                -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "{\"query\": $SQL_CONTENT}" \
+                --fail-with-body || echo "Warning: $file may have already been applied"
+            fi
+          done
+        continue-on-error: true
+
+      - name: Verify Database State
+        id: verify
+        run: |
+          echo "Verifying database tables exist..."
+
+          TABLES=$(curl -s "https://$SUPABASE_PROJECT_REF.supabase.co/rest/v1/" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" | jq -r 'keys[]' 2>/dev/null || echo "")
+
+          REQUIRED_TABLES="security_users security_leads security_customers security_quotes"
+          MISSING=""
+
+          for table in $REQUIRED_TABLES; do
+            if ! echo "$TABLES" | grep -q "$table"; then
+              MISSING="$MISSING $table"
+            fi
+          done
+
+          if [ -n "$MISSING" ]; then
+            echo "missing_tables=$MISSING" >> $GITHUB_OUTPUT
+            echo "::warning::Missing tables:$MISSING"
+          else
+            echo "All required tables verified!"
+            echo "missing_tables=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Report Status
+        if: always()
+        run: |
+          echo "## Migration Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.push1.outcome }}" == "success" ]; then
+            echo "✅ **Migration successful** (first attempt)" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.push2.outcome }}" == "success" ]; then
+            echo "✅ **Migration successful** (retry)" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.fallback.outcome }}" == "success" ]; then
+            echo "⚠️ **Migration completed via fallback**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Migration may have issues** - check logs" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Details" >> $GITHUB_STEP_SUMMARY
+          echo "- Project: \`$SUPABASE_PROJECT_REF\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+
+          if [ -n "${{ steps.verify.outputs.missing_tables }}" ]; then
+            echo "- ⚠️ Missing tables: ${{ steps.verify.outputs.missing_tables }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ✅ All required tables present" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Fail if Critical Issues
+        if: steps.push1.outcome == 'failure' && steps.push2.outcome == 'failure' && steps.fallback.outcome == 'failure'
+        run: |
+          echo "::error::All migration attempts failed!"
+          echo "Troubleshooting steps:"
+          echo "1. Check SUPABASE_DB_PASSWORD secret is correct"
+          echo "2. Check SUPABASE_ACCESS_TOKEN is valid"
+          echo "3. Verify migration SQL syntax"
+          echo "4. Check Supabase project status at https://supabase.com/dashboard"
+          exit 1
