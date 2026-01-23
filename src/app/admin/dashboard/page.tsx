@@ -7,8 +7,8 @@ import {
   Calendar,
   UserPlus,
   AlertTriangle,
-  TrendingUp,
-  Star,
+  ClipboardCheck,
+  Phone,
 } from "lucide-react";
 import StatCard from "@/components/admin/StatCard";
 import RecentActivity from "@/components/admin/RecentActivity";
@@ -21,39 +21,36 @@ export default function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-500 mt-1">
-          Welcome back! Here&apos;s what&apos;s happening with your business today.
+          Welcome back, Howard.
         </p>
       </div>
 
       {/* Primary KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Revenue"
-          value="$48,250"
-          change={{ value: 12, trend: "up" }}
-          icon={DollarSign}
+          title="Active Jobs"
+          value="0"
+          icon={ClipboardCheck}
           color="green"
-          subtitle="This month"
+          subtitle="In progress"
         />
         <StatCard
-          title="Active Customers"
-          value="1,284"
-          change={{ value: 8, trend: "up" }}
+          title="Customers"
+          value="0"
           icon={Users}
           color="blue"
-          subtitle="+24 this month"
+          subtitle="Total"
         />
         <StatCard
           title="Open Tickets"
-          value="23"
-          change={{ value: 5, trend: "down" }}
+          value="0"
           icon={Ticket}
           color="amber"
-          subtitle="3 emergency"
+          subtitle="Pending"
         />
         <StatCard
-          title="Scheduled Jobs"
-          value="18"
+          title="Scheduled"
+          value="0"
           icon={Calendar}
           color="red"
           subtitle="This week"
@@ -64,33 +61,31 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="New Leads"
-          value="47"
-          change={{ value: 23, trend: "up" }}
+          value="0"
           icon={UserPlus}
           color="blue"
-          subtitle="32% conversion"
+          subtitle="This month"
         />
         <StatCard
-          title="Overdue Invoices"
-          value="$12,450"
+          title="Pending Invoices"
+          value="$0"
           icon={AlertTriangle}
           color="red"
-          subtitle="8 invoices"
+          subtitle="Outstanding"
         />
         <StatCard
-          title="Tech Utilization"
-          value="78%"
-          change={{ value: 5, trend: "up" }}
-          icon={TrendingUp}
+          title="Revenue"
+          value="$0"
+          icon={DollarSign}
           color="green"
-          subtitle="Average"
+          subtitle="This month"
         />
         <StatCard
-          title="Customer Rating"
-          value="4.8"
-          icon={Star}
+          title="Calls"
+          value="0"
+          icon={Phone}
           color="amber"
-          subtitle="Based on 156 reviews"
+          subtitle="This week"
         />
       </div>
 
@@ -107,43 +102,24 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Charts Section (placeholder) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Revenue Trend</h3>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <p className="text-gray-400">Chart will be displayed here</p>
-          </div>
-        </div>
-
-        {/* Ticket Status Chart */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Ticket Status</h3>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <p className="text-gray-400">Chart will be displayed here</p>
-          </div>
-        </div>
-      </div>
-
       {/* Summary Stats Bar */}
       <div className="bg-neutral-900 rounded-xl p-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">$580K</p>
-            <p className="text-sm text-gray-400">Annual Revenue</p>
+            <p className="text-2xl font-bold text-white">$0</p>
+            <p className="text-sm text-gray-400">Total Revenue</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">1,284</p>
+            <p className="text-2xl font-bold text-white">0</p>
             <p className="text-sm text-gray-400">Total Customers</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">3,456</p>
+            <p className="text-2xl font-bold text-white">0</p>
             <p className="text-sm text-gray-400">Jobs Completed</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">99.2%</p>
-            <p className="text-sm text-gray-400">Uptime</p>
+            <p className="text-2xl font-bold text-white">0</p>
+            <p className="text-sm text-gray-400">Inspections Passed</p>
           </div>
         </div>
       </div>
