@@ -1,74 +1,51 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { Check, Star, Zap, Shield } from "lucide-react";
+import { Check, Star, Phone, AlertTriangle } from "lucide-react";
 
 const plans = [
   {
-    name: "Essential",
-    description: "Basic protection for small homes",
-    monthlyPrice: 29.99,
+    name: "Small Corrections & Service",
+    price: "$750 – $2,500",
+    subtitle: "Minor issues, fast turnaround",
     features: [
-      "24/7 Professional Monitoring",
-      "1 Control Panel",
-      "3 Door/Window Sensors",
-      "1 Motion Detector",
-      "Mobile App Access",
-      "Email & SMS Alerts",
+      "Emergency light & exit sign repairs",
+      "Batteries, devices, and small replacements",
+      "Minor fire alarm corrections",
+      "Documentation support",
     ],
-    notIncluded: [
-      "Video Surveillance",
-      "Smart Home Integration",
-      "Dedicated Support Line",
-    ],
-    cta: "Get Started",
     popular: false,
   },
   {
-    name: "Professional",
-    description: "Complete protection for families",
-    monthlyPrice: 49.99,
+    name: "Inspection Failure Resolution",
+    price: "$2,500 – $10,000+",
+    subtitle: "Most common engagement",
     features: [
-      "24/7 Professional Monitoring",
-      "1 Control Panel with Touchscreen",
-      "6 Door/Window Sensors",
-      "2 Motion Detectors",
-      "1 Indoor HD Camera",
-      "Mobile App with Live View",
-      "Smart Home Integration",
-      "Video Verification",
-      "Priority Support",
+      "Failed fire inspection corrections",
+      "Fire alarm & sprinkler deficiencies",
+      "Fire lane layout & marking",
+      "Coordination with owners & GCs",
+      "Reinspection readiness & documentation",
     ],
-    notIncluded: [],
-    cta: "Get Started",
     popular: true,
   },
   {
-    name: "Enterprise",
-    description: "Custom solutions for businesses",
-    monthlyPrice: 99.99,
+    name: "New Construction & Tenant Finish-Out",
+    price: "Quoted Per Project",
+    subtitle: "Commercial-only work",
     features: [
-      "24/7 Professional Monitoring",
-      "Multiple Control Panels",
-      "Unlimited Sensors",
-      "Access Control System",
-      "4+ HD/4K Cameras",
-      "Cloud Video Storage",
-      "Employee Management",
-      "Custom Integrations",
-      "Dedicated Account Manager",
-      "On-site Support",
+      "Fire alarm & sprinkler installs",
+      "System modifications",
+      "Final inspection support",
+      "As-builts & closeout coordination",
     ],
-    notIncluded: [],
-    cta: "Contact Sales",
     popular: false,
   },
 ];
 
 export default function Pricing() {
   return (
-    <section className="py-20 bg-neutral-50">
+    <section id="pricing" className="py-20 bg-neutral-50">
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -78,14 +55,14 @@ export default function Pricing() {
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <span className="inline-block px-4 py-1.5 bg-orange-50 border border-orange-200 rounded-full text-orange-600 text-sm font-medium mb-4">
-            Pricing Plans
+            Pricing
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Simple, Transparent Pricing
+            Project-Based Fire & Life-Safety Services
           </h2>
           <p className="text-gray-600 text-lg">
-            No hidden fees. No long-term contracts. Choose the plan that fits
-            your security needs.
+            Every building is different. Every inspection is different.
+            We price based on scope, urgency, and what it takes to get you approved.
           </p>
         </motion.div>
 
@@ -110,7 +87,7 @@ export default function Pricing() {
                   <div className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-600 rounded-full">
                     <Star className="w-4 h-4 text-white fill-white" />
                     <span className="text-sm font-medium text-white">
-                      Most Popular
+                      Most Common
                     </span>
                   </div>
                 </div>
@@ -121,87 +98,61 @@ export default function Pricing() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {plan.name}
                 </h3>
-                <p className="text-gray-500 text-sm">{plan.description}</p>
+                <p className="text-gray-500 text-sm">{plan.subtitle}</p>
               </div>
 
               {/* Price */}
-              <div className="mb-6">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-gray-900">
-                    ${plan.monthlyPrice}
-                  </span>
-                  <span className="text-gray-500">/month</span>
+              <div className="mb-8">
+                <div className="text-3xl font-bold text-gray-900">
+                  {plan.price}
                 </div>
-                <p className="text-sm text-gray-400 mt-1">
-                  + equipment (from $199)
-                </p>
               </div>
-
-              {/* CTA */}
-              <Link
-                href={
-                  plan.name === "Enterprise" ? "/contact" : "/contact?plan=" + plan.name.toLowerCase()
-                }
-                className={`block w-full text-center py-3 rounded-xl font-medium transition-colors mb-8 ${
-                  plan.popular
-                    ? "bg-orange-600 hover:bg-orange-700 text-white"
-                    : "bg-neutral-900 hover:bg-neutral-800 text-white"
-                }`}
-              >
-                {plan.cta}
-              </Link>
 
               {/* Features */}
-              <div>
-                <p className="text-sm font-medium text-gray-500 mb-4 flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
-                  What&apos;s included
-                </p>
-                <ul className="space-y-3">
-                  {plan.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex items-start gap-3 text-sm"
-                    >
-                      <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-600">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {plan.notIncluded.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-gray-100">
-                    {plan.notIncluded.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-start gap-3 text-sm text-gray-400 mb-2"
-                      >
-                        <span className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                          —
-                        </span>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <ul className="space-y-3">
+                {plan.features.map((feature) => (
+                  <li
+                    key={feature}
+                    className="flex items-start gap-3 text-sm"
+                  >
+                    <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-600">{feature}</span>
+                  </li>
+                ))}
+              </ul>
             </motion.div>
           ))}
         </div>
 
-        {/* Bottom CTA */}
+        {/* Emergency Callout */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16 text-center"
+          className="mt-16"
         >
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-orange-50 border border-orange-200 rounded-full">
-            <Zap className="w-5 h-5 text-orange-600" />
-            <span className="text-gray-600">
-              <strong className="text-gray-900">Free installation</strong> on all
-              plans this month!
-            </span>
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 md:p-12 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-orange-600 rounded-full">
+                <AlertTriangle className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+              Need it done RIGHT NOW?
+            </h3>
+            <p className="text-gray-300 mb-6 max-w-lg mx-auto">
+              Failed inspection. Fire marshal coming back. Opening delayed.
+            </p>
+            <a
+              href="tel:+18324301826"
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg rounded-full transition-colors"
+            >
+              <Phone className="w-6 h-6" />
+              CALL (832) 430-1826
+            </a>
+            <p className="text-sm text-gray-400 mt-4">
+              Emergency and time-sensitive calls are prioritized.
+            </p>
           </div>
         </motion.div>
       </div>
