@@ -13,6 +13,12 @@ export async function POST() {
       role: "admin",
     },
     {
+      email: "howardchatman@icloud.com",
+      password: "Howard1234",
+      name: "Howard Chatman",
+      role: "admin",
+    },
+    {
       email: "howardchatman@hotmail.com",
       password: "Howard1234",
       name: "Howard Chatman",
