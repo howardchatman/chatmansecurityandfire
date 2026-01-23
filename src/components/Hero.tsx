@@ -68,11 +68,11 @@ export default function Hero() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Link
-                href="/contact"
+                href="/start"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-all shadow-lg shadow-orange-500/30 group"
               >
                 <ClipboardCheck className="w-5 h-5" />
-                Request a Compliance Review
+                Start Service Request
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <a
@@ -184,10 +184,10 @@ export default function Hero() {
                 We&apos;ll review it and tell you what needs to happen next — clearly and quickly.
               </p>
               <Link
-                href="/contact"
+                href="/start"
                 className="inline-flex items-center justify-center gap-2 w-full px-6 py-4 bg-white text-orange-600 font-semibold rounded-full hover:bg-orange-50 transition-all"
               >
-                Start the Review
+                Start Service Request
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <p className="text-sm text-orange-200 mt-4 text-center">
