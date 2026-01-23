@@ -147,7 +147,7 @@ export default function InvoicesPage() {
         const isOverdue =
           new Date(invoice.dueDate) < new Date() && invoice.status !== "paid";
         return (
-          <span className={isOverdue ? "text-red-600 font-medium" : "text-gray-500"}>
+          <span className={isOverdue ? "text-orange-600 font-medium" : "text-gray-500"}>
             {new Date(invoice.dueDate).toLocaleDateString()}
           </span>
         );
@@ -167,7 +167,7 @@ export default function InvoicesPage() {
         </div>
         <Link
           href="/admin/invoices/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Invoice
@@ -188,7 +188,7 @@ export default function InvoicesPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Overdue</p>
-          <p className="text-2xl font-bold text-red-600">
+          <p className="text-2xl font-bold text-orange-600">
             ${totalOverdue.toLocaleString()}
           </p>
         </div>
@@ -211,7 +211,7 @@ export default function InvoicesPage() {
             onClick={() => setStatusFilter(filter.value)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               statusFilter === filter.value
-                ? "bg-red-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
           >

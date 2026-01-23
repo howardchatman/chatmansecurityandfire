@@ -153,7 +153,7 @@ export default function EstimatesPage() {
       render: (estimate: Estimate) => {
         const isExpired = new Date(estimate.validUntil) < new Date();
         return (
-          <span className={isExpired ? "text-red-600" : "text-gray-500"}>
+          <span className={isExpired ? "text-orange-600" : "text-gray-500"}>
             {new Date(estimate.validUntil).toLocaleDateString()}
           </span>
         );
@@ -183,7 +183,7 @@ export default function EstimatesPage() {
         </div>
         <Link
           href="/admin/estimates/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Estimate
@@ -210,7 +210,7 @@ export default function EstimatesPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Conversion Rate</p>
-          <p className="text-2xl font-bold text-red-600">
+          <p className="text-2xl font-bold text-orange-600">
             {Math.round(
               (mockEstimates.filter((e) => e.status === "accepted").length /
                 mockEstimates.filter((e) => e.status !== "draft").length) *
@@ -228,7 +228,7 @@ export default function EstimatesPage() {
             onClick={() => setStatusFilter(filter.value)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               statusFilter === filter.value
-                ? "bg-red-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
           >

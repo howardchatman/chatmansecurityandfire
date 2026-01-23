@@ -136,7 +136,7 @@ export default function RecentActivity() {
       </div>
 
       <div className="px-6 py-3 border-t border-gray-100 bg-gray-50">
-        <button className="text-sm text-red-600 hover:text-red-700 font-medium">
+        <button className="text-sm text-orange-600 hover:text-orange-700 font-medium">
           View all activity
         </button>
       </div>

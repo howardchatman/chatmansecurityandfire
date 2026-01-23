@@ -104,7 +104,7 @@ export default function PortalDashboard() {
           Your home security system is active and monitoring.
         </p>
         <div className="mt-6 flex flex-wrap gap-4">
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors">
+          <button className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg font-medium transition-colors">
             <Shield className="w-5 h-5" />
             Arm/Disarm System
           </button>
@@ -141,7 +141,7 @@ export default function PortalDashboard() {
             <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
             <a
               href="/portal/alerts"
-              className="text-sm text-red-600 hover:text-red-700 font-medium"
+              className="text-sm text-orange-600 hover:text-orange-700 font-medium"
             >
               View All
             </a>
@@ -180,7 +180,7 @@ export default function PortalDashboard() {
             </h2>
             <a
               href="/portal/support"
-              className="text-sm text-red-600 hover:text-red-700 font-medium"
+              className="text-sm text-orange-600 hover:text-orange-700 font-medium"
             >
               Request Service
             </a>
@@ -193,7 +193,7 @@ export default function PortalDashboard() {
                   className="p-4 rounded-lg border border-gray-200"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-4 h-4 text-red-600" />
+                    <Calendar className="w-4 h-4 text-orange-600" />
                     <span className="font-medium text-gray-900">
                       {service.type}
                     </span>
@@ -222,40 +222,40 @@ export default function PortalDashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <a
             href="/portal/invoices"
-            className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-colors"
+            className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-colors"
           >
-            <FileText className="w-6 h-6 text-red-600" />
+            <FileText className="w-6 h-6 text-orange-600" />
             <span className="text-sm font-medium text-gray-700">View Invoices</span>
           </a>
           <a
             href="/portal/payments"
-            className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-colors"
+            className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-colors"
           >
-            <CreditCard className="w-6 h-6 text-red-600" />
+            <CreditCard className="w-6 h-6 text-orange-600" />
             <span className="text-sm font-medium text-gray-700">Make Payment</span>
           </a>
           <a
             href="/portal/support"
-            className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-colors"
+            className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-colors"
           >
-            <Phone className="w-6 h-6 text-red-600" />
+            <Phone className="w-6 h-6 text-orange-600" />
             <span className="text-sm font-medium text-gray-700">Contact Support</span>
           </a>
           <a
             href="/portal/alerts"
-            className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-colors"
+            className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-colors"
           >
-            <Bell className="w-6 h-6 text-red-600" />
+            <Bell className="w-6 h-6 text-orange-600" />
             <span className="text-sm font-medium text-gray-700">View Alerts</span>
           </a>
         </div>
       </div>
 
       {/* Emergency Contact */}
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+      <div className="bg-orange-50 border border-orange-200 rounded-xl p-6">
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-red-100 rounded-xl">
-            <Phone className="w-6 h-6 text-red-600" />
+          <div className="p-3 bg-orange-100 rounded-xl">
+            <Phone className="w-6 h-6 text-orange-600" />
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">24/7 Emergency Support</h3>
@@ -263,11 +263,11 @@ export default function PortalDashboard() {
               For emergencies, call our monitoring center immediately.
             </p>
             <a
-              href="tel:1-800-555-1234"
-              className="inline-flex items-center gap-2 mt-3 text-red-600 hover:text-red-700 font-semibold"
+              href="tel:+18324301826"
+              className="inline-flex items-center gap-2 mt-3 text-orange-600 hover:text-orange-700 font-semibold"
             >
               <Phone className="w-4 h-4" />
-              1-800-555-1234
+              (832) 430-1826
             </a>
           </div>
         </div>

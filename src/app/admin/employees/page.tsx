@@ -121,8 +121,8 @@ export default function EmployeesPage() {
       sortable: true,
       render: (employee: Employee) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-            <span className="text-sm font-semibold text-red-600">
+          <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+            <span className="text-sm font-semibold text-orange-600">
               {employee.name
                 .split(" ")
                 .map((n) => n[0])
@@ -200,7 +200,7 @@ export default function EmployeesPage() {
         </div>
         <Link
           href="/admin/employees/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Employee
@@ -227,7 +227,7 @@ export default function EmployeesPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Total Jobs Completed</p>
-          <p className="text-2xl font-bold text-red-600">
+          <p className="text-2xl font-bold text-orange-600">
             {mockEmployees.reduce((sum, e) => sum + e.jobsCompleted, 0)}
           </p>
         </div>
@@ -241,7 +241,7 @@ export default function EmployeesPage() {
             onClick={() => setDepartmentFilter(filter.value)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               departmentFilter === filter.value
-                ? "bg-red-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
           >

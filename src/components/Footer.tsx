@@ -2,50 +2,41 @@
 
 import Link from "next/link";
 import {
-  Shield,
   Phone,
   Mail,
   MapPin,
   Facebook,
-  Twitter,
   Linkedin,
   Instagram,
 } from "lucide-react";
 
 const footerLinks = {
   services: [
-    { name: "Residential Security", href: "/services/residential" },
-    { name: "Commercial Security", href: "/services/commercial" },
+    { name: "Fire Marshal Compliance", href: "/services/fire-marshal-compliance" },
     { name: "Fire Alarm Systems", href: "/services/fire-alarm" },
-    { name: "Video Surveillance", href: "/services/surveillance" },
-    { name: "Smart Home Integration", href: "/services/smart-home" },
-    { name: "24/7 Monitoring", href: "/services/monitoring" },
+    { name: "Fire Sprinkler Systems", href: "/services/fire-sprinkler" },
+    { name: "Fire Extinguishers", href: "/services/fire-extinguishers" },
+    { name: "Emergency Lighting", href: "/services/emergency-lighting" },
+    { name: "Fire Lane Markings", href: "/services/fire-lane-marking" },
   ],
   company: [
     { name: "About Us", href: "/about" },
     { name: "Our Team", href: "/about/team" },
-    { name: "Careers", href: "/careers" },
-    { name: "News & Blog", href: "/blog" },
-    { name: "Testimonials", href: "/testimonials" },
+    { name: "Service Areas", href: "/service-areas" },
   ],
   support: [
     { name: "Contact Us", href: "/contact" },
-    { name: "Customer Portal", href: "/portal" },
-    { name: "Service Request", href: "/portal/tickets/new" },
-    { name: "FAQs", href: "/faq" },
-    { name: "System Status", href: "/status" },
+    { name: "Request Service", href: "/contact" },
+    { name: "24/7 Dispatch", href: "tel:+18324301826" },
   ],
   legal: [
     { name: "Privacy Policy", href: "/privacy" },
     { name: "Terms of Service", href: "/terms" },
-    { name: "Cookie Policy", href: "/cookies" },
-    { name: "Licensing", href: "/licensing" },
   ],
 };
 
 const socialLinks = [
   { name: "Facebook", icon: Facebook, href: "#" },
-  { name: "Twitter", icon: Twitter, href: "#" },
   { name: "LinkedIn", icon: Linkedin, href: "#" },
   { name: "Instagram", icon: Instagram, href: "#" },
 ];
@@ -55,50 +46,51 @@ export default function Footer() {
 
   return (
     <footer className="bg-neutral-950">
+      {/* Disclaimer */}
+      <div className="bg-neutral-900 border-b border-neutral-800">
+        <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <p className="text-xs text-neutral-500 text-center max-w-4xl mx-auto">
+            <strong className="text-neutral-400">Disclaimer:</strong> Final compliance requirements are determined by the Authority Having Jurisdiction (AHJ).
+            We help you interpret deficiencies and complete corrective work aligned to applicable codes and local requirements.
+          </p>
+        </div>
+      </div>
+
       {/* Main Footer */}
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
           {/* Brand & Contact */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6">
-              <div className="bg-gradient-to-br from-red-500 to-red-700 p-2.5 rounded-xl">
-                <Shield className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <span className="text-xl font-bold text-white">Security</span>
-                <span className="text-xl font-bold text-red-500">
-                  Platform
-                </span>
-              </div>
+              <img src="/logo_full.png" alt="Chatman Security and Fire" className="h-12 w-auto" />
             </Link>
 
             <p className="text-neutral-400 mb-6 max-w-sm">
-              Professional security and fire alarm solutions protecting homes
-              and businesses since 2010. Licensed, insured, and trusted by
-              thousands.
+              Built from the field — alarms, suppression, service, inspections, and real-world
+              problem-solving for commercial properties across Houston since 2009.
             </p>
 
             <div className="space-y-3">
               <a
-                href="tel:+18005551234"
+                href="tel:+18324301826"
                 className="flex items-center gap-3 text-neutral-400 hover:text-white transition-colors"
               >
-                <Phone className="w-5 h-5 text-red-500" />
-                <span>1-800-555-1234</span>
+                <Phone className="w-5 h-5 text-orange-500" />
+                <span>24/7 Service Dispatch</span>
               </a>
               <a
-                href="mailto:info@securityplatform.com"
+                href="mailto:info@chatmansecurity.com"
                 className="flex items-center gap-3 text-neutral-400 hover:text-white transition-colors"
               >
-                <Mail className="w-5 h-5 text-red-500" />
-                <span>info@securityplatform.com</span>
+                <Mail className="w-5 h-5 text-orange-500" />
+                <span>info@chatmansecurity.com</span>
               </a>
               <div className="flex items-start gap-3 text-neutral-400">
-                <MapPin className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <MapPin className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                 <span>
-                  123 Security Blvd, Suite 100
+                  Houston, TX
                   <br />
-                  Houston, TX 77001
+                  & Surrounding Areas
                 </span>
               </div>
             </div>
@@ -112,7 +104,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-neutral-400 hover:text-white transition-colors"
+                    className="text-neutral-400 hover:text-white transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -129,7 +121,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-neutral-400 hover:text-white transition-colors"
+                    className="text-neutral-400 hover:text-white transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -146,7 +138,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-neutral-400 hover:text-white transition-colors"
+                    className="text-neutral-400 hover:text-white transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -163,7 +155,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-neutral-400 hover:text-white transition-colors"
+                    className="text-neutral-400 hover:text-white transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -179,7 +171,7 @@ export default function Footer() {
         <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-neutral-400 text-sm">
-              &copy; {currentYear} Security Platform. All rights reserved.
+              &copy; {currentYear} Chatman Security and Fire. All rights reserved.
             </p>
 
             {/* Social Links */}
@@ -198,11 +190,11 @@ export default function Footer() {
 
             {/* Certifications */}
             <div className="flex items-center gap-4 text-sm text-neutral-500">
-              <span>Licensed & Insured</span>
+              <span>Licensed</span>
               <span>•</span>
-              <span>UL Listed</span>
+              <span>Commercial Specialists</span>
               <span>•</span>
-              <span>5-Star Rated</span>
+              <span>Since 2009</span>
             </div>
           </div>
         </div>

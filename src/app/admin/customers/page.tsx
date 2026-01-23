@@ -166,7 +166,7 @@ export default function CustomersPage() {
         </div>
         <Link
           href="/admin/customers/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Customer
@@ -193,7 +193,7 @@ export default function CustomersPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Monthly Revenue</p>
-          <p className="text-2xl font-bold text-red-600">
+          <p className="text-2xl font-bold text-orange-600">
             ${totalMonthlyRevenue.toLocaleString()}
           </p>
         </div>
@@ -205,7 +205,7 @@ export default function CustomersPage() {
           onClick={() => setStatusFilter("all")}
           className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
             statusFilter === "all"
-              ? "bg-red-600 text-white"
+              ? "bg-orange-600 text-white"
               : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
           }`}
         >
@@ -215,7 +215,7 @@ export default function CustomersPage() {
           onClick={() => setStatusFilter("active")}
           className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
             statusFilter === "active"
-              ? "bg-red-600 text-white"
+              ? "bg-orange-600 text-white"
               : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
           }`}
         >
@@ -225,7 +225,7 @@ export default function CustomersPage() {
           onClick={() => setStatusFilter("inactive")}
           className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
             statusFilter === "inactive"
-              ? "bg-red-600 text-white"
+              ? "bg-orange-600 text-white"
               : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
           }`}
         >

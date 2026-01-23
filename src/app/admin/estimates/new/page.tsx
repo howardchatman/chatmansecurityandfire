@@ -167,7 +167,7 @@ export default function NewEstimatePage() {
             <Save className="w-4 h-4" />
             Save Draft
           </button>
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+          <button className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
             <Send className="w-4 h-4" />
             Send to Customer
           </button>
@@ -192,7 +192,7 @@ export default function NewEstimatePage() {
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="John Smith or Company Name"
                 />
               </div>
@@ -204,7 +204,7 @@ export default function NewEstimatePage() {
                   type="email"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="email@example.com"
                 />
               </div>
@@ -216,7 +216,7 @@ export default function NewEstimatePage() {
                   type="tel"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="(555) 123-4567"
                 />
               </div>
@@ -238,7 +238,7 @@ export default function NewEstimatePage() {
                   type="text"
                   value={projectTitle}
                   onChange={(e) => setProjectTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="e.g., Residential Security System Installation"
                 />
               </div>
@@ -250,7 +250,7 @@ export default function NewEstimatePage() {
                   value={projectDescription}
                   onChange={(e) => setProjectDescription(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="Describe the scope of work..."
                 />
               </div>
@@ -266,7 +266,7 @@ export default function NewEstimatePage() {
               </div>
               <button
                 onClick={() => setShowItemPicker(!showItemPicker)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add Item
@@ -283,14 +283,14 @@ export default function NewEstimatePage() {
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="Search parts..."
                     />
                   </div>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
@@ -403,7 +403,7 @@ export default function NewEstimatePage() {
                         <td className="py-3 text-right">
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                            className="p-1 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -520,13 +520,13 @@ export default function NewEstimatePage() {
                     .toISOString()
                     .split("T")[0]
                 }
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
 
             {/* Actions */}
             <div className="mt-6 space-y-3">
-              <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+              <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
                 <Send className="w-4 h-4" />
                 Send Estimate
               </button>

@@ -116,7 +116,7 @@ const statusConfig = {
   declined: {
     label: "Declined",
     icon: XCircle,
-    color: "bg-red-100 text-red-700",
+    color: "bg-orange-100 text-orange-700",
   },
   expired: { label: "Expired", icon: Clock, color: "bg-orange-100 text-orange-700" },
 };
@@ -164,7 +164,7 @@ export default function QuotesPage() {
             Create and manage quotes for your customers
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+        <button className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
           <Plus className="w-5 h-5" />
           New Quote
         </button>
@@ -207,8 +207,8 @@ export default function QuotesPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <DollarSign className="w-5 h-5 text-red-600" />
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <DollarSign className="w-5 h-5 text-orange-600" />
             </div>
             <div>
               <p className="text-sm text-gray-500">Won Value</p>
@@ -229,13 +229,13 @@ export default function QuotesPage() {
             placeholder="Search quotes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         >
           <option value="all">All Status</option>
           <option value="draft">Draft</option>
@@ -347,10 +347,10 @@ export default function QuotesPage() {
                           <Download className="w-4 h-4 text-gray-500" />
                         </button>
                         <button
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 hover:bg-orange-50 rounded-lg transition-colors"
                           title="Delete"
                         >
-                          <Trash2 className="w-4 h-4 text-red-500" />
+                          <Trash2 className="w-4 h-4 text-orange-500" />
                         </button>
                       </div>
                     </td>

@@ -1,19 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(xargs:*)",
-      "Bash(npx create-next-app:*)",
+      "Bash(git clone:*)",
       "Bash(npm install:*)",
-      "Bash(npm run build:*)",
-      "Bash(netstat:*)",
-      "Bash(findstr:*)",
-      "Bash(PORT=3005 npm run dev:*)",
-      "Bash(dir:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(ls:*)",
-      "Bash(git push:*)",
-      "Bash(curl:*)"
+      "Bash(npm run dev:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)"
     ]
   }
 }

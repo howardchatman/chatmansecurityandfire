@@ -95,8 +95,8 @@ export default function ServicesPage() {
             className="bg-white rounded-xl border border-gray-200 p-6"
           >
             <div className="flex items-start gap-4 mb-4">
-              <div className="p-3 bg-red-100 rounded-xl">
-                <service.icon className="w-6 h-6 text-red-600" />
+              <div className="p-3 bg-orange-100 rounded-xl">
+                <service.icon className="w-6 h-6 text-orange-600" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">

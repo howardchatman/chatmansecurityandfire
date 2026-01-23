@@ -16,9 +16,9 @@ interface StatCardProps {
 
 const colorClasses = {
   red: {
-    bg: "bg-red-50",
-    icon: "text-red-600",
-    border: "border-red-100",
+    bg: "bg-orange-50",
+    icon: "text-orange-600",
+    border: "border-orange-100",
   },
   green: {
     bg: "bg-green-50",
@@ -64,7 +64,7 @@ export default function StatCard({
             {change && (
               <span
                 className={`inline-flex items-center gap-1 text-sm font-medium ${
-                  change.trend === "up" ? "text-green-600" : "text-red-600"
+                  change.trend === "up" ? "text-green-600" : "text-orange-600"
                 }`}
               >
                 {change.trend === "up" ? (

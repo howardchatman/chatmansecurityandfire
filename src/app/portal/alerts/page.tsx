@@ -155,7 +155,7 @@ export default function AlertsPage() {
             onClick={() => setFilter(type.value)}
             className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
               filter === type.value
-                ? "bg-red-100 text-red-700"
+                ? "bg-orange-100 text-orange-700"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
@@ -207,7 +207,7 @@ export default function AlertsPage() {
 
       {/* Load More */}
       <div className="text-center">
-        <button className="px-6 py-2 text-red-600 hover:text-red-700 font-medium">
+        <button className="px-6 py-2 text-orange-600 hover:text-orange-700 font-medium">
           Load More Alerts
         </button>
       </div>

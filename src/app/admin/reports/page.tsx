@@ -132,7 +132,7 @@ export default function ReportsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           >
             <option value="today">Today</option>
             <option value="this_week">This Week</option>
@@ -169,7 +169,7 @@ export default function ReportsPage() {
                 </span>
                 <span
                   className={`inline-flex items-center text-sm font-medium ${
-                    stat.trend === "up" ? "text-green-600" : "text-red-600"
+                    stat.trend === "up" ? "text-green-600" : "text-orange-600"
                   }`}
                 >
                   {stat.trend === "up" ? (
@@ -196,7 +196,7 @@ export default function ReportsPage() {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded" />
+              <div className="w-3 h-3 bg-orange-500 rounded" />
               <span className="text-sm text-gray-600">Revenue</span>
             </div>
           </div>
@@ -214,7 +214,7 @@ export default function ReportsPage() {
                   ${(data.revenue / 1000).toFixed(0)}k
                 </span>
                 <div
-                  className="w-full bg-red-500 rounded-t-lg transition-all hover:bg-red-600"
+                  className="w-full bg-orange-500 rounded-t-lg transition-all hover:bg-orange-600"
                   style={{
                     height: `${(data.revenue / maxRevenue) * 200}px`,
                   }}
@@ -240,8 +240,8 @@ export default function ReportsPage() {
                 className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group"
               >
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-red-100 rounded-xl group-hover:bg-red-200 transition-colors">
-                    <Icon className="w-6 h-6 text-red-600" />
+                  <div className="p-3 bg-orange-100 rounded-xl group-hover:bg-orange-200 transition-colors">
+                    <Icon className="w-6 h-6 text-orange-600" />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 mb-1">
@@ -256,7 +256,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <button className="text-sm text-red-600 hover:text-red-700 font-medium">
+                  <button className="text-sm text-orange-600 hover:text-orange-700 font-medium">
                     View Report
                   </button>
                   <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -325,7 +325,7 @@ export default function ReportsPage() {
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-red-500 h-2 rounded-full transition-all"
+                    className="bg-orange-500 h-2 rounded-full transition-all"
                     style={{ width: `${service.value}%` }}
                   />
                 </div>

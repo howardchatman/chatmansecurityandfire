@@ -10,12 +10,11 @@ import {
   X,
   Phone,
   ChevronDown,
-  Home,
-  Building2,
-  Flame,
-  Camera,
   Bell,
-  Smartphone,
+  Droplets,
+  FlameKindling,
+  Lightbulb,
+  PaintBucket,
   User,
   LogOut,
   LayoutDashboard,
@@ -25,48 +24,46 @@ import SignInModal from "./SignInModal";
 
 const services = [
   {
-    name: "Residential Security",
-    description: "Protect your home and family",
-    href: "/services/residential",
-    icon: Home,
-  },
-  {
-    name: "Commercial Security",
-    description: "Secure your business assets",
-    href: "/services/commercial",
-    icon: Building2,
+    name: "Fire Marshal Compliance",
+    description: "Violation corrections & reinspection",
+    href: "/services/fire-marshal-compliance",
+    icon: Shield,
   },
   {
     name: "Fire Alarm Systems",
-    description: "Early detection and response",
+    description: "Installs, repairs & testing",
     href: "/services/fire-alarm",
-    icon: Flame,
-  },
-  {
-    name: "Video Surveillance",
-    description: "24/7 monitoring solutions",
-    href: "/services/surveillance",
-    icon: Camera,
-  },
-  {
-    name: "Smart Home Integration",
-    description: "Connected home automation",
-    href: "/services/smart-home",
-    icon: Smartphone,
-  },
-  {
-    name: "24/7 Monitoring",
-    description: "Professional monitoring center",
-    href: "/services/monitoring",
     icon: Bell,
+  },
+  {
+    name: "Fire Sprinkler Systems",
+    description: "Service & modifications",
+    href: "/services/fire-sprinkler",
+    icon: Droplets,
+  },
+  {
+    name: "Fire Extinguishers",
+    description: "Sales, service & tagging",
+    href: "/services/fire-extinguishers",
+    icon: FlameKindling,
+  },
+  {
+    name: "Emergency Lighting",
+    description: "Exit signs & emergency lights",
+    href: "/services/emergency-lighting",
+    icon: Lightbulb,
+  },
+  {
+    name: "Fire Lane Markings",
+    description: "Striping & repainting",
+    href: "/services/fire-lane-marking",
+    icon: PaintBucket,
   },
 ];
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Services", href: "/services", hasDropdown: true },
-  { name: "Products", href: "/products" },
-  { name: "Pricing", href: "/pricing" },
+  { name: "Services", href: "#services", hasDropdown: true },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
@@ -115,16 +112,8 @@ export default function Navbar() {
         <nav className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                <div className="relative bg-gradient-to-br from-red-500 to-red-700 p-2.5 rounded-xl shadow-lg shadow-red-500/20">
-                  <Shield className="w-7 h-7 text-white" />
-                </div>
-              </div>
-              <div>
-                <span className="text-xl font-bold text-gray-900">Security</span>
-                <span className="text-xl font-bold text-red-600">Platform</span>
-              </div>
+            <Link href="/" className="flex items-center group">
+              <img src="/logo_full.png" alt="Chatman Security and Fire" className="h-14 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -137,7 +126,7 @@ export default function Navbar() {
                     onMouseEnter={() => setIsServicesOpen(true)}
                     onMouseLeave={() => setIsServicesOpen(false)}
                   >
-                    <button className="flex items-center gap-1 px-4 py-2 text-gray-700 hover:text-red-600 font-medium transition-colors">
+                    <button className="flex items-center gap-1 px-4 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors">
                       {item.name}
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${
@@ -162,8 +151,8 @@ export default function Navbar() {
                                 href={service.href}
                                 className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
                               >
-                                <div className="p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors">
-                                  <service.icon className="w-5 h-5 text-red-600" />
+                                <div className="p-2 bg-orange-50 rounded-lg group-hover:bg-orange-100 transition-colors">
+                                  <service.icon className="w-5 h-5 text-orange-600" />
                                 </div>
                                 <div>
                                   <div className="font-medium text-gray-900">
@@ -184,7 +173,7 @@ export default function Navbar() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="px-4 py-2 text-gray-700 hover:text-red-600 font-medium transition-colors"
+                    className="px-4 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors"
                   >
                     {item.name}
                   </Link>
@@ -195,13 +184,13 @@ export default function Navbar() {
             {/* Desktop CTA */}
             <div className="hidden lg:flex items-center gap-4">
               <a
-                href="tel:+18005551234"
-                className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+                href="tel:+18324301826"
+                className="flex items-center gap-2 text-gray-700 hover:text-orange-600 transition-colors"
               >
-                <div className="p-2 bg-red-50 rounded-full">
-                  <Phone className="w-4 h-4 text-red-600" />
+                <div className="p-2 bg-orange-50 rounded-full">
+                  <Phone className="w-4 h-4 text-orange-600" />
                 </div>
-                <span className="text-sm font-semibold">1-800-555-1234</span>
+                <span className="text-sm font-semibold">(832) 430-1826</span>
               </a>
 
               {/* User Menu or Sign In Button */}
@@ -212,7 +201,7 @@ export default function Navbar() {
                   onMouseLeave={() => setIsUserMenuOpen(false)}
                 >
                   <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
-                    <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-medium">
                         {user.email.charAt(0).toUpperCase()}
                       </span>
@@ -238,7 +227,7 @@ export default function Navbar() {
                               {user.email}
                             </p>
                             {user.role === "admin" && (
-                              <span className="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded">
+                              <span className="inline-block mt-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-medium rounded">
                                 Admin
                               </span>
                             )}
@@ -254,7 +243,7 @@ export default function Navbar() {
                           </button>
                           <button
                             onClick={handleSignOut}
-                            className="flex items-center gap-3 w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
+                            className="flex items-center gap-3 w-full px-3 py-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors text-left"
                           >
                             <LogOut className="w-4 h-4" />
                             <span className="text-sm font-medium">Sign Out</span>
@@ -278,7 +267,7 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-700 hover:text-red-600"
+              className="lg:hidden p-2 text-gray-700 hover:text-orange-600"
             >
               {isMobileMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -305,7 +294,7 @@ export default function Navbar() {
                         <div>
                           <button
                             onClick={() => setIsServicesOpen(!isServicesOpen)}
-                            className="flex items-center justify-between w-full px-4 py-3 text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
+                            className="flex items-center justify-between w-full px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                           >
                             {item.name}
                             <ChevronDown
@@ -327,9 +316,9 @@ export default function Navbar() {
                                     key={service.name}
                                     href={service.href}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                    className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-colors"
                                   >
-                                    <service.icon className="w-4 h-4 text-red-500" />
+                                    <service.icon className="w-4 h-4 text-orange-500" />
                                     {service.name}
                                   </Link>
                                 ))}
@@ -341,7 +330,7 @@ export default function Navbar() {
                         <Link
                           href={item.href}
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className="block px-4 py-3 text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
+                          className="block px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                         >
                           {item.name}
                         </Link>
@@ -351,17 +340,17 @@ export default function Navbar() {
 
                   <div className="pt-4 px-4 space-y-3 border-t border-gray-100 mt-4">
                     <a
-                      href="tel:+18005551234"
-                      className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+                      href="tel:+18324301826"
+                      className="flex items-center gap-2 text-gray-700 hover:text-orange-600 transition-colors"
                     >
                       <Phone className="w-4 h-4" />
-                      <span className="font-semibold">1-800-555-1234</span>
+                      <span className="font-semibold">(832) 430-1826</span>
                     </a>
 
                     {user ? (
                       <>
                         <div className="flex items-center gap-3 py-2">
-                          <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
+                          <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center">
                             <span className="text-white font-medium">
                               {user.email.charAt(0).toUpperCase()}
                             </span>
@@ -371,7 +360,7 @@ export default function Navbar() {
                               {user.name || user.email}
                             </p>
                             {user.role === "admin" && (
-                              <span className="text-xs text-red-600 font-medium">
+                              <span className="text-xs text-orange-600 font-medium">
                                 Admin
                               </span>
                             )}
@@ -410,7 +399,7 @@ export default function Navbar() {
                         <Link
                           href="/contact"
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className="block w-full text-center px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition-colors"
+                          className="block w-full text-center px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                         >
                           Get Free Quote
                         </Link>

@@ -55,7 +55,7 @@ export default function SupportPage() {
   const priorityConfig = {
     low: { label: "Low", color: "text-gray-600" },
     medium: { label: "Medium", color: "text-yellow-600" },
-    high: { label: "High", color: "text-red-600" },
+    high: { label: "High", color: "text-orange-600" },
   };
 
   return (
@@ -69,7 +69,7 @@ export default function SupportPage() {
         </div>
         <button
           onClick={() => setShowNewTicket(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
         >
           <Plus className="w-5 h-5" />
           New Ticket
@@ -80,17 +80,17 @@ export default function SupportPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <Phone className="w-5 h-5 text-red-600" />
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <Phone className="w-5 h-5 text-orange-600" />
             </div>
             <h3 className="font-semibold text-gray-900">Phone Support</h3>
           </div>
           <p className="text-sm text-gray-500 mb-3">24/7 emergency support line</p>
           <a
-            href="tel:1-800-555-1234"
-            className="text-red-600 hover:text-red-700 font-medium"
+            href="tel:+18324301826"
+            className="text-orange-600 hover:text-orange-700 font-medium"
           >
-            1-800-555-1234
+            (832) 430-1826
           </a>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -103,7 +103,7 @@ export default function SupportPage() {
           <p className="text-sm text-gray-500 mb-3">Response within 24 hours</p>
           <a
             href="mailto:support@securityplatform.com"
-            className="text-red-600 hover:text-red-700 font-medium"
+            className="text-orange-600 hover:text-orange-700 font-medium"
           >
             support@securityplatform.com
           </a>
@@ -116,7 +116,7 @@ export default function SupportPage() {
             <h3 className="font-semibold text-gray-900">Live Chat</h3>
           </div>
           <p className="text-sm text-gray-500 mb-3">Mon-Fri, 8am-8pm EST</p>
-          <button className="text-red-600 hover:text-red-700 font-medium">
+          <button className="text-orange-600 hover:text-orange-700 font-medium">
             Start Chat
           </button>
         </div>
@@ -144,14 +144,14 @@ export default function SupportPage() {
               <input
                 type="text"
                 placeholder="Brief description of your issue"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category
               </label>
-              <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+              <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                 <option>Equipment Issue</option>
                 <option>Billing Question</option>
                 <option>Service Request</option>
@@ -163,7 +163,7 @@ export default function SupportPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Priority
               </label>
-              <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+              <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                 <option value="low">Low - General inquiry</option>
                 <option value="medium">Medium - Issue affecting service</option>
                 <option value="high">High - Urgent issue</option>
@@ -176,13 +176,13 @@ export default function SupportPage() {
               <textarea
                 rows={4}
                 placeholder="Please provide details about your issue..."
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
               />
             </div>
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
               >
                 <Send className="w-4 h-4" />
                 Submit Ticket

@@ -98,7 +98,7 @@ export default function PortalAIAssistant() {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content:
-          "I'm having trouble connecting right now. Please try again in a moment, or call our support line at 1-800-555-1234 for immediate assistance.",
+          "I'm having trouble connecting right now. Please try again in a moment, or call our support line at (832) 430-1826 for immediate assistance.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -115,7 +115,7 @@ export default function PortalAIAssistant() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-full shadow-lg shadow-red-600/30 transition-all hover:scale-105"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-full shadow-lg shadow-orange-600/30 transition-all hover:scale-105"
       >
         <Sparkles className="w-5 h-5" />
         <span className="font-medium">Need Help?</span>
@@ -132,7 +132,7 @@ export default function PortalAIAssistant() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-gradient-to-r from-neutral-900 to-neutral-800 text-white">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center">
             <Bot className="w-5 h-5" />
           </div>
           <div>
@@ -173,7 +173,7 @@ export default function PortalAIAssistant() {
               >
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    message.role === "user" ? "bg-red-600" : "bg-neutral-800"
+                    message.role === "user" ? "bg-orange-600" : "bg-neutral-800"
                   }`}
                 >
                   {message.role === "user" ? (
@@ -190,7 +190,7 @@ export default function PortalAIAssistant() {
                   <div
                     className={`p-3 rounded-2xl ${
                       message.role === "user"
-                        ? "bg-red-600 text-white rounded-tr-md"
+                        ? "bg-orange-600 text-white rounded-tr-md"
                         : "bg-white text-gray-700 rounded-tl-md border border-gray-200"
                     }`}
                   >
@@ -214,7 +214,7 @@ export default function PortalAIAssistant() {
                   <Bot className="w-4 h-4 text-white" />
                 </div>
                 <div className="bg-white p-3 rounded-2xl rounded-tl-md border border-gray-200">
-                  <Loader2 className="w-5 h-5 text-red-600 animate-spin" />
+                  <Loader2 className="w-5 h-5 text-orange-600 animate-spin" />
                 </div>
               </div>
             )}
@@ -250,13 +250,13 @@ export default function PortalAIAssistant() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 placeholder="Ask about your security system..."
-                className="flex-1 px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                className="flex-1 px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 disabled={isLoading}
               />
               <button
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || isLoading}
-                className="p-2.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 text-white rounded-xl transition-colors"
+                className="p-2.5 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-200 disabled:text-gray-400 text-white rounded-xl transition-colors"
               >
                 <Send className="w-5 h-5" />
               </button>

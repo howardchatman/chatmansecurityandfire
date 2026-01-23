@@ -93,7 +93,7 @@ export default function PaymentsPage() {
                   onClick={() => setSelectedCard(method.id)}
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                     selectedCard === method.id
-                      ? "border-red-500 bg-red-50"
+                      ? "border-orange-500 bg-orange-50"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
@@ -121,7 +121,7 @@ export default function PaymentsPage() {
               ))}
             </div>
 
-            <button className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-red-300 hover:text-red-600 transition-colors flex items-center justify-center gap-2">
+            <button className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-orange-300 hover:text-orange-600 transition-colors flex items-center justify-center gap-2">
               <Plus className="w-5 h-5" />
               Add Payment Method
             </button>
@@ -145,7 +145,7 @@ export default function PaymentsPage() {
                 />
                 <label
                   htmlFor="autopay"
-                  className="w-11 h-6 bg-gray-200 peer-checked:bg-red-600 rounded-full cursor-pointer transition-colors relative block"
+                  className="w-11 h-6 bg-gray-200 peer-checked:bg-orange-600 rounded-full cursor-pointer transition-colors relative block"
                 >
                   <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5" />
                 </label>
@@ -211,7 +211,7 @@ export default function PaymentsPage() {
                       <td className="px-6 py-4">
                         <a
                           href={`/portal/invoices`}
-                          className="text-sm text-red-600 hover:text-red-700"
+                          className="text-sm text-orange-600 hover:text-orange-700"
                         >
                           {payment.invoice}
                         </a>

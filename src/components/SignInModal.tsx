@@ -83,7 +83,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
               {/* Form */}
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 {error && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                  <div className="flex items-center gap-2 p-3 bg-orange-50 border border-orange-200 text-orange-700 rounded-lg text-sm">
                     <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     {error}
                   </div>
@@ -101,7 +101,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       required
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                     />
                   </div>
                 </div>
@@ -119,7 +119,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                       placeholder="••••••••"
                       required
                       minLength={6}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                     />
                   </div>
                 </div>
@@ -127,7 +127,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>

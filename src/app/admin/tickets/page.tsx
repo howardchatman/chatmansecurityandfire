@@ -132,7 +132,7 @@ export default function TicketsPage() {
         <div className="flex items-center gap-1.5">
           {(ticket.priority === "emergency" || ticket.priority === "urgent") && (
             <AlertTriangle className={`w-4 h-4 ${
-              ticket.priority === "emergency" ? "text-red-500" : "text-amber-500"
+              ticket.priority === "emergency" ? "text-orange-500" : "text-amber-500"
             }`} />
           )}
           <StatusBadge status={ticket.priority} />
@@ -194,7 +194,7 @@ export default function TicketsPage() {
         </div>
         <Link
           href="/admin/tickets/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Ticket
@@ -217,7 +217,7 @@ export default function TicketsPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Emergency</p>
-          <p className="text-2xl font-bold text-red-600">
+          <p className="text-2xl font-bold text-orange-600">
             {mockTickets.filter((t) => t.priority === "emergency" && t.status !== "completed").length}
           </p>
         </div>
@@ -243,7 +243,7 @@ export default function TicketsPage() {
             onClick={() => setStatusFilter(filter.value)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               statusFilter === filter.value
-                ? "bg-red-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
           >

@@ -23,10 +23,10 @@ interface Message {
 }
 
 const quickActions = [
-  { label: "Get a Quote", action: "quote" },
-  { label: "Schedule Service", action: "schedule" },
-  { label: "Emergency Help", action: "emergency" },
-  { label: "System Status", action: "status" },
+  { label: "Failed Inspection", action: "inspection" },
+  { label: "Fire Marshal Issue", action: "marshal" },
+  { label: "Deadline This Week", action: "urgent" },
+  { label: "Schedule Service", action: "service" },
 ];
 
 export default function AIVAChat() {
@@ -36,7 +36,7 @@ export default function AIVAChat() {
     {
       id: "1",
       sender: "assistant",
-      text: "Hello! I'm AIVA, your AI security assistant. How can I help you today? I can help you get a quote, schedule service, or answer questions about our security solutions.",
+      text: "Chatman Security & Fire. This is Howard's office. You're speaking with Chad, his AI operations assistant. What's going on?",
       timestamp: new Date(),
     },
   ]);
@@ -91,11 +91,11 @@ export default function AIVAChat() {
         };
         setMessages((prev) => [...prev, assistantMessage]);
       } else {
-        // Fallback response
+        // Fallback response - Chad's intake questions
         const fallbackMessage: Message = {
           id: (Date.now() + 1).toString(),
           sender: "assistant",
-          text: "Thank you for your message! Our team will get back to you shortly. For immediate assistance, please call us at 1-800-555-1234.",
+          text: "Got it. I need a few things: property address, nature of the issue, and any deadline you're working against. I'll make sure Howard sees this.",
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, fallbackMessage]);
@@ -105,7 +105,7 @@ export default function AIVAChat() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: "assistant",
-        text: "I'm having trouble connecting right now. Please try again or call us at 1-800-555-1234 for immediate assistance.",
+        text: "Connection issue on my end. For urgent matters, call (832) 430-1826 directly — I'll be there too.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -116,10 +116,10 @@ export default function AIVAChat() {
 
   const handleQuickAction = (action: string) => {
     const actionMessages: Record<string, string> = {
-      quote: "I'd like to get a free quote for security services.",
-      schedule: "I need to schedule a service appointment.",
-      emergency: "I have an emergency and need immediate help!",
-      status: "What is the status of my security system?",
+      inspection: "I failed an inspection and need help with corrections.",
+      marshal: "I have a fire marshal issue that needs to be resolved.",
+      urgent: "I have a deadline this week I need to hit.",
+      service: "I need to schedule service on my fire safety systems.",
     };
     handleSendMessage(actionMessages[action]);
   };
@@ -131,7 +131,7 @@ export default function AIVAChat() {
     const callMessage: Message = {
       id: Date.now().toString(),
       sender: "assistant",
-      text: "Starting voice call... Please wait while I connect you with our support team. You can speak naturally and I'll assist you.",
+      text: "Connecting you now. Have your property address and inspection details ready — I'll need them.",
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, callMessage]);
@@ -142,7 +142,7 @@ export default function AIVAChat() {
     const endMessage: Message = {
       id: Date.now().toString(),
       sender: "assistant",
-      text: "Call ended. Is there anything else I can help you with?",
+      text: "Call ended. Anything else I can get in front of Howard?",
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, endMessage]);
@@ -166,10 +166,14 @@ export default function AIVAChat() {
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 p-4 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg shadow-red-600/30 transition-colors"
+            className="fixed bottom-6 right-6 z-50 p-4 bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg shadow-orange-600/30 transition-colors group"
+            title="Hey Chad!"
           >
             <MessageCircle className="w-6 h-6" />
             <span className="absolute top-0 right-0 w-3 h-3 bg-neutral-900 rounded-full animate-pulse" />
+            <span className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-neutral-900 text-white text-sm font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Hey Chad!
+            </span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -190,18 +194,18 @@ export default function AIVAChat() {
             className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-red-600 to-red-700 text-white">
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-600 to-orange-700 text-white">
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                     <Bot className="w-5 h-5" />
                   </div>
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-red-600" />
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-orange-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">AIVA Assistant</h3>
-                  <p className="text-xs text-red-100">
-                    {isOnCall ? "On Call" : "Online • 24/7 Support"}
+                  <h3 className="font-semibold">Hey Chad!</h3>
+                  <p className="text-xs text-orange-100">
+                    {isOnCall ? "On Call" : "Howard's AI Ops Assistant"}
                   </p>
                 </div>
               </div>
@@ -241,14 +245,14 @@ export default function AIVAChat() {
                       <div
                         className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                           message.sender === "user"
-                            ? "bg-red-600"
+                            ? "bg-orange-600"
                             : "bg-neutral-200"
                         }`}
                       >
                         {message.sender === "user" ? (
                           <User className="w-4 h-4 text-white" />
                         ) : (
-                          <Bot className="w-4 h-4 text-red-600" />
+                          <Bot className="w-4 h-4 text-orange-600" />
                         )}
                       </div>
                       <div
@@ -259,7 +263,7 @@ export default function AIVAChat() {
                         <div
                           className={`p-3 rounded-2xl ${
                             message.sender === "user"
-                              ? "bg-red-600 text-white rounded-tr-md"
+                              ? "bg-orange-600 text-white rounded-tr-md"
                               : "bg-white text-gray-700 rounded-tl-md border border-gray-200"
                           }`}
                         >
@@ -276,10 +280,10 @@ export default function AIVAChat() {
                   {isLoading && (
                     <div className="flex gap-3">
                       <div className="w-8 h-8 rounded-lg bg-neutral-200 flex items-center justify-center">
-                        <Bot className="w-4 h-4 text-red-600" />
+                        <Bot className="w-4 h-4 text-orange-600" />
                       </div>
                       <div className="bg-white p-3 rounded-2xl rounded-tl-md border border-gray-200">
-                        <Loader2 className="w-5 h-5 text-red-600 animate-spin" />
+                        <Loader2 className="w-5 h-5 text-orange-600 animate-spin" />
                       </div>
                     </div>
                   )}
@@ -310,7 +314,7 @@ export default function AIVAChat() {
                       onClick={isOnCall ? handleEndCall : handleStartCall}
                       className={`p-2.5 rounded-xl transition-colors ${
                         isOnCall
-                          ? "bg-red-600 hover:bg-red-500 text-white"
+                          ? "bg-orange-600 hover:bg-orange-500 text-white"
                           : "bg-neutral-100 hover:bg-neutral-200 text-neutral-500"
                       }`}
                       title={isOnCall ? "End Call" : "Start Voice Call"}
@@ -330,20 +334,20 @@ export default function AIVAChat() {
                           e.key === "Enter" && handleSendMessage()
                         }
                         placeholder="Type your message..."
-                        className="w-full px-4 py-2.5 bg-neutral-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                        className="w-full px-4 py-2.5 bg-neutral-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                         disabled={isOnCall}
                       />
                     </div>
                     <button
                       onClick={() => handleSendMessage()}
                       disabled={!inputValue.trim() || isLoading || isOnCall}
-                      className="p-2.5 bg-red-600 hover:bg-red-700 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-xl transition-colors"
+                      className="p-2.5 bg-orange-600 hover:bg-orange-700 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-xl transition-colors"
                     >
                       <Send className="w-5 h-5" />
                     </button>
                   </div>
                   <p className="text-xs text-gray-400 mt-2 text-center">
-                    Powered by AIVA Connect
+                    Chad handles intake so nothing important gets missed.
                   </p>
                 </div>
               </>

@@ -106,14 +106,10 @@ export default function AdminSidebar({
     <>
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-neutral-800">
-        <div className="flex-shrink-0 bg-gradient-to-br from-red-500 to-red-700 p-2 rounded-xl">
-          <Shield className="w-6 h-6 text-white" />
-        </div>
-        {!collapsed && (
-          <div className="flex-1 min-w-0">
-            <span className="text-white font-bold text-lg">Security</span>
-            <span className="text-red-500 font-bold text-lg">Platform</span>
-          </div>
+        {collapsed ? (
+          <img src="/logo.png" alt="Chatman" className="w-8 h-8" />
+        ) : (
+          <img src="/logo_full.png" alt="Chatman Security and Fire" className="h-10 w-auto" />
         )}
         {/* Mobile close button */}
         <button
@@ -143,12 +139,12 @@ export default function AdminSidebar({
                     onClick={onMobileClose}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                       active
-                        ? "bg-red-600/10 text-red-500 border-l-2 border-red-500 -ml-0.5"
+                        ? "bg-orange-600/10 text-orange-500 border-l-2 border-orange-500 -ml-0.5"
                         : "text-gray-400 hover:bg-neutral-800 hover:text-white"
                     }`}
                     title={collapsed ? item.name : undefined}
                   >
-                    <item.icon className={`w-5 h-5 flex-shrink-0 ${active ? "text-red-500" : ""}`} />
+                    <item.icon className={`w-5 h-5 flex-shrink-0 ${active ? "text-orange-500" : ""}`} />
                     {!collapsed && (
                       <span className="text-sm font-medium">{item.name}</span>
                     )}
@@ -167,7 +163,7 @@ export default function AdminSidebar({
           onClick={onMobileClose}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
             pathname.startsWith("/admin/settings")
-              ? "bg-red-600/10 text-red-500"
+              ? "bg-orange-600/10 text-orange-500"
               : "text-gray-400 hover:bg-neutral-800 hover:text-white"
           }`}
           title={collapsed ? "Settings" : undefined}

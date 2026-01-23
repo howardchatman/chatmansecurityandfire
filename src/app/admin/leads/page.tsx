@@ -164,7 +164,7 @@ export default function LeadsPage() {
         </div>
         <Link
           href="/admin/leads/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Lead
@@ -205,7 +205,7 @@ export default function LeadsPage() {
             onClick={() => setStatusFilter(filter.value)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               statusFilter === filter.value
-                ? "bg-red-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
           >

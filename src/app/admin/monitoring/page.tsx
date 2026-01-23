@@ -136,9 +136,9 @@ const alarmTypeConfig = {
   intrusion: {
     label: "Intrusion",
     icon: Shield,
-    color: "bg-red-500",
-    bgColor: "bg-red-50",
-    textColor: "text-red-700",
+    color: "bg-orange-500",
+    bgColor: "bg-orange-50",
+    textColor: "text-orange-700",
   },
   fire: {
     label: "Fire",
@@ -178,7 +178,7 @@ const alarmTypeConfig = {
 };
 
 const statusConfig = {
-  active: { label: "Active", color: "bg-red-100 text-red-700" },
+  active: { label: "Active", color: "bg-orange-100 text-orange-700" },
   acknowledged: { label: "Acknowledged", color: "bg-yellow-100 text-yellow-700" },
   resolved: { label: "Resolved", color: "bg-green-100 text-green-700" },
   false_alarm: { label: "False Alarm", color: "bg-gray-100 text-gray-700" },
@@ -248,15 +248,15 @@ export default function MonitoringPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg relative">
-              <Bell className="w-5 h-5 text-red-600" />
+            <div className="p-2 bg-orange-100 rounded-lg relative">
+              <Bell className="w-5 h-5 text-orange-600" />
               {activeAlarms > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse" />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full animate-pulse" />
               )}
             </div>
             <div>
               <p className="text-sm text-gray-500">Active Alarms</p>
-              <p className="text-2xl font-bold text-red-600">{activeAlarms}</p>
+              <p className="text-2xl font-bold text-orange-600">{activeAlarms}</p>
             </div>
           </div>
         </div>
@@ -304,7 +304,7 @@ export default function MonitoringPage() {
             onClick={() => setSelectedTab("alarms")}
             className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
               selectedTab === "alarms"
-                ? "border-red-500 text-red-600"
+                ? "border-orange-500 text-orange-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -314,7 +314,7 @@ export default function MonitoringPage() {
             onClick={() => setSelectedTab("systems")}
             className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
               selectedTab === "systems"
-                ? "border-red-500 text-red-600"
+                ? "border-orange-500 text-orange-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -346,7 +346,7 @@ export default function MonitoringPage() {
                   key={alarm.id}
                   className={`rounded-xl border-2 p-6 ${
                     alarm.status === "active"
-                      ? "border-red-300 bg-red-50"
+                      ? "border-orange-300 bg-orange-50"
                       : "border-yellow-300 bg-yellow-50"
                   }`}
                 >
@@ -471,7 +471,7 @@ export default function MonitoringPage() {
                       {system.status === "online" ? (
                         <Wifi className="w-5 h-5 text-green-500" />
                       ) : system.status === "offline" ? (
-                        <WifiOff className="w-5 h-5 text-red-500" />
+                        <WifiOff className="w-5 h-5 text-orange-500" />
                       ) : (
                         <AlertTriangle className="w-5 h-5 text-yellow-500" />
                       )}
@@ -480,7 +480,7 @@ export default function MonitoringPage() {
                           system.status === "online"
                             ? "text-green-700"
                             : system.status === "offline"
-                            ? "text-red-700"
+                            ? "text-orange-700"
                             : "text-yellow-700"
                         }`}
                       >
@@ -514,7 +514,7 @@ export default function MonitoringPage() {
                   </td>
                   <td className="px-6 py-4">
                     {system.activeAlarms > 0 ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
                         <Bell className="w-3 h-3" />
                         {system.activeAlarms}
                       </span>

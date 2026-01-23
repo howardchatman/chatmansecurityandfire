@@ -59,7 +59,7 @@ export default function InvoicesPage() {
     overdue: {
       label: "Overdue",
       icon: AlertTriangle,
-      color: "bg-red-100 text-red-700",
+      color: "bg-orange-100 text-orange-700",
     },
   };
 

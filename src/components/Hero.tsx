@@ -2,24 +2,23 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Shield,
-  Wifi,
-  Smartphone,
-  Camera,
-  Bell,
-  Lock,
+  Flame,
+  ClipboardCheck,
+  Phone,
+  FileCheck,
+  Wrench,
   ArrowRight,
+  CheckCircle,
 } from "lucide-react";
 
-const features = [
-  { icon: Wifi, label: "Smart Connectivity" },
-  { icon: Camera, label: "HD Surveillance" },
-  { icon: Bell, label: "Instant Alerts" },
-  { icon: Lock, label: "Access Control" },
-  { icon: Smartphone, label: "Mobile App" },
-  { icon: Shield, label: "24/7 Protection" },
+const trustPoints = [
+  "Inspection Corrections",
+  "Tenant Finish-Out",
+  "New Installs",
+  "Service & Repairs",
+  "Testing & Documentation",
 ];
 
 export default function Hero() {
@@ -29,181 +28,185 @@ export default function Hero() {
       <div className="absolute inset-0 bg-pattern opacity-50" />
 
       {/* Decorative Elements */}
-      <div className="absolute top-40 right-0 w-96 h-96 bg-red-100 rounded-full blur-3xl opacity-30" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-neutral-200 rounded-full blur-3xl opacity-30" />
+      <div className="absolute top-40 right-0 w-96 h-96 bg-orange-100 rounded-full blur-3xl opacity-30" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-200 rounded-full blur-3xl opacity-30" />
 
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center py-16 lg:py-24">
-          {/* Content */}
+        <div className="py-16 lg:py-24">
+          {/* Main Content */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="max-w-4xl mx-auto text-center"
           >
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-100 rounded-full text-red-700 text-sm font-medium mb-6"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-100 rounded-full text-orange-700 text-sm font-medium mb-6"
             >
               <Shield className="w-4 h-4" />
-              <span>Trusted by 50,000+ Customers</span>
+              <span>Licensed • Commercial Specialists • Serving Houston since 2009</span>
             </motion.div>
 
             {/* Heading */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Take Ultimate
+              Fire & Life-Safety
               <br />
-              <span className="text-gradient">Control</span> of Your
-              <br />
-              Home Security
+              <span className="text-gradient">Compliance</span> — Simplified.
             </h1>
 
             {/* Description */}
-            <p className="text-lg text-gray-600 max-w-xl mb-8">
-              Advanced smart security systems with professional monitoring,
-              video surveillance, and fire protection. Control everything
-              from your smartphone.
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              Chatman Security & Fire helps Houston-area businesses pass inspections,
+              correct violations fast, and keep fire alarm, sprinkler, and life-safety
+              systems inspection-ready year-round.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition-all shadow-lg shadow-red-500/30 group"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-all shadow-lg shadow-orange-500/30 group"
               >
-                Get Free Quote
+                <ClipboardCheck className="w-5 h-5" />
+                Request a Compliance Review
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link
-                href="/products"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-neutral-900 hover:bg-neutral-800 text-white font-semibold rounded-full transition-all"
+              <a
+                href="tel:+18324301826"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full transition-all"
               >
-                View Products
-              </Link>
+                <Phone className="w-5 h-5" />
+                Call Howard&apos;s Office
+              </a>
             </div>
 
-            {/* Feature Icons */}
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
-              {features.map((feature, index) => (
+            {/* What to Have Ready */}
+            <div className="bg-gray-100 rounded-2xl p-6 max-w-2xl mx-auto mb-12">
+              <p className="text-sm font-semibold text-gray-700 mb-3 text-center">
+                When you call, Chad will need:
+              </p>
+              <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                  Property address
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                  Inspection report (if any)
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                  Deadline date
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-3 text-center">
+                Chad&apos;s Howard&apos;s AI operations assistant — he handles intake so nothing important gets missed.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Trust Points */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="max-w-4xl mx-auto"
+          >
+            <p className="text-center text-gray-600 mb-6">
+              Trusted experience across retail, restaurants, warehouses, multi-tenant commercial,
+              and new construction. Built on real field work — not theory.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {trustPoints.map((point, index) => (
                 <motion.div
-                  key={feature.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  className="flex flex-col items-center gap-2 group"
+                  key={point}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + index * 0.1 }}
+                  className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-gray-100"
                 >
-                  <div className="w-12 h-12 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:scale-110 transition-all border border-gray-100">
-                    <feature.icon className="w-5 h-5 text-red-600" />
-                  </div>
-                  <span className="text-xs text-gray-500 text-center">
-                    {feature.label}
-                  </span>
+                  <CheckCircle className="w-4 h-4 text-orange-600" />
+                  <span className="text-sm font-medium text-gray-700">{point}</span>
                 </motion.div>
               ))}
             </div>
           </motion.div>
 
-          {/* Product Showcase */}
+          {/* Problem/Solution Section */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="mt-16 grid lg:grid-cols-2 gap-8 items-start"
           >
-            {/* Main Product Image */}
-            <div className="relative">
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-red-200 to-neutral-300 rounded-3xl blur-3xl opacity-40 scale-90" />
-
-              {/* Product Display */}
-              <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-gray-100">
-                {/* Camera/Panel Image Placeholder */}
-                <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl flex items-center justify-center relative overflow-hidden">
-                  <Image
-                    src="https://images.unsplash.com/photo-1558002038-1055907df827?w=600&h=600&fit=crop"
-                    alt="Security Camera"
-                    width={400}
-                    height={400}
-                    className="object-cover rounded-2xl"
-                  />
-
-                  {/* Overlay Stats */}
-                  <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-500">Live Status</p>
-                        <p className="font-semibold text-gray-900">All Systems Active</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                        <span className="text-sm font-medium text-green-600">Online</span>
-                      </div>
-                    </div>
-                  </div>
+            {/* Problem */}
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Flame className="w-6 h-6 text-orange-600" />
                 </div>
-
-                {/* Product Info */}
-                <div className="mt-6 text-center">
-                  <h3 className="text-xl font-bold text-gray-900">Smart Security Camera</h3>
-                  <p className="text-gray-500 mt-1">4K Ultra HD • Night Vision • AI Detection</p>
-                  <div className="mt-4 flex items-center justify-center gap-4">
-                    <span className="text-2xl font-bold text-red-600">$199</span>
-                    <span className="text-sm text-gray-400 line-through">$299</span>
-                    <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-semibold rounded-full">
-                      SAVE 33%
-                    </span>
-                  </div>
-                </div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Failed an inspection? Can&apos;t open?
+                </h2>
               </div>
+              <p className="text-gray-600 mb-6">
+                When the fire marshal flags issues, time becomes money. We step in fast,
+                identify exactly what&apos;s required, correct the deficiencies, and produce
+                documentation that holds up during reinspections.
+              </p>
+              <ul className="space-y-3">
+                {[
+                  { icon: FileCheck, text: "Fast issue diagnosis — what's wrong, what it affects, what it will take" },
+                  { icon: ClipboardCheck, text: "Clear scope & timeline so owners and GCs can move" },
+                  { icon: Shield, text: "Inspector-ready documentation to reduce back-and-forth" },
+                ].map((item) => (
+                  <li key={item.text} className="flex items-start gap-3">
+                    <item.icon className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700">{item.text}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Floating Product Cards */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-4 -left-4 bg-white rounded-2xl p-4 shadow-xl border border-gray-100"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
-                  <Bell className="w-6 h-6 text-red-600" />
+            {/* CTA Card */}
+            <div className="bg-gradient-to-br from-orange-600 to-orange-700 rounded-2xl p-8 text-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <Wrench className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Motion Sensor</p>
-                  <p className="text-sm text-gray-500">$49</p>
-                </div>
+                <h3 className="text-xl font-bold">Upload your inspection report.</h3>
               </div>
-            </motion.div>
-
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              className="absolute -bottom-4 -right-4 bg-white rounded-2xl p-4 shadow-xl border border-gray-100"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-neutral-100 rounded-xl flex items-center justify-center">
-                  <Lock className="w-6 h-6 text-neutral-700" />
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Smart Lock</p>
-                  <p className="text-sm text-gray-500">$149</p>
-                </div>
-              </div>
-            </motion.div>
+              <p className="text-orange-100 mb-6">
+                We&apos;ll review it and tell you what needs to happen next — clearly and quickly.
+              </p>
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 w-full px-6 py-4 bg-white text-orange-600 font-semibold rounded-full hover:bg-orange-50 transition-all"
+              >
+                Start the Review
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+              <p className="text-sm text-orange-200 mt-4 text-center">
+                Preferred: PDF or photos of the report + address + deadline date.
+              </p>
+            </div>
           </motion.div>
         </div>
       </div>
 
       {/* Stats Bar */}
-      <div className="bg-neutral-900 py-8">
+      <div className="bg-gray-900 py-8">
         <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: "50,000+", label: "Protected Homes" },
-              { value: "99.9%", label: "System Uptime" },
-              { value: "< 30s", label: "Response Time" },
-              { value: "4.9★", label: "Customer Rating" },
+              { value: "Since 2009", label: "Serving Houston" },
+              { value: "Commercial", label: "Specialists" },
+              { value: "24/7", label: "Service Dispatch" },
+              { value: "Licensed", label: "& Insured" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl sm:text-3xl font-bold text-white mb-1">

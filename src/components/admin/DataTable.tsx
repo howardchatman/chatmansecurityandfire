@@ -99,7 +99,7 @@ export default function DataTable<T extends { id: string }>({
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:border-red-300 transition-colors"
+              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:border-orange-300 transition-colors"
             />
           </div>
         </div>

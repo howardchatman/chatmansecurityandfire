@@ -316,10 +316,10 @@ export default function InventoryPage() {
         const isLow = item.stock <= item.minStock;
         return (
           <div className="flex items-center gap-2">
-            <span className={isLow ? "text-red-600 font-medium" : "text-gray-900"}>
+            <span className={isLow ? "text-orange-600 font-medium" : "text-gray-900"}>
               {item.stock}
             </span>
-            {isLow && <AlertTriangle className="w-4 h-4 text-red-500" />}
+            {isLow && <AlertTriangle className="w-4 h-4 text-orange-500" />}
           </div>
         );
       },
@@ -343,7 +343,7 @@ export default function InventoryPage() {
         </div>
         <Link
           href="/admin/inventory/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Item
@@ -364,7 +364,7 @@ export default function InventoryPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Low Stock</p>
-          <p className="text-2xl font-bold text-red-600">{lowStockItems.length}</p>
+          <p className="text-2xl font-bold text-orange-600">{lowStockItems.length}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Inventory Value</p>
@@ -376,12 +376,12 @@ export default function InventoryPage() {
 
       {/* Low Stock Alert */}
       {lowStockItems.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-medium text-red-800">Low Stock Alert</h3>
-              <p className="text-sm text-red-600 mt-1">
+              <h3 className="font-medium text-orange-800">Low Stock Alert</h3>
+              <p className="text-sm text-orange-600 mt-1">
                 {lowStockItems.length} items are at or below minimum stock levels:{" "}
                 {lowStockItems.map((i) => i.name).join(", ")}
               </p>
@@ -398,7 +398,7 @@ export default function InventoryPage() {
             onClick={() => setCategoryFilter(filter.value)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               categoryFilter === filter.value
-                ? "bg-red-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
           >

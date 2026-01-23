@@ -77,7 +77,7 @@ export default function Pricing() {
           viewport={{ once: true }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <span className="inline-block px-4 py-1.5 bg-red-50 border border-red-200 rounded-full text-red-600 text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-1.5 bg-orange-50 border border-orange-200 rounded-full text-orange-600 text-sm font-medium mb-4">
             Pricing Plans
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -100,14 +100,14 @@ export default function Pricing() {
               transition={{ delay: index * 0.1 }}
               className={`relative rounded-2xl ${
                 plan.popular
-                  ? "bg-white border-2 border-red-500 shadow-xl shadow-red-500/10"
+                  ? "bg-white border-2 border-orange-500 shadow-xl shadow-orange-500/10"
                   : "bg-white border border-gray-200"
               } p-8`}
             >
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="flex items-center gap-1.5 px-4 py-1.5 bg-red-600 rounded-full">
+                  <div className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-600 rounded-full">
                     <Star className="w-4 h-4 text-white fill-white" />
                     <span className="text-sm font-medium text-white">
                       Most Popular
@@ -144,7 +144,7 @@ export default function Pricing() {
                 }
                 className={`block w-full text-center py-3 rounded-xl font-medium transition-colors mb-8 ${
                   plan.popular
-                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    ? "bg-orange-600 hover:bg-orange-700 text-white"
                     : "bg-neutral-900 hover:bg-neutral-800 text-white"
                 }`}
               >
@@ -163,7 +163,7 @@ export default function Pricing() {
                       key={feature}
                       className="flex items-start gap-3 text-sm"
                     >
-                      <Check className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                      <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                       <span className="text-gray-600">{feature}</span>
                     </li>
                   ))}
@@ -196,8 +196,8 @@ export default function Pricing() {
           viewport={{ once: true }}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-red-50 border border-red-200 rounded-full">
-            <Zap className="w-5 h-5 text-red-600" />
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-orange-50 border border-orange-200 rounded-full">
+            <Zap className="w-5 h-5 text-orange-600" />
             <span className="text-gray-600">
               <strong className="text-gray-900">Free installation</strong> on all
               plans this month!

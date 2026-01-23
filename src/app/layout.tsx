@@ -9,10 +9,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Security Platform | Professional Security & Fire Alarm Solutions",
+  title: "Chatman Security & Fire | Professional Security & Fire Alarm Solutions",
   description:
-    "Comprehensive security and fire alarm solutions for residential and commercial properties. 24/7 monitoring, professional installation, and smart home integration.",
+    "Chatman Security and Fire provides comprehensive security and fire alarm solutions for residential and commercial properties. 24/7 monitoring, professional installation, and smart home integration.",
   keywords: [
+    "Chatman Security",
     "security systems",
     "fire alarm",
     "home security",
@@ -20,6 +21,10 @@ export const metadata: Metadata = {
     "alarm monitoring",
     "smart home",
   ],
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

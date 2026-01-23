@@ -65,7 +65,7 @@ export default function Testimonials() {
           viewport={{ once: true }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <span className="inline-block px-4 py-1.5 bg-red-50 border border-red-200 rounded-full text-red-600 text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-1.5 bg-orange-50 border border-orange-200 rounded-full text-orange-600 text-sm font-medium mb-4">
             Testimonials
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -89,14 +89,14 @@ export default function Testimonials() {
               className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-shadow relative"
             >
               {/* Quote Icon */}
-              <Quote className="absolute top-6 right-6 w-8 h-8 text-red-100" />
+              <Quote className="absolute top-6 right-6 w-8 h-8 text-orange-100" />
 
               {/* Rating */}
               <div className="flex gap-1 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <Star
                     key={i}
-                    className="w-4 h-4 text-red-500 fill-red-500"
+                    className="w-4 h-4 text-orange-500 fill-orange-500"
                   />
                 ))}
               </div>

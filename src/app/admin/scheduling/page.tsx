@@ -138,7 +138,7 @@ export default function SchedulingPage() {
             Manage appointments and technician schedules
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+        <button className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
           <Plus className="w-4 h-4" />
           New Appointment
         </button>
@@ -168,7 +168,7 @@ export default function SchedulingPage() {
           </div>
           <button
             onClick={goToToday}
-            className="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="px-3 py-1.5 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
           >
             Today
           </button>
@@ -245,8 +245,8 @@ export default function SchedulingPage() {
                   className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-semibold text-red-600">
+                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-semibold text-orange-600">
                         {tech.avatar}
                       </span>
                     </div>

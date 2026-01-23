@@ -103,7 +103,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-orange-500 text-white text-xs font-medium rounded-full flex items-center justify-center">
                   {unreadCount}
                 </span>
               )}
@@ -120,12 +120,12 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                     <div
                       key={notification.id}
                       className={`px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 ${
-                        notification.unread ? "bg-red-50/50" : ""
+                        notification.unread ? "bg-orange-50/50" : ""
                       }`}
                     >
                       <div className="flex items-start gap-3">
                         {notification.unread && (
-                          <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
+                          <span className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
                         )}
                         <div className={notification.unread ? "" : "ml-5"}>
                           <p className="text-sm text-gray-900">
@@ -140,7 +140,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                   ))}
                 </div>
                 <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
-                  <button className="text-sm text-red-600 hover:text-red-700 font-medium">
+                  <button className="text-sm text-orange-600 hover:text-orange-700 font-medium">
                     View all notifications
                   </button>
                 </div>
@@ -157,7 +157,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
               }}
               className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-lg"
             >
-              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-medium">JD</span>
               </div>
               <div className="hidden sm:block text-left">
@@ -180,7 +180,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                     Settings
                   </button>
                   <div className="border-t border-gray-100 my-1" />
-                  <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
+                  <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-orange-600 hover:bg-orange-50">
                     <LogOut className="w-4 h-4" />
                     Sign out
                   </button>

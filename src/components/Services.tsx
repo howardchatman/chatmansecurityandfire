@@ -3,163 +3,159 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Home,
-  Building2,
-  Flame,
-  Camera,
-  Smartphone,
+  Shield,
   Bell,
+  Droplets,
+  FlameKindling,
+  Lightbulb,
+  PaintBucket,
   ArrowRight,
 } from "lucide-react";
 
 const services = [
   {
-    icon: Home,
-    title: "Residential Security",
-    description:
-      "Complete home protection with smart sensors, cameras, and 24/7 professional monitoring.",
-    features: ["Door/Window Sensors", "Motion Detection", "Glass Break Sensors"],
-    href: "/services/residential",
-    color: "red",
-  },
-  {
-    icon: Building2,
-    title: "Commercial Security",
-    description:
-      "Enterprise-grade security solutions for businesses of all sizes with access control and video surveillance.",
-    features: ["Access Control", "Employee Management", "Asset Protection"],
-    href: "/services/commercial",
-    color: "neutral",
-  },
-  {
-    icon: Flame,
-    title: "Fire Alarm Systems",
-    description:
-      "Advanced fire detection and suppression systems with automatic emergency dispatch.",
-    features: ["Smoke Detection", "Heat Sensors", "CO2 Monitoring"],
-    href: "/services/fire-alarm",
-    color: "red",
-  },
-  {
-    icon: Camera,
-    title: "Video Surveillance",
-    description:
-      "HD cameras with AI-powered analytics, night vision, and cloud storage for complete visibility.",
-    features: ["4K Resolution", "Night Vision", "Cloud Storage"],
-    href: "/services/surveillance",
-    color: "neutral",
-  },
-  {
-    icon: Smartphone,
-    title: "Smart Home Integration",
-    description:
-      "Connect your security system with smart home devices for seamless automation and control.",
-    features: ["Voice Control", "Smart Locks", "Lighting Automation"],
-    href: "/services/smart-home",
-    color: "red",
+    icon: Shield,
+    title: "Fire Marshal Compliance & Corrections",
+    description: "Violation corrections, reinspection readiness, and problem-solving for delayed openings.",
+    features: [
+      "Failed inspection fixes",
+      "Deficiency corrections & documentation",
+      "Owner / GC coordination",
+      "Pre-walk + reinspection prep",
+    ],
+    href: "/services/fire-marshal-compliance",
   },
   {
     icon: Bell,
-    title: "24/7 Monitoring",
-    description:
-      "Professional monitoring center with rapid response times and direct police/fire dispatch.",
-    features: ["< 30s Response", "Direct Dispatch", "Video Verification"],
-    href: "/services/monitoring",
-    color: "neutral",
+    title: "Fire Alarm Systems",
+    description: "New installs, troubleshooting, repairs, and ongoing readiness for commercial buildings.",
+    features: [
+      "Device replacements & rewires",
+      "Trouble & supervisory diagnostics",
+      "Panel programming support",
+      "Testing support & records",
+    ],
+    href: "/services/fire-alarm",
+  },
+  {
+    icon: Droplets,
+    title: "Fire Sprinkler Systems",
+    description: "Service, modifications, and inspection support—especially for tenant build-outs and changes.",
+    features: [
+      "Tenant finish-out modifications",
+      "Obstruction & coverage issues",
+      "Repairs & corrective actions",
+      "Inspection coordination",
+    ],
+    href: "/services/fire-sprinkler",
+  },
+  {
+    icon: FlameKindling,
+    title: "Fire Extinguishers",
+    description: "Sales, replacements, and service to keep you covered and properly tagged.",
+    features: [
+      "Replacements & mounting",
+      "Tagging & maintenance",
+      "Compliance guidance",
+    ],
+    href: "/services/fire-extinguishers",
+  },
+  {
+    icon: Lightbulb,
+    title: "Emergency Lights & Exit Signs",
+    description: "Battery swaps, fixture replacements, and functional readiness checks.",
+    features: [
+      "Battery replacements",
+      "Fixture replacements",
+      "Operational checks",
+    ],
+    href: "/services/emergency-lighting",
+  },
+  {
+    icon: PaintBucket,
+    title: "Fire Lane Markings",
+    description: "Professional fire lane layout and repainting to meet local requirements.",
+    features: [
+      "New fire lane striping",
+      "Repaint / refresh",
+      "Coordination with site constraints",
+    ],
+    href: "/services/fire-lane-marking",
   },
 ];
 
-const colorClasses = {
-  red: {
-    bg: "bg-red-50",
-    border: "border-red-200",
-    text: "text-red-600",
-    hover: "group-hover:bg-red-100",
-    dot: "bg-red-500",
-  },
-  neutral: {
-    bg: "bg-neutral-100",
-    border: "border-neutral-300",
-    text: "text-neutral-700",
-    hover: "group-hover:bg-neutral-200",
-    dot: "bg-neutral-600",
-  },
-};
-
 export default function Services() {
   return (
-    <section className="py-20 bg-white">
+    <section id="services" className="py-20 bg-white">
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <span className="inline-block px-4 py-1.5 bg-red-50 border border-red-200 rounded-full text-red-600 text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-1.5 bg-orange-50 text-orange-700 text-sm font-semibold rounded-full mb-4">
             Our Services
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Complete Security Solutions
+            Services Built Around Outcomes
           </h2>
-          <p className="text-gray-600 text-lg">
-            From residential to commercial, we provide comprehensive security
-            and fire safety solutions tailored to your needs.
+          <p className="text-lg text-gray-600">
+            We don&apos;t just &quot;install equipment.&quot; We deliver compliance, uptime,
+            and accountability across your life-safety systems.
           </p>
         </motion.div>
 
         {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => {
-            const colors = colorClasses[service.color as keyof typeof colorClasses];
-            return (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service, index) => (
+            <motion.div
+              key={service.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="group"
+            >
+              <div className="h-full bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:border-orange-200 transition-all duration-300">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                  <service.icon className="w-7 h-7 text-white" />
+                </div>
+
+                {/* Title */}
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  {service.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-gray-600 mb-4">
+                  {service.description}
+                </p>
+
+                {/* Features */}
+                <ul className="space-y-2 mb-6">
+                  {service.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Link */}
                 <Link
                   href={service.href}
-                  className="group block h-full bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:border-gray-300 transition-all duration-300"
+                  className="inline-flex items-center gap-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors group/link"
                 >
-                  {/* Icon */}
-                  <div
-                    className={`w-14 h-14 ${colors.bg} ${colors.hover} border ${colors.border} rounded-2xl flex items-center justify-center mb-5 transition-colors`}
-                  >
-                    <service.icon className={`w-7 h-7 ${colors.text}`} />
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    {service.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4">{service.description}</p>
-
-                  {/* Features */}
-                  <ul className="space-y-2 mb-6">
-                    {service.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-center gap-2 text-sm text-gray-600"
-                      >
-                        <span className={`w-1.5 h-1.5 ${colors.dot} rounded-full`} />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Link */}
-                  <div className="flex items-center gap-2 text-sm font-medium text-red-600 group-hover:text-red-700 transition-colors mt-auto">
-                    Learn More
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
+                  Learn more
+                  <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
                 </Link>
-              </motion.div>
-            );
-          })}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

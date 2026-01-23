@@ -121,7 +121,7 @@ const priorityConfig = {
   low: { label: "Low", color: "bg-gray-100 text-gray-700" },
   medium: { label: "Medium", color: "bg-yellow-100 text-yellow-700" },
   high: { label: "High", color: "bg-orange-100 text-orange-700" },
-  emergency: { label: "Emergency", color: "bg-red-100 text-red-700" },
+  emergency: { label: "Emergency", color: "bg-orange-100 text-orange-700" },
 };
 
 const statusConfig = {
@@ -166,7 +166,7 @@ export default function WorkOrdersPage() {
             Manage and track all service work orders
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+        <button className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
           <Plus className="w-5 h-5" />
           New Work Order
         </button>
@@ -224,8 +224,8 @@ export default function WorkOrdersPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <AlertTriangle className="w-5 h-5 text-orange-600" />
             </div>
             <div>
               <p className="text-sm text-gray-500">Emergency</p>
@@ -246,13 +246,13 @@ export default function WorkOrdersPage() {
             placeholder="Search work orders..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         >
           <option value="all">All Status</option>
           <option value="pending">Pending</option>
@@ -341,7 +341,7 @@ export default function WorkOrdersPage() {
 
                 {/* Actions */}
                 <div className="flex lg:flex-col gap-2">
-                  <button className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
+                  <button className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors">
                     <Navigation className="w-4 h-4" />
                     Navigate
                   </button>
