@@ -254,13 +254,13 @@ export default function Navbar() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <button
-                  onClick={() => setIsSignInOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white font-semibold rounded-full transition-colors"
+                <a
+                  href="tel:+18324301826"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                 >
-                  <User className="w-4 h-4" />
-                  Sign In
-                </button>
+                  <Phone className="w-4 h-4" />
+                  Emergency Service
+                </a>
               )}
             </div>
 
@@ -387,21 +387,19 @@ export default function Navbar() {
                       </>
                     ) : (
                       <>
-                        <button
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            setIsSignInOpen(true);
-                          }}
-                          className="block w-full text-center px-5 py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-semibold rounded-full transition-colors"
-                        >
-                          Sign In
-                        </button>
-                        <Link
-                          href="/contact"
+                        <a
+                          href="tel:+18324301826"
                           onClick={() => setIsMobileMenuOpen(false)}
                           className="block w-full text-center px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                         >
-                          Get Free Quote
+                          Emergency Service
+                        </a>
+                        <Link
+                          href="/contact"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="block w-full text-center px-5 py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-semibold rounded-full transition-colors"
+                        >
+                          Request Review
                         </Link>
                       </>
                     )}
