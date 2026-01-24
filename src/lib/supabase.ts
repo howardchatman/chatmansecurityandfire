@@ -500,7 +500,22 @@ export async function duplicateQuote(id: string) {
 // ============================================
 
 export type UserRole = "admin" | "manager" | "technician" | "inspector";
-export type JobStatus = "pending" | "scheduled" | "in_progress" | "on_hold" | "completed" | "cancelled";
+export type JobStatus =
+  | "lead"
+  | "quoted"
+  | "approved"
+  | "pending"
+  | "scheduled"
+  | "in_progress"
+  | "awaiting_inspection"
+  | "corrections_required"
+  | "passed"
+  | "on_hold"
+  | "completed"
+  | "invoiced"
+  | "paid"
+  | "closed"
+  | "cancelled";
 export type JobType = "inspection" | "installation" | "service" | "repair" | "maintenance" | "emergency";
 export type JobPriority = "low" | "normal" | "high" | "urgent" | "emergency";
 
@@ -999,4 +1014,912 @@ export async function reactivateUser(userId: string) {
 
   if (error) throw error;
   return data as Profile;
+}
+
+// ============================================
+// JOB LIFECYCLE EXTENDED TYPES
+// ============================================
+
+export type JobLifecycleStatus =
+  | "lead"
+  | "quoted"
+  | "approved"
+  | "pending"
+  | "scheduled"
+  | "in_progress"
+  | "awaiting_inspection"
+  | "corrections_required"
+  | "passed"
+  | "on_hold"
+  | "completed"
+  | "invoiced"
+  | "paid"
+  | "closed"
+  | "cancelled";
+
+export type JobPhotoCategory =
+  | "before"
+  | "during"
+  | "after"
+  | "deficiency"
+  | "fire_lane"
+  | "panel"
+  | "rtu"
+  | "device"
+  | "issue"
+  | "general"
+  | "signature"
+  | "other";
+
+export type ChecklistType =
+  | "service"
+  | "installation"
+  | "inspection"
+  | "fire_marshal"
+  | "commissioning"
+  | "maintenance"
+  | "custom";
+
+export type ChecklistItemStatus = "pending" | "passed" | "failed" | "na";
+
+export interface ChecklistItem {
+  id: string;
+  label: string;
+  description?: string;
+  required?: boolean;
+  status: ChecklistItemStatus;
+  note?: string;
+  completed_at?: string;
+  completed_by?: string;
+}
+
+export interface JobChecklist {
+  id: string;
+  job_id: string;
+  checklist_type: ChecklistType;
+  name: string;
+  items: ChecklistItem[];
+  completed_at?: string;
+  completed_by?: string;
+  completer?: Profile;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface JobChecklistTemplate {
+  id: string;
+  checklist_type: ChecklistType;
+  name: string;
+  description?: string;
+  items: Array<{
+    id: string;
+    label: string;
+    description?: string;
+    required?: boolean;
+  }>;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type JobEventType =
+  | "created"
+  | "status_change"
+  | "assignment_added"
+  | "assignment_removed"
+  | "photo_uploaded"
+  | "note_added"
+  | "checklist_updated"
+  | "checklist_completed"
+  | "scheduled"
+  | "rescheduled"
+  | "started"
+  | "paused"
+  | "completed"
+  | "invoiced"
+  | "paid"
+  | "converted_from_quote"
+  | "custom";
+
+export interface JobEvent {
+  id: string;
+  job_id: string;
+  event_type: JobEventType;
+  payload: Record<string, unknown>;
+  created_by?: string;
+  creator?: Profile;
+  created_at?: string;
+}
+
+// Extended Job interface with lifecycle fields
+export interface JobExtended extends Job {
+  quote_id?: string;
+  contact_name?: string;
+  scope_summary?: string;
+  billing_notes?: string;
+  total_amount?: number;
+  invoiced_at?: string;
+  paid_at?: string;
+  checklists?: JobChecklist[];
+  events?: JobEvent[];
+}
+
+// ============================================
+// JOB LIFECYCLE FUNCTIONS
+// ============================================
+
+export async function getJobWithDetails(id: string): Promise<JobExtended> {
+  // Get job with relations
+  const { data: job, error: jobError } = await supabaseAdmin
+    .from("jobs")
+    .select(`
+      *,
+      team:teams(id, name),
+      creator:profiles!jobs_created_by_fkey(id, full_name, email),
+      assignments:job_assignments(
+        id,
+        role,
+        assigned_at,
+        acknowledged_at,
+        user:profiles(id, full_name, email, phone)
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (jobError) throw jobError;
+
+  // Get checklists
+  const { data: checklists } = await supabaseAdmin
+    .from("job_checklists")
+    .select(`
+      *,
+      completer:profiles!job_checklists_completed_by_fkey(id, full_name)
+    `)
+    .eq("job_id", id)
+    .order("created_at", { ascending: true });
+
+  // Get events
+  const { data: events } = await supabaseAdmin
+    .from("job_events")
+    .select(`
+      *,
+      creator:profiles!job_events_created_by_fkey(id, full_name)
+    `)
+    .eq("job_id", id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  return {
+    ...job,
+    checklists: checklists || [],
+    events: events || [],
+  } as JobExtended;
+}
+
+export async function convertQuoteToJob(quoteId: string, userId: string): Promise<Job> {
+  // Get the quote
+  const quote = await getQuoteById(quoteId);
+  if (!quote) throw new Error("Quote not found");
+
+  // Build scope summary from line items
+  const scopeSummary = quote.line_items
+    .map((item: { name: string; quantity: number; unit: string }) => `${item.quantity} ${item.unit} - ${item.name}`)
+    .join("\n");
+
+  // Create the job
+  const { data, error } = await supabaseAdmin
+    .from("jobs")
+    .insert([{
+      quote_id: quoteId,
+      customer_name: quote.customer.name,
+      contact_name: quote.customer.name,
+      customer_email: quote.customer.email,
+      customer_phone: quote.customer.phone,
+      site_address: quote.site.address,
+      site_city: quote.site.city,
+      site_state: quote.site.state || "TX",
+      site_zip: quote.site.zip,
+      job_type: quote.quote_type === "service_repair" ? "service" : "installation",
+      priority: "normal",
+      status: "approved",
+      description: quote.site.notes || "",
+      scope_summary: scopeSummary,
+      total_amount: quote.totals.total,
+      notes: `Converted from Quote ${quote.quote_number}`,
+      created_by: userId,
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  // Log the conversion event
+  await createJobEvent({
+    job_id: data.id,
+    event_type: "converted_from_quote",
+    payload: {
+      quote_id: quoteId,
+      quote_number: quote.quote_number,
+      total_amount: quote.totals.total,
+    },
+    created_by: userId,
+  });
+
+  // Update quote status
+  await updateQuote(quoteId, { status: "accepted" });
+
+  return data as Job;
+}
+
+export async function updateJobStatus(
+  jobId: string,
+  newStatus: JobLifecycleStatus,
+  notes?: string
+): Promise<Job> {
+  const updates: Partial<Job> = { status: newStatus as JobStatus };
+
+  // Set timestamps based on status
+  if (newStatus === "in_progress") {
+    updates.actual_start_time = new Date().toISOString();
+  } else if (newStatus === "completed" || newStatus === "passed") {
+    updates.actual_end_time = new Date().toISOString();
+    updates.completed_at = new Date().toISOString();
+    if (notes) updates.completion_notes = notes;
+  } else if (newStatus === "invoiced") {
+    // @ts-expect-error - extended field
+    updates.invoiced_at = new Date().toISOString();
+  } else if (newStatus === "paid") {
+    // @ts-expect-error - extended field
+    updates.paid_at = new Date().toISOString();
+  }
+
+  return updateJob(jobId, updates);
+}
+
+// ============================================
+// JOB CHECKLIST FUNCTIONS
+// ============================================
+
+export async function getJobChecklistTemplates(checklistType?: ChecklistType) {
+  let query = supabaseAdmin
+    .from("job_checklist_templates")
+    .select("*")
+    .eq("is_active", true)
+    .order("name");
+
+  if (checklistType) {
+    query = query.eq("checklist_type", checklistType);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as JobChecklistTemplate[];
+}
+
+export async function addChecklistToJob(
+  jobId: string,
+  templateId: string
+): Promise<JobChecklist> {
+  // Get the template
+  const { data: template, error: templateError } = await supabaseAdmin
+    .from("job_checklist_templates")
+    .select("*")
+    .eq("id", templateId)
+    .single();
+
+  if (templateError) throw templateError;
+
+  // Convert template items to checklist items with status
+  const items = template.items.map((item: { id: string; label: string; description?: string; required?: boolean }) => ({
+    ...item,
+    status: "pending",
+    note: "",
+  }));
+
+  // Create the checklist
+  const { data, error } = await supabaseAdmin
+    .from("job_checklists")
+    .insert([{
+      job_id: jobId,
+      checklist_type: template.checklist_type,
+      name: template.name,
+      items,
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as JobChecklist;
+}
+
+export async function getJobChecklists(jobId: string): Promise<JobChecklist[]> {
+  const { data, error } = await supabaseAdmin
+    .from("job_checklists")
+    .select(`
+      *,
+      completer:profiles!job_checklists_completed_by_fkey(id, full_name)
+    `)
+    .eq("job_id", jobId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return data as JobChecklist[];
+}
+
+export async function updateJobChecklist(
+  checklistId: string,
+  items: ChecklistItem[],
+  userId?: string
+): Promise<JobChecklist> {
+  // Check if all required items are complete
+  const allComplete = items.every(
+    (item) => !item.required || item.status !== "pending"
+  );
+
+  const updates: Partial<JobChecklist> = { items };
+
+  if (allComplete && items.every((item) => item.status !== "pending")) {
+    updates.completed_at = new Date().toISOString();
+    updates.completed_by = userId;
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("job_checklists")
+    .update(updates)
+    .eq("id", checklistId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as JobChecklist;
+}
+
+export async function deleteJobChecklist(checklistId: string): Promise<boolean> {
+  const { error } = await supabaseAdmin
+    .from("job_checklists")
+    .delete()
+    .eq("id", checklistId);
+
+  if (error) throw error;
+  return true;
+}
+
+// ============================================
+// JOB EVENT FUNCTIONS
+// ============================================
+
+export async function getJobEvents(
+  jobId: string,
+  limit: number = 50
+): Promise<JobEvent[]> {
+  const { data, error } = await supabaseAdmin
+    .from("job_events")
+    .select(`
+      *,
+      creator:profiles!job_events_created_by_fkey(id, full_name)
+    `)
+    .eq("job_id", jobId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data as JobEvent[];
+}
+
+export async function createJobEvent(event: Omit<JobEvent, "id" | "created_at">): Promise<JobEvent> {
+  const { data, error } = await supabaseAdmin
+    .from("job_events")
+    .insert([event])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as JobEvent;
+}
+
+// ============================================
+// INSPECTION & DEFICIENCY TYPES
+// ============================================
+
+export type InspectionType = "fire_alarm" | "sprinkler_monitoring" | "reinspection" | "fire_marshal_pre";
+export type InspectionStatus = "scheduled" | "in_progress" | "completed" | "cancelled";
+export type DeficiencySeverity = "minor" | "major" | "critical";
+export type DeficiencyStatus = "open" | "quoted" | "approved" | "in_progress" | "completed";
+export type DeficiencyCategory =
+  | "emergency_lighting"
+  | "duct_smoke"
+  | "fire_lane"
+  | "panel_trouble"
+  | "monitoring"
+  | "smoke_detector"
+  | "heat_detector"
+  | "pull_station"
+  | "horn_strobe"
+  | "sprinkler_head"
+  | "valve"
+  | "signage"
+  | "documentation"
+  | "other";
+
+export interface Inspection {
+  id: string;
+  inspection_number?: string;
+  customer_id?: string;
+  customer_name: string;
+  site_address: string;
+  site_city?: string;
+  site_state?: string;
+  site_zip?: string;
+  contact_name?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  inspection_type: InspectionType;
+  inspector_id?: string;
+  inspector?: Profile;
+  scheduled_date?: string;
+  scheduled_time?: string;
+  duration_minutes?: number;
+  actual_start_time?: string;
+  actual_end_time?: string;
+  status: InspectionStatus;
+  passed?: boolean;
+  pass_with_deficiencies?: boolean;
+  notes?: string;
+  internal_notes?: string;
+  fire_marshal_notes?: string;
+  checklist_results?: ChecklistResult[];
+  job_id?: string;
+  quote_id?: string;
+  created_by?: string;
+  creator?: Profile;
+  deficiencies?: Deficiency[];
+  photos?: InspectionPhoto[];
+  customer?: Customer;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ChecklistResult {
+  id: string;
+  item: string;
+  category: string;
+  passed: boolean | null;
+  notes?: string;
+  photo_id?: string;
+}
+
+export interface Deficiency {
+  id: string;
+  inspection_id: string;
+  category: DeficiencyCategory;
+  location?: string;
+  description: string;
+  severity: DeficiencySeverity;
+  recommended_action?: string;
+  code_reference?: string;
+  estimated_cost_low?: number;
+  estimated_cost_high?: number;
+  actual_cost?: number;
+  status: DeficiencyStatus;
+  quoted_at?: string;
+  approved_at?: string;
+  completed_at?: string;
+  quote_id?: string;
+  quote_line_item_id?: string;
+  created_by?: string;
+  creator?: Profile;
+  photos?: InspectionPhoto[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface InspectionPhoto {
+  id: string;
+  inspection_id: string;
+  deficiency_id?: string;
+  photo_url: string;
+  thumbnail_url?: string;
+  caption?: string;
+  photo_type: "general" | "deficiency" | "before" | "after" | "panel" | "device";
+  location?: string;
+  device_tag?: string;
+  uploaded_by?: string;
+  uploader?: Profile;
+  taken_at?: string;
+  created_at?: string;
+}
+
+export interface InspectionChecklistItem {
+  id: string;
+  category: string;
+  item: string;
+  description?: string;
+  required: boolean;
+}
+
+export interface InspectionChecklist {
+  id: string;
+  inspection_type: InspectionType;
+  name: string;
+  description?: string;
+  items: InspectionChecklistItem[];
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// ============================================
+// INSPECTION FUNCTIONS
+// ============================================
+
+export async function getInspections(filters?: {
+  status?: InspectionStatus;
+  inspection_type?: InspectionType;
+  inspector_id?: string;
+  customer_id?: string;
+  scheduled_date?: string;
+}) {
+  let query = supabaseAdmin
+    .from("inspections")
+    .select(`
+      *,
+      inspector:profiles!inspections_inspector_id_fkey(id, full_name, email, phone),
+      creator:profiles!inspections_created_by_fkey(id, full_name),
+      customer:security_customers(id, name, email, phone)
+    `)
+    .order("scheduled_date", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false });
+
+  if (filters?.status) {
+    query = query.eq("status", filters.status);
+  }
+  if (filters?.inspection_type) {
+    query = query.eq("inspection_type", filters.inspection_type);
+  }
+  if (filters?.inspector_id) {
+    query = query.eq("inspector_id", filters.inspector_id);
+  }
+  if (filters?.customer_id) {
+    query = query.eq("customer_id", filters.customer_id);
+  }
+  if (filters?.scheduled_date) {
+    query = query.eq("scheduled_date", filters.scheduled_date);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as Inspection[];
+}
+
+export async function getInspectionById(id: string) {
+  const { data, error } = await supabaseAdmin
+    .from("inspections")
+    .select(`
+      *,
+      inspector:profiles!inspections_inspector_id_fkey(id, full_name, email, phone),
+      creator:profiles!inspections_created_by_fkey(id, full_name, email),
+      customer:security_customers(id, name, email, phone, address, city, state, zip)
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data as Inspection;
+}
+
+export async function getInspectionWithDetails(id: string) {
+  // Get inspection
+  const inspection = await getInspectionById(id);
+
+  // Get deficiencies
+  const deficiencies = await getDeficienciesByInspection(id);
+
+  // Get photos
+  const photos = await getInspectionPhotos(id);
+
+  return {
+    ...inspection,
+    deficiencies,
+    photos,
+  } as Inspection;
+}
+
+export async function createInspection(inspection: Omit<Inspection, "id" | "inspection_number" | "created_at" | "updated_at">) {
+  const { data, error } = await supabaseAdmin
+    .from("inspections")
+    .insert([{
+      ...inspection,
+      status: inspection.status || "scheduled",
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Inspection;
+}
+
+export async function updateInspection(id: string, updates: Partial<Inspection>) {
+  const { data, error } = await supabaseAdmin
+    .from("inspections")
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Inspection;
+}
+
+export async function deleteInspection(id: string) {
+  const { error } = await supabaseAdmin
+    .from("inspections")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
+
+// ============================================
+// DEFICIENCY FUNCTIONS
+// ============================================
+
+export async function getDeficienciesByInspection(inspectionId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("deficiencies")
+    .select(`
+      *,
+      creator:profiles!deficiencies_created_by_fkey(id, full_name)
+    `)
+    .eq("inspection_id", inspectionId)
+    .order("severity", { ascending: false })
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return data as Deficiency[];
+}
+
+export async function getDeficiencyById(id: string) {
+  const { data, error } = await supabaseAdmin
+    .from("deficiencies")
+    .select(`
+      *,
+      creator:profiles!deficiencies_created_by_fkey(id, full_name)
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data as Deficiency;
+}
+
+export async function getOpenDeficiencies(customerId?: string) {
+  let query = supabaseAdmin
+    .from("deficiencies")
+    .select(`
+      *,
+      inspection:inspections(
+        id,
+        inspection_number,
+        customer_id,
+        customer_name,
+        site_address
+      )
+    `)
+    .in("status", ["open", "quoted", "approved", "in_progress"])
+    .order("severity", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (customerId) {
+    query = query.eq("inspection.customer_id", customerId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as (Deficiency & { inspection: Partial<Inspection> })[];
+}
+
+export async function createDeficiency(deficiency: Omit<Deficiency, "id" | "created_at" | "updated_at">) {
+  const { data, error } = await supabaseAdmin
+    .from("deficiencies")
+    .insert([{
+      ...deficiency,
+      status: deficiency.status || "open",
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Deficiency;
+}
+
+export async function updateDeficiency(id: string, updates: Partial<Deficiency>) {
+  const updateData: Partial<Deficiency> & { updated_at: string } = {
+    ...updates,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Set timestamp fields based on status changes
+  if (updates.status === "quoted" && !updates.quoted_at) {
+    updateData.quoted_at = new Date().toISOString();
+  }
+  if (updates.status === "approved" && !updates.approved_at) {
+    updateData.approved_at = new Date().toISOString();
+  }
+  if (updates.status === "completed" && !updates.completed_at) {
+    updateData.completed_at = new Date().toISOString();
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("deficiencies")
+    .update(updateData)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Deficiency;
+}
+
+export async function deleteDeficiency(id: string) {
+  const { error } = await supabaseAdmin
+    .from("deficiencies")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
+
+// Link deficiencies to a quote
+export async function linkDeficienciesToQuote(deficiencyIds: string[], quoteId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("deficiencies")
+    .update({
+      quote_id: quoteId,
+      status: "quoted",
+      quoted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .in("id", deficiencyIds)
+    .select();
+
+  if (error) throw error;
+  return data as Deficiency[];
+}
+
+// ============================================
+// INSPECTION PHOTO FUNCTIONS
+// ============================================
+
+export async function getInspectionPhotos(inspectionId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("inspection_photos")
+    .select(`
+      *,
+      uploader:profiles!inspection_photos_uploaded_by_fkey(id, full_name)
+    `)
+    .eq("inspection_id", inspectionId)
+    .order("taken_at", { ascending: false });
+
+  if (error) throw error;
+  return data as InspectionPhoto[];
+}
+
+export async function getDeficiencyPhotos(deficiencyId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("inspection_photos")
+    .select(`
+      *,
+      uploader:profiles!inspection_photos_uploaded_by_fkey(id, full_name)
+    `)
+    .eq("deficiency_id", deficiencyId)
+    .order("taken_at", { ascending: false });
+
+  if (error) throw error;
+  return data as InspectionPhoto[];
+}
+
+export async function addInspectionPhoto(photo: Omit<InspectionPhoto, "id" | "created_at">) {
+  const { data, error } = await supabaseAdmin
+    .from("inspection_photos")
+    .insert([photo])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as InspectionPhoto;
+}
+
+export async function updateInspectionPhoto(id: string, updates: Partial<InspectionPhoto>) {
+  const { data, error } = await supabaseAdmin
+    .from("inspection_photos")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as InspectionPhoto;
+}
+
+export async function deleteInspectionPhoto(id: string) {
+  const { error } = await supabaseAdmin
+    .from("inspection_photos")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
+
+// ============================================
+// INSPECTION CHECKLIST FUNCTIONS
+// ============================================
+
+export async function getInspectionChecklists(inspectionType?: InspectionType) {
+  let query = supabaseAdmin
+    .from("inspection_checklists")
+    .select("*")
+    .eq("is_active", true)
+    .order("name");
+
+  if (inspectionType) {
+    query = query.eq("inspection_type", inspectionType);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as InspectionChecklist[];
+}
+
+export async function getInspectionChecklistById(id: string) {
+  const { data, error } = await supabaseAdmin
+    .from("inspection_checklists")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data as InspectionChecklist;
+}
+
+// ============================================
+// ASSIGNED INSPECTIONS (for Tech Portal)
+// ============================================
+
+export async function getAssignedInspections(inspectorId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("inspections")
+    .select(`
+      *,
+      customer:security_customers(id, name, email, phone)
+    `)
+    .eq("inspector_id", inspectorId)
+    .in("status", ["scheduled", "in_progress"])
+    .order("scheduled_date", { ascending: true })
+    .order("scheduled_time", { ascending: true, nullsFirst: false });
+
+  if (error) throw error;
+  return data as Inspection[];
+}
+
+export async function getCompletedInspections(inspectorId: string, limit: number = 20) {
+  const { data, error } = await supabaseAdmin
+    .from("inspections")
+    .select(`
+      *,
+      customer:security_customers(id, name, email, phone)
+    `)
+    .eq("inspector_id", inspectorId)
+    .eq("status", "completed")
+    .order("actual_end_time", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data as Inspection[];
 }

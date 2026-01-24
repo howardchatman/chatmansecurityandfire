@@ -76,11 +76,39 @@ const jobTypeLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
+  lead: "bg-slate-100 text-slate-700",
+  quoted: "bg-indigo-100 text-indigo-700",
+  approved: "bg-emerald-100 text-emerald-700",
   pending: "bg-gray-100 text-gray-700",
   scheduled: "bg-blue-100 text-blue-700",
   in_progress: "bg-orange-100 text-orange-700",
+  awaiting_inspection: "bg-cyan-100 text-cyan-700",
+  corrections_required: "bg-rose-100 text-rose-700",
+  passed: "bg-teal-100 text-teal-700",
   completed: "bg-green-100 text-green-700",
+  invoiced: "bg-violet-100 text-violet-700",
+  paid: "bg-green-100 text-green-700",
+  closed: "bg-gray-100 text-gray-700",
   on_hold: "bg-yellow-100 text-yellow-700",
+  cancelled: "bg-gray-100 text-gray-500",
+};
+
+const statusLabels: Record<string, string> = {
+  lead: "Lead",
+  quoted: "Quoted",
+  approved: "Approved",
+  pending: "Pending",
+  scheduled: "Scheduled",
+  in_progress: "In Progress",
+  awaiting_inspection: "Awaiting Inspection",
+  corrections_required: "Corrections Required",
+  passed: "Passed",
+  completed: "Completed",
+  invoiced: "Invoiced",
+  paid: "Paid",
+  closed: "Closed",
+  on_hold: "On Hold",
+  cancelled: "Cancelled",
 };
 
 export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -272,8 +300,8 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="text-sm font-mono text-gray-500">{job.job_number}</span>
-            <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[job.status]}`}>
-              {job.status.replace("_", " ")}
+            <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[job.status] || "bg-gray-100 text-gray-700"}`}>
+              {statusLabels[job.status] || job.status.replace("_", " ")}
             </span>
           </div>
           <h1 className="text-xl font-bold text-gray-900">{job.customer_name}</h1>

@@ -6,6 +6,7 @@ import {
   assignUserToJob,
   removeJobAssignment,
   getProfiles,
+  JobStatus,
 } from "@/lib/supabase";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
@@ -42,13 +43,13 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status") as "pending" | "scheduled" | "in_progress" | "on_hold" | "completed" | "cancelled" | null;
+    const status = searchParams.get("status") as JobStatus | null;
     const team_id = searchParams.get("team_id");
     const scheduled_date = searchParams.get("scheduled_date");
 
     // Build filters based on role
     const filters: {
-      status?: "pending" | "scheduled" | "in_progress" | "on_hold" | "completed" | "cancelled";
+      status?: JobStatus;
       team_id?: string;
       scheduled_date?: string;
     } = {};

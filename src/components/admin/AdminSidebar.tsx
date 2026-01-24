@@ -64,7 +64,8 @@ const navigation = [
     section: "Operations",
     items: [
       { name: "Jobs", href: "/admin/jobs", icon: Briefcase },
-      { name: "Work Orders", href: "/admin/work-orders", icon: ClipboardList },
+      { name: "Inspections", href: "/admin/inspections", icon: ClipboardList },
+      { name: "Work Orders", href: "/admin/work-orders", icon: FileCheck },
       { name: "Tickets", href: "/admin/tickets", icon: Ticket },
       { name: "Schedule", href: "/admin/scheduling", icon: Calendar },
     ],
@@ -112,9 +113,9 @@ export default function AdminSidebar({
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-neutral-800">
         {collapsed ? (
-          <img src="/logo.png" alt="Chatman" className="w-8 h-8" />
+          <img src="/logo_only.png" alt="Chatman" className="w-8 h-8" />
         ) : (
-          <img src="/logo_full.png" alt="Chatman Security and Fire" className="h-10 w-auto" />
+          <img src="/csf_wide_logo.png" alt="Chatman Security and Fire" className="h-10 w-auto" />
         )}
         {/* Mobile close button */}
         <button

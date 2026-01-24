@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Plus,
   MoreHorizontal,
@@ -11,8 +12,13 @@ import {
   X,
   Loader2,
   AlertCircle,
-  Filter,
   Search,
+  FileText,
+  ArrowRight,
+  DollarSign,
+  CheckCircle,
+  AlertTriangle,
+  ClipboardList,
 } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
 
@@ -50,6 +56,8 @@ interface Job {
   scheduled_time_end?: string;
   estimated_duration_hours?: number;
   description?: string;
+  total_amount?: number;
+  quote_id?: string;
   team?: Team;
   assignments?: JobAssignment[];
   created_at: string;
@@ -72,13 +80,65 @@ const priorityColors: Record<string, string> = {
   emergency: "bg-red-100 text-red-700",
 };
 
-const statusFilters = [
-  { label: "All", value: "all" },
-  { label: "Pending", value: "pending" },
-  { label: "Scheduled", value: "scheduled" },
-  { label: "In Progress", value: "in_progress" },
-  { label: "Completed", value: "completed" },
-  { label: "On Hold", value: "on_hold" },
+// Full lifecycle status filters grouped by phase
+const statusGroups = [
+  {
+    label: "All",
+    statuses: ["all"],
+  },
+  {
+    label: "Pre-Work",
+    statuses: ["lead", "quoted", "approved", "pending", "scheduled"],
+  },
+  {
+    label: "In Field",
+    statuses: ["in_progress", "awaiting_inspection", "corrections_required", "passed"],
+  },
+  {
+    label: "Post-Work",
+    statuses: ["completed", "invoiced", "paid", "closed"],
+  },
+  {
+    label: "Other",
+    statuses: ["on_hold", "cancelled"],
+  },
+];
+
+const statusLabels: Record<string, string> = {
+  all: "All",
+  lead: "Lead",
+  quoted: "Quoted",
+  approved: "Approved",
+  pending: "Pending",
+  scheduled: "Scheduled",
+  in_progress: "In Progress",
+  awaiting_inspection: "Awaiting Inspection",
+  corrections_required: "Corrections Required",
+  passed: "Passed",
+  completed: "Completed",
+  invoiced: "Invoiced",
+  paid: "Paid",
+  closed: "Closed",
+  on_hold: "On Hold",
+  cancelled: "Cancelled",
+};
+
+const allLifecycleStatuses = [
+  "lead",
+  "quoted",
+  "approved",
+  "pending",
+  "scheduled",
+  "in_progress",
+  "awaiting_inspection",
+  "corrections_required",
+  "passed",
+  "on_hold",
+  "completed",
+  "invoiced",
+  "paid",
+  "closed",
+  "cancelled",
 ];
 
 export default function JobsPage() {
@@ -89,7 +149,7 @@ export default function JobsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
   // Create form state
   const [jobForm, setJobForm] = useState({
@@ -248,6 +308,15 @@ export default function JobsPage() {
     return `${h12}:${minutes} ${ampm}`;
   };
 
+  // Calculate stats
+  const stats = {
+    total: jobs.length,
+    preWork: jobs.filter((j) => ["lead", "quoted", "approved", "pending", "scheduled"].includes(j.status)).length,
+    inField: jobs.filter((j) => ["in_progress", "awaiting_inspection", "corrections_required", "passed"].includes(j.status)).length,
+    postWork: jobs.filter((j) => ["completed", "invoiced", "paid", "closed"].includes(j.status)).length,
+    needsAttention: jobs.filter((j) => ["corrections_required", "on_hold"].includes(j.status)).length,
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -263,47 +332,64 @@ export default function JobsPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Jobs</h1>
           <p className="text-gray-500 mt-1">
-            Create jobs, assign technicians, and track progress
+            Manage work orders through their full lifecycle
           </p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Create Job
-        </button>
+        <div className="flex gap-2">
+          <Link
+            href="/admin/quotes"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            Convert Quote
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create Job
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Total Jobs</p>
-          <p className="text-2xl font-bold text-gray-900">{jobs.length}</p>
+          <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
+            <ClipboardList className="w-4 h-4" />
+            Total Jobs
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Pending</p>
-          <p className="text-2xl font-bold text-yellow-600">
-            {jobs.filter((j) => j.status === "pending").length}
-          </p>
+          <div className="flex items-center gap-2 text-blue-600 text-sm mb-1">
+            <Calendar className="w-4 h-4" />
+            Pre-Work
+          </div>
+          <p className="text-2xl font-bold text-blue-600">{stats.preWork}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Scheduled</p>
-          <p className="text-2xl font-bold text-blue-600">
-            {jobs.filter((j) => j.status === "scheduled").length}
-          </p>
+          <div className="flex items-center gap-2 text-orange-600 text-sm mb-1">
+            <Clock className="w-4 h-4" />
+            In Field
+          </div>
+          <p className="text-2xl font-bold text-orange-600">{stats.inField}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">In Progress</p>
-          <p className="text-2xl font-bold text-orange-600">
-            {jobs.filter((j) => j.status === "in_progress").length}
-          </p>
+          <div className="flex items-center gap-2 text-green-600 text-sm mb-1">
+            <CheckCircle className="w-4 h-4" />
+            Post-Work
+          </div>
+          <p className="text-2xl font-bold text-green-600">{stats.postWork}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Completed</p>
-          <p className="text-2xl font-bold text-green-600">
-            {jobs.filter((j) => j.status === "completed").length}
-          </p>
+          <div className="flex items-center gap-2 text-rose-600 text-sm mb-1">
+            <AlertTriangle className="w-4 h-4" />
+            Needs Attention
+          </div>
+          <p className="text-2xl font-bold text-rose-600">{stats.needsAttention}</p>
         </div>
       </div>
 
@@ -315,25 +401,65 @@ export default function JobsPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search jobs..."
+            placeholder="Search by job #, customer, or address..."
             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
           />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {statusFilters.map((filter) => (
-            <button
-              key={filter.value}
-              onClick={() => setStatusFilter(filter.value)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                statusFilter === filter.value
-                  ? "bg-orange-600 text-white"
-                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
+        <div className="relative">
+          <button
+            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+          >
+            <span className="text-sm font-medium text-gray-700">
+              Status: {statusLabels[statusFilter] || statusFilter}
+            </span>
+            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {showStatusDropdown && (
+            <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+              {statusGroups.map((group) => (
+                <div key={group.label} className="border-b border-gray-100 last:border-0">
+                  <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                    {group.label}
+                  </div>
+                  {group.statuses.map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        setStatusFilter(status);
+                        setShowStatusDropdown(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                        statusFilter === status ? "bg-orange-50 text-orange-700" : "text-gray-700"
+                      }`}
+                    >
+                      {statusLabels[status]}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Quick Filters */}
+      <div className="flex flex-wrap gap-2">
+        {["all", "scheduled", "in_progress", "awaiting_inspection", "corrections_required", "completed", "invoiced"].map((status) => (
+          <button
+            key={status}
+            onClick={() => setStatusFilter(status)}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              statusFilter === status
+                ? "bg-orange-600 text-white"
+                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            {statusLabels[status]}
+          </button>
+        ))}
       </div>
 
       {/* Jobs List */}
@@ -345,10 +471,10 @@ export default function JobsPage() {
         ) : (
           <div className="divide-y divide-gray-100">
             {filteredJobs.map((job) => (
-              <div
+              <Link
                 key={job.id}
-                className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                onClick={() => setSelectedJob(job)}
+                href={`/admin/jobs/${job.id}`}
+                className="block p-4 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <div className="flex-1 min-w-0">
@@ -364,6 +490,11 @@ export default function JobsPage() {
                         {job.priority}
                       </span>
                       <StatusBadge status={job.status} />
+                      {job.quote_id && (
+                        <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700">
+                          From Quote
+                        </span>
+                      )}
                     </div>
                     <h3 className="font-semibold text-gray-900 truncate">
                       {job.customer_name}
@@ -395,34 +526,42 @@ export default function JobsPage() {
                         {job.assignments.map((a) => a.user.full_name).join(", ")}
                       </div>
                     )}
+                    {job.total_amount && (
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <DollarSign className="w-3.5 h-3.5" />
+                        {job.total_amount.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <select
                       value={job.status}
                       onChange={(e) => {
-                        e.stopPropagation();
+                        e.preventDefault();
                         handleStatusChange(job.id, e.target.value);
                       }}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => e.preventDefault()}
                       className="text-sm border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:border-orange-500"
                     >
-                      <option value="pending">Pending</option>
-                      <option value="scheduled">Scheduled</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="on_hold">On Hold</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
+                      {allLifecycleStatuses.map((status) => (
+                        <option key={status} value={status}>
+                          {statusLabels[status]}
+                        </option>
+                      ))}
                     </select>
                     <button
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
                     >
                       <MoreHorizontal className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
@@ -755,6 +894,14 @@ export default function JobsPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Click outside to close dropdown */}
+      {showStatusDropdown && (
+        <div
+          className="fixed inset-0 z-10"
+          onClick={() => setShowStatusDropdown(false)}
+        />
       )}
     </div>
   );

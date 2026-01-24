@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  supabase,
   getJobById,
   updateJob,
   getJobPhotos,
@@ -33,7 +34,7 @@ async function verifyAuth() {
   }
 }
 
-// GET: Get job details with photos and notes
+// GET: Get job details with all related data
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -49,13 +50,40 @@ export async function GET(
 
     const { id } = await params;
 
-    const [job, photos, notes] = await Promise.all([
-      getJobById(id),
-      getJobPhotos(id),
-      getJobNotes(id),
-    ]);
+    // Fetch job with all related data in one query
+    const { data: job, error } = await supabase
+      .from("jobs")
+      .select(`
+        *,
+        team:teams(id, name),
+        assignments:job_assignments(
+          id,
+          role,
+          assigned_at,
+          acknowledged_at,
+          user:profiles(id, full_name, email, phone, role)
+        ),
+        job_notes(
+          id,
+          note,
+          visibility,
+          created_at,
+          author:profiles(id, full_name, email)
+        ),
+        job_photos(
+          id,
+          photo_url,
+          thumbnail_url,
+          caption,
+          photo_type,
+          location,
+          created_at
+        )
+      `)
+      .eq("id", id)
+      .single();
 
-    if (!job) {
+    if (error || !job) {
       return NextResponse.json(
         { success: false, error: "Job not found" },
         { status: 404 }
@@ -64,10 +92,24 @@ export async function GET(
 
     // Check if tech/inspector is assigned to this job
     if (["technician", "inspector"].includes(auth.role)) {
-      const isAssigned = job.assignments?.some((a) => a.user_id === auth.userId);
-      if (!isAssigned && auth.role !== "admin" && auth.role !== "manager") {
+      const isAssigned = job.assignments?.some((a: { user: { id: string } }) => a.user?.id === auth.userId);
+      if (!isAssigned) {
         return NextResponse.json(
           { success: false, error: "Not assigned to this job" },
+          { status: 403 }
+        );
+      }
+      // Filter notes visibility for techs
+      if (job.job_notes) {
+        job.job_notes = job.job_notes.filter(
+          (n: { visibility: string }) => n.visibility === "tech" || n.visibility === "customer"
+        );
+      }
+    } else if (auth.role === "manager" && auth.teamId) {
+      // Managers can only see their team's jobs
+      if (job.team_id && job.team_id !== auth.teamId) {
+        return NextResponse.json(
+          { success: false, error: "Access denied" },
           { status: 403 }
         );
       }
@@ -75,11 +117,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: {
-        ...job,
-        photos,
-        notes,
-      },
+      data: job,
     });
   } catch (error) {
     console.error("Error fetching job:", error);

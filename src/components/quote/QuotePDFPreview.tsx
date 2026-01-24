@@ -100,7 +100,7 @@ const QuotePDFPreview = forwardRef<HTMLDivElement, QuotePDFPreviewProps>(
         <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-orange-500">
           <div>
             <img
-              src="/logo_full.png"
+              src="/csf_wide_logo.png"
               alt="Chatman Security and Fire"
               className="h-16 w-auto mb-2"
             />

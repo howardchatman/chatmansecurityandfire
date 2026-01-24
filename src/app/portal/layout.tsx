@@ -71,7 +71,7 @@ export default function PortalLayout({
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <img src="/logo_full.png" alt="Chatman Security and Fire" className="h-10 w-auto" />
+              <img src="/csf_wide_logo.png" alt="Chatman Security and Fire" className="h-10 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}

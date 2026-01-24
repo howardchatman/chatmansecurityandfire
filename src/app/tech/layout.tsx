@@ -13,10 +13,12 @@ import {
   Menu,
   X,
   CheckCircle,
+  ClipboardList,
 } from "lucide-react";
 
 const navigation = [
   { name: "My Jobs", href: "/tech", icon: Briefcase },
+  { name: "Inspections", href: "/tech/inspections", icon: ClipboardList },
   { name: "Today", href: "/tech/today", icon: Calendar },
   { name: "Completed", href: "/tech/completed", icon: CheckCircle },
   { name: "Time Log", href: "/tech/time", icon: Clock },

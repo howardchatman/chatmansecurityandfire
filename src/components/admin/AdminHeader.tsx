@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Menu,
   Bell,
@@ -11,6 +12,7 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -32,6 +34,8 @@ const getBreadcrumbs = (pathname: string) => {
 
 export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, signOut } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
@@ -45,6 +49,22 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   ];
 
   const unreadCount = notifications.filter((n) => n.unread).length;
+
+  // Get user initials
+  const getUserInitials = () => {
+    if (!user?.name) return user?.email?.charAt(0).toUpperCase() || "U";
+    const names = user.name.split(" ");
+    if (names.length >= 2) {
+      return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
+    }
+    return names[0].charAt(0).toUpperCase();
+  };
+
+  const handleSignOut = async () => {
+    setUserMenuOpen(false);
+    await signOut();
+    router.push("/");
+  };
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
@@ -158,11 +178,11 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
               className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-lg"
             >
               <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">JD</span>
+                <span className="text-white text-sm font-medium">{getUserInitials()}</span>
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-sm font-medium text-gray-900">John Doe</p>
-                <p className="text-xs text-gray-500">Admin</p>
+                <p className="text-sm font-medium text-gray-900">{user?.name || user?.email || "User"}</p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role || "User"}</p>
               </div>
               <ChevronDown className="w-4 h-4 text-gray-400 hidden sm:block" />
             </button>
@@ -171,16 +191,27 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             {userMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
                 <div className="py-1">
-                  <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                  <Link
+                    href="/admin/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
                     <User className="w-4 h-4" />
                     Profile
-                  </button>
-                  <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                  </Link>
+                  <Link
+                    href="/admin/settings"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
                     <Settings className="w-4 h-4" />
                     Settings
-                  </button>
+                  </Link>
                   <div className="border-t border-gray-100 my-1" />
-                  <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-orange-600 hover:bg-orange-50">
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-orange-600 hover:bg-orange-50"
+                  >
                     <LogOut className="w-4 h-4" />
                     Sign out
                   </button>

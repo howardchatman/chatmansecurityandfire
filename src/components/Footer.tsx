@@ -62,7 +62,7 @@ export default function Footer() {
           {/* Brand & Contact */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6">
-              <img src="/logo_full.png" alt="Chatman Security and Fire" className="h-12 w-auto" />
+              <img src="/csf_wide_logo.png" alt="Chatman Security and Fire" className="h-12 w-auto" />
             </Link>
 
             <p className="text-neutral-400 mb-6 max-w-sm">

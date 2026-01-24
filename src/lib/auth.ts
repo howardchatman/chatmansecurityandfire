@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
+import { NextRequest } from "next/server";
 
 // JWT secret - in production, use env variable
 const JWT_SECRET = new TextEncoder().encode(
@@ -7,20 +8,22 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 // Admin emails that get admin role
-const ADMIN_EMAILS = ["howard@chatmaninc.com"];
+const ADMIN_EMAILS = ["howard@chatmaninc.com", "howardchatman@icloud.com"];
+
+export type UserRole = "admin" | "manager" | "customer" | "technician" | "inspector";
 
 export interface User {
   id: string;
   email: string;
   name: string | null;
-  role: "admin" | "manager" | "customer";
+  role: UserRole;
 }
 
 export interface JWTPayload {
   id: string;
   email: string;
   name: string | null;
-  role: "admin" | "manager" | "customer";
+  role: UserRole;
   exp?: number;
 }
 
@@ -65,3 +68,26 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
 
 // Cookie name for auth token
 export const AUTH_COOKIE_NAME = "security_auth_token";
+
+/**
+ * Verify authentication from a Next.js API request.
+ * Extracts the JWT token from cookies or Authorization header and verifies it.
+ */
+export async function verifyAuth(request: NextRequest): Promise<JWTPayload | null> {
+  // Try to get token from cookie first
+  const cookieToken = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+
+  // Or from Authorization header
+  const authHeader = request.headers.get("Authorization");
+  const headerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.substring(7)
+    : null;
+
+  const token = cookieToken || headerToken;
+
+  if (!token) {
+    return null;
+  }
+
+  return verifyToken(token);
+}

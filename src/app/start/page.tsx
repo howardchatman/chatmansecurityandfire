@@ -246,7 +246,7 @@ export default function StartPage() {
           <div className="text-center mb-12">
             <Link href="/" className="inline-block">
               <img
-                src="/logo_full.png"
+                src="/csf_wide_logo.png"
                 alt="Chatman Security and Fire"
                 className="h-20 w-auto mx-auto"
               />

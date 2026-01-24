@@ -24,7 +24,17 @@ type StatusType =
   | "emergency"
   | "urgent"
   | "normal"
-  | "low";
+  | "low"
+  // Job lifecycle statuses
+  | "lead"
+  | "quoted"
+  | "approved"
+  | "awaiting_inspection"
+  | "corrections_required"
+  | "passed"
+  | "on_hold"
+  | "invoiced"
+  | "closed";
 
 interface StatusBadgeProps {
   status: StatusType | string;
@@ -65,6 +75,17 @@ const statusConfig: Record<string, { bg: string; text: string; label?: string }>
   urgent: { bg: "bg-orange-100", text: "text-orange-700", label: "Urgent" },
   normal: { bg: "bg-blue-100", text: "text-blue-700", label: "Normal" },
   low: { bg: "bg-gray-100", text: "text-gray-600", label: "Low" },
+
+  // Job lifecycle statuses
+  lead: { bg: "bg-slate-100", text: "text-slate-700", label: "Lead" },
+  quoted: { bg: "bg-indigo-100", text: "text-indigo-700", label: "Quoted" },
+  approved: { bg: "bg-emerald-100", text: "text-emerald-700", label: "Approved" },
+  awaiting_inspection: { bg: "bg-cyan-100", text: "text-cyan-700", label: "Awaiting Inspection" },
+  corrections_required: { bg: "bg-rose-100", text: "text-rose-700", label: "Corrections Required" },
+  passed: { bg: "bg-teal-100", text: "text-teal-700", label: "Passed" },
+  on_hold: { bg: "bg-yellow-100", text: "text-yellow-700", label: "On Hold" },
+  invoiced: { bg: "bg-violet-100", text: "text-violet-700", label: "Invoiced" },
+  closed: { bg: "bg-gray-100", text: "text-gray-700", label: "Closed" },
 };
 
 export default function StatusBadge({ status, size = "md" }: StatusBadgeProps) {
