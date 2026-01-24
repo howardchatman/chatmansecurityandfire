@@ -12,7 +12,8 @@
       "Bash(npx supabase:*)",
       "Bash(set SUPABASE_ACCESS_TOKEN=sbp_551eae025d05f95ec2a7f313948a3d3810c6cf20)",
       "Bash(npx tsc:*)",
-      "Bash(dir \"c:\\\\Users\\\\howar\\\\chatman_security_and_fire\\\\chatmansecurityandfire\\\\public\")"
+      "Bash(dir \"c:\\\\Users\\\\howar\\\\chatman_security_and_fire\\\\chatmansecurityandfire\\\\public\")",
+      "Bash(curl:*)"
     ]
   }
 }

@@ -9,43 +9,37 @@ const services = [
     title: "Fire Marshal Compliance",
     description: "Violation corrections and reinspection support.",
     href: "/services/fire-marshal-compliance",
-    // Inspector with clipboard - building inspection
-    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=400&fit=crop",
+    image: "/fire_marshal.png",
   },
   {
     title: "Fire Alarm Systems",
     description: "Installs, repairs, and troubleshooting.",
     href: "/services/fire-alarm",
-    // Fire alarm pull station - red manual alarm box
-    image: "https://images.unsplash.com/photo-1562516155-e0c1ee44059b?w=600&h=400&fit=crop",
+    image: "/fire_alarm.png",
   },
   {
     title: "Fire Sprinkler Systems",
     description: "Modifications, repairs, and inspections.",
     href: "/services/fire-sprinkler",
-    // Fire sprinkler head close-up on ceiling
-    image: "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=600&h=400&fit=crop",
+    image: "/fire_sprinkler.png",
   },
   {
     title: "Fire Extinguishers",
     description: "Sales, service, and tagging.",
     href: "/services/fire-extinguishers",
-    // Red fire extinguisher mounted on wall
-    image: "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=600&h=400&fit=crop",
+    image: "/fire_extinguisher.png",
   },
   {
     title: "Emergency Lighting",
     description: "Exit signs and emergency lights.",
     href: "/services/emergency-lighting",
-    // Red glowing exit sign
-    image: "https://images.unsplash.com/photo-1563461660947-507ef49e9c47?w=600&h=400&fit=crop",
+    image: "/emergency_lights.png",
   },
   {
     title: "Fire Lane Markings",
     description: "Striping and repainting.",
     href: "/services/fire-lane-marking",
-    // Parking lot with painted lines/striping
-    image: "https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?w=600&h=400&fit=crop",
+    image: "/fire_lane_marking.png",
   },
 ];
 
