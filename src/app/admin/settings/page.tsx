@@ -1,6 +1,7 @@
 "use client";
 
-import { Settings, User, Bell, Shield, Palette, Database } from "lucide-react";
+import Link from "next/link";
+import { User, Bell, Shield, Palette, Database } from "lucide-react";
 
 const settingSections = [
   {
@@ -45,9 +46,10 @@ export default function SettingsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {settingSections.map((section) => (
-          <div
+          <Link
             key={section.title}
-            className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+            href={section.href}
+            className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md hover:border-orange-200 transition-all"
           >
             <div className="flex items-start gap-4">
               <div className="p-3 bg-gray-100 rounded-xl">
@@ -58,7 +60,7 @@ export default function SettingsPage() {
                 <p className="text-sm text-gray-500 mt-1">{section.description}</p>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
