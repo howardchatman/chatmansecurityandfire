@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle,
@@ -13,7 +13,9 @@ import {
   Loader2,
   PhoneCall,
   PhoneOff,
+  Mic,
 } from "lucide-react";
+import { RetellWebClient } from "retell-client-js-sdk";
 
 interface Message {
   id: string;
@@ -21,6 +23,8 @@ interface Message {
   text: string;
   timestamp: Date;
 }
+
+type CallStatus = "idle" | "connecting" | "connected" | "error";
 
 const quickActions = [
   { label: "Failed Inspection", action: "inspection" },
@@ -42,8 +46,10 @@ export default function AIVAChat() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isOnCall, setIsOnCall] = useState(false);
+  const [callStatus, setCallStatus] = useState<CallStatus>("idle");
+  const [isTalking, setIsTalking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const retellClientRef = useRef<RetellWebClient | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -124,29 +130,118 @@ export default function AIVAChat() {
     handleSendMessage(actionMessages[action]);
   };
 
+  // Initialize Retell event handlers
+  const setupRetellEvents = useCallback((client: RetellWebClient) => {
+    client.on("call_started", () => {
+      setCallStatus("connected");
+      const callMessage: Message = {
+        id: Date.now().toString(),
+        sender: "assistant",
+        text: "Connected! Go ahead, I'm listening.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, callMessage]);
+    });
+
+    client.on("call_ended", () => {
+      setCallStatus("idle");
+      setIsTalking(false);
+      const endMessage: Message = {
+        id: Date.now().toString(),
+        sender: "assistant",
+        text: "Call ended. Anything else I can get in front of Howard?",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, endMessage]);
+      retellClientRef.current = null;
+    });
+
+    client.on("agent_start_talking", () => {
+      setIsTalking(true);
+    });
+
+    client.on("agent_stop_talking", () => {
+      setIsTalking(false);
+    });
+
+    client.on("error", (error) => {
+      console.error("Retell error:", error);
+      setCallStatus("error");
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        sender: "assistant",
+        text: "Connection issue. Try again or call (832) 430-1826 directly.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      retellClientRef.current = null;
+    });
+  }, []);
+
   const handleStartCall = async () => {
-    setIsOnCall(true);
-    // In production, this would initialize Retell web call
-    // For now, show a message
-    const callMessage: Message = {
+    setCallStatus("connecting");
+
+    const connectingMessage: Message = {
       id: Date.now().toString(),
       sender: "assistant",
-      text: "Connecting you now. Have your property address and inspection details ready — I'll need them.",
+      text: "Connecting you to Chad now. Have your property address and inspection details ready.",
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, callMessage]);
+    setMessages((prev) => [...prev, connectingMessage]);
+
+    try {
+      // Get access token from our backend
+      const response = await fetch("/api/retell/web-call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      const data = await response.json();
+
+      if (!data.success || !data.data?.access_token) {
+        throw new Error(data.error || "Failed to start call");
+      }
+
+      // Initialize Retell client
+      const client = new RetellWebClient();
+      retellClientRef.current = client;
+      setupRetellEvents(client);
+
+      // Start the call
+      await client.startCall({
+        accessToken: data.data.access_token,
+      });
+
+    } catch (error) {
+      console.error("Failed to start call:", error);
+      setCallStatus("idle");
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        sender: "assistant",
+        text: "Couldn't connect right now. For immediate help, call (832) 430-1826 — I answer there too.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    }
   };
 
   const handleEndCall = () => {
-    setIsOnCall(false);
-    const endMessage: Message = {
-      id: Date.now().toString(),
-      sender: "assistant",
-      text: "Call ended. Anything else I can get in front of Howard?",
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, endMessage]);
+    if (retellClientRef.current) {
+      retellClientRef.current.stopCall();
+    }
+    setCallStatus("idle");
+    setIsTalking(false);
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (retellClientRef.current) {
+        retellClientRef.current.stopCall();
+      }
+    };
+  }, []);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", {
@@ -205,7 +300,9 @@ export default function AIVAChat() {
                 <div>
                   <h3 className="font-semibold">Hey Chad!</h3>
                   <p className="text-xs text-orange-100">
-                    {isOnCall ? "On Call" : "Howard's AI Ops Assistant"}
+                    {callStatus === "connecting" ? "Connecting..." :
+                     callStatus === "connected" ? (isTalking ? "Chad is speaking..." : "On Call - Listening") :
+                     "Howard's AI Ops Assistant"}
                   </p>
                 </div>
               </div>
@@ -309,18 +406,34 @@ export default function AIVAChat() {
 
                 {/* Input Area */}
                 <div className="p-4 border-t border-gray-200 bg-white">
+                  {/* Voice Call Active Indicator */}
+                  {callStatus === "connected" && (
+                    <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${isTalking ? "bg-green-500 animate-pulse" : "bg-green-400"}`} />
+                      <span className="text-sm text-green-700 font-medium">
+                        {isTalking ? "Chad is speaking" : "Listening..."}
+                      </span>
+                      <Mic className={`w-4 h-4 ${isTalking ? "text-green-600" : "text-green-500 animate-pulse"}`} />
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={isOnCall ? handleEndCall : handleStartCall}
+                      onClick={callStatus === "connected" || callStatus === "connecting" ? handleEndCall : handleStartCall}
+                      disabled={callStatus === "connecting"}
                       className={`p-2.5 rounded-xl transition-colors ${
-                        isOnCall
-                          ? "bg-orange-600 hover:bg-orange-500 text-white"
-                          : "bg-neutral-100 hover:bg-neutral-200 text-neutral-500"
+                        callStatus === "connected"
+                          ? "bg-red-500 hover:bg-red-600 text-white"
+                          : callStatus === "connecting"
+                          ? "bg-orange-400 text-white cursor-wait"
+                          : "bg-neutral-100 hover:bg-orange-100 hover:text-orange-600 text-neutral-500"
                       }`}
-                      title={isOnCall ? "End Call" : "Start Voice Call"}
+                      title={callStatus === "connected" ? "End Call" : callStatus === "connecting" ? "Connecting..." : "Talk to Chad"}
                     >
-                      {isOnCall ? (
+                      {callStatus === "connected" ? (
                         <PhoneOff className="w-5 h-5" />
+                      ) : callStatus === "connecting" ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
                       ) : (
                         <PhoneCall className="w-5 h-5" />
                       )}
@@ -333,21 +446,21 @@ export default function AIVAChat() {
                         onKeyDown={(e) =>
                           e.key === "Enter" && handleSendMessage()
                         }
-                        placeholder="Type your message..."
-                        className="w-full px-4 py-2.5 bg-neutral-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-                        disabled={isOnCall}
+                        placeholder={callStatus === "connected" ? "On voice call with Chad..." : "Type your message..."}
+                        className="w-full px-4 py-2.5 bg-neutral-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 disabled:bg-neutral-200"
+                        disabled={callStatus !== "idle"}
                       />
                     </div>
                     <button
                       onClick={() => handleSendMessage()}
-                      disabled={!inputValue.trim() || isLoading || isOnCall}
+                      disabled={!inputValue.trim() || isLoading || callStatus !== "idle"}
                       className="p-2.5 bg-orange-600 hover:bg-orange-700 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-xl transition-colors"
                     >
                       <Send className="w-5 h-5" />
                     </button>
                   </div>
                   <p className="text-xs text-gray-400 mt-2 text-center">
-                    Chad handles intake so nothing important gets missed.
+                    {callStatus === "idle" ? "Click the phone to talk to Chad, or type a message." : "Voice call in progress"}
                   </p>
                 </div>
               </>
