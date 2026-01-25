@@ -20,8 +20,14 @@ export default function EmergencyLightingPage() {
       <main className="pt-20">
         {/* Hero with Background Image */}
         <section
-          className="relative py-16 lg:py-24 bg-cover bg-center"
-          style={{ backgroundImage: "url('/exit_sign_wide.png')" }}
+          className="relative py-16 lg:py-24"
+          style={{
+            backgroundImage: "url('/exit_sign_wide.png')",
+            backgroundSize: "100% auto",
+            backgroundPosition: "center top",
+            backgroundRepeat: "no-repeat",
+            backgroundColor: "#1a1a1a"
+          }}
         >
           {/* Dark Overlay */}
           <div className="absolute inset-0 bg-black/60" />
