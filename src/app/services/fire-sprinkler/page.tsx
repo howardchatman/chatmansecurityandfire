@@ -19,12 +19,23 @@ export default function FireSprinklerPage() {
     <>
       <Navbar />
       <main className="pt-20">
-        {/* Hero */}
-        <section className="bg-gradient-to-b from-gray-50 to-white py-16 lg:py-24">
-          <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hero with Background Image */}
+        <section
+          className="relative py-16 lg:py-24"
+          style={{
+            backgroundImage: "url('/fire_sprinkler_wide.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundColor: "#1a1a1a"
+          }}
+        >
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black/50" />
+
+          <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-orange-600 mb-8 transition-colors"
+              className="inline-flex items-center gap-2 text-white/80 hover:text-orange-400 mb-8 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Home
@@ -36,16 +47,16 @@ export default function FireSprinklerPage() {
               className="max-w-4xl"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-orange-100 rounded-xl">
-                  <Droplets className="w-8 h-8 text-orange-600" />
+                <div className="p-3 bg-orange-600 rounded-xl">
+                  <Droplets className="w-8 h-8 text-white" />
                 </div>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
                 Fire Sprinkler Service & Inspection Support
               </h1>
 
-              <p className="text-xl text-gray-600 mb-8">
+              <p className="text-xl text-white/90 mb-8">
                 Sprinkler issues are one of the most common causes of failed inspections during tenant finish-outs and remodels.
               </p>
 
