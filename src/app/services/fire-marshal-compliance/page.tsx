@@ -18,12 +18,23 @@ export default function FireMarshalCompliancePage() {
     <>
       <Navbar />
       <main className="pt-20">
-        {/* Hero */}
-        <section className="bg-gradient-to-b from-gray-50 to-white py-16 lg:py-24">
-          <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hero with Background Image */}
+        <section
+          className="relative py-16 lg:py-24"
+          style={{
+            backgroundImage: "url('/fire_marshal_wide.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundColor: "#1a1a1a"
+          }}
+        >
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black/50" />
+
+          <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-orange-600 mb-8 transition-colors"
+              className="inline-flex items-center gap-2 text-white/80 hover:text-orange-400 mb-8 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Home
@@ -35,19 +46,19 @@ export default function FireMarshalCompliancePage() {
               className="max-w-4xl"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-orange-100 rounded-xl">
-                  <Shield className="w-8 h-8 text-orange-600" />
+                <div className="p-3 bg-orange-600 rounded-xl">
+                  <Shield className="w-8 h-8 text-white" />
                 </div>
-                <span className="px-3 py-1 bg-orange-50 text-orange-700 text-sm font-medium rounded-full">
+                <span className="px-3 py-1 bg-orange-500 text-white text-sm font-medium rounded-full">
                   Most Common Service
                 </span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
                 Fire Marshal Compliance & Inspection Corrections
               </h1>
 
-              <p className="text-xl text-gray-600 mb-8">
+              <p className="text-xl text-white/90 mb-8">
                 When inspections fail, we step in, correct the issues, and get you ready for reinspection.
               </p>
 
