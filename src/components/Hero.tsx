@@ -93,22 +93,22 @@ export default function Hero() {
       {/* Simple Stats */}
       <div className="mt-20 lg:mt-24 border-t border-gray-200 pt-12">
         <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
             <div>
-              <p className="text-3xl font-bold text-gray-900">Since 2009</p>
-              <p className="text-gray-500 mt-1">Serving Houston</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Since 2009</p>
+              <p className="text-sm sm:text-base text-gray-500 mt-1">Serving Houston</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-gray-900">Commercial</p>
-              <p className="text-gray-500 mt-1">Specialists</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Commercial</p>
+              <p className="text-sm sm:text-base text-gray-500 mt-1">Specialists</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-gray-900">24/7</p>
-              <p className="text-gray-500 mt-1">Dispatch</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">24/7</p>
+              <p className="text-sm sm:text-base text-gray-500 mt-1">Dispatch</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-gray-900">Licensed</p>
-              <p className="text-gray-500 mt-1">& Insured</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Licensed</p>
+              <p className="text-sm sm:text-base text-gray-500 mt-1">& Insured</p>
             </div>
           </div>
         </div>
