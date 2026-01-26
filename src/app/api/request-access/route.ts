@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createLead } from "@/lib/supabase";
+import { sendAccessRequestNotification } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +24,14 @@ export async function POST(request: NextRequest) {
       source: "account_request",
       preferred_contact: "email",
     });
+
+    // Send email notification (don't await to avoid slowing down response)
+    sendAccessRequestNotification({
+      name,
+      email,
+      company,
+      reason,
+    }).catch((err) => console.error("Failed to send access request notification:", err));
 
     return NextResponse.json({
       success: true,

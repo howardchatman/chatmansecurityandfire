@@ -34,15 +34,15 @@ How can I assist you right now?`,
 
 If you're experiencing issues with your system, I can help troubleshoot or connect you with technical support.`,
 
-  default: `Thank you for your message! I'm AIVA, your AI security assistant.
+  default: `Chatman Security & Fire. This is Howard's office. I'm Chad, his AI operations assistant.
 
 I can help you with:
-- 🏠 **Getting a free security quote**
-- 📅 **Scheduling service appointments**
-- ❓ **Answering security questions**
-- 🔧 **Technical support**
+- 🔥 **Fire safety system issues**
+- 📋 **Failed inspections**
+- 🚒 **Fire Marshal compliance**
+- 📅 **Scheduling service**
 
-What would you like to know about our security solutions?`,
+What's going on with your property?`,
 };
 
 function getFallbackResponse(message: string): string {

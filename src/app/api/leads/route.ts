@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
+import { sendLeadNotification } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,6 +33,15 @@ export async function POST(request: NextRequest) {
     };
 
     const data = await createLead(lead);
+
+    // Send email notification (don't await to avoid slowing down response)
+    sendLeadNotification({
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone || undefined,
+      message: lead.message || undefined,
+      source: lead.source || "website",
+    }).catch((err) => console.error("Failed to send lead notification:", err));
 
     return NextResponse.json({
       success: true,

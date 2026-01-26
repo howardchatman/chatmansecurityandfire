@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, User, Save, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { ArrowLeft, User, Save, Loader2, Camera, X } from "lucide-react";
 
 export default function ProfileSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     firstName: "Howard",
     lastName: "Chatman",
@@ -14,6 +18,45 @@ export default function ProfileSettingsPage() {
     company: "Chatman Security & Fire",
     role: "Admin",
   });
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file");
+      return;
+    }
+
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image must be less than 2MB");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setProfileImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -41,14 +84,50 @@ export default function ProfileSettingsPage() {
       {/* Profile Form */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
-            <User className="w-10 h-10 text-orange-600" />
+          <div className="relative">
+            {profileImage ? (
+              <div className="relative w-20 h-20">
+                <Image
+                  src={profileImage}
+                  alt="Profile"
+                  fill
+                  className="rounded-full object-cover"
+                />
+                <button
+                  onClick={handleRemovePhoto}
+                  className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+                <User className="w-10 h-10 text-orange-600" />
+              </div>
+            )}
+            {isUploading && (
+              <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                <Loader2 className="w-6 h-6 text-white animate-spin" />
+              </div>
+            )}
           </div>
           <div>
             <h3 className="font-medium text-gray-900">Profile Photo</h3>
             <p className="text-sm text-gray-500">PNG, JPG up to 2MB</p>
-            <button className="mt-2 text-sm text-orange-600 hover:text-orange-700 font-medium">
-              Upload new photo
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="mt-2 inline-flex items-center gap-1.5 text-sm text-orange-600 hover:text-orange-700 font-medium disabled:opacity-50"
+            >
+              <Camera className="w-4 h-4" />
+              {profileImage ? "Change photo" : "Upload photo"}
             </button>
           </div>
         </div>
