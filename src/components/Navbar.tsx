@@ -18,6 +18,9 @@ import {
   User,
   LogOut,
   LayoutDashboard,
+  FileSearch,
+  Building2,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SignInModal from "./SignInModal";
@@ -61,9 +64,25 @@ const services = [
   },
 ];
 
+const freeTools = [
+  {
+    name: "Inspection Report Analyzer",
+    description: "Upload & understand your failed inspection",
+    href: "/analyze",
+    icon: FileSearch,
+  },
+  {
+    name: "Service Recommender",
+    description: "Find out what services you need",
+    href: "/recommend",
+    icon: Building2,
+  },
+];
+
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Services", href: "#services", hasDropdown: true },
+  { name: "Free Tools", href: "#tools", hasToolsDropdown: true },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
@@ -72,6 +91,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
@@ -160,6 +180,60 @@ export default function Navbar() {
                                   </div>
                                   <div className="text-sm text-gray-500">
                                     {service.description}
+                                  </div>
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : item.hasToolsDropdown ? (
+                  <div
+                    key={item.name}
+                    className="relative"
+                    onMouseEnter={() => setIsToolsOpen(true)}
+                    onMouseLeave={() => setIsToolsOpen(false)}
+                  >
+                    <button className="flex items-center gap-1 px-4 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors">
+                      <Sparkles className="w-4 h-4 text-orange-500" />
+                      {item.name}
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform ${
+                          isToolsOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {isToolsOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute top-full left-0 pt-2"
+                        >
+                          <div className="w-80 bg-white border border-gray-100 rounded-2xl shadow-xl p-2">
+                            <div className="px-3 py-2 mb-1">
+                              <span className="text-xs font-semibold text-orange-600 uppercase tracking-wide">AI-Powered Tools</span>
+                            </div>
+                            {freeTools.map((tool) => (
+                              <Link
+                                key={tool.name}
+                                href={tool.href}
+                                className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
+                              >
+                                <div className="p-2 bg-orange-50 rounded-lg group-hover:bg-orange-100 transition-colors">
+                                  <tool.icon className="w-5 h-5 text-orange-600" />
+                                </div>
+                                <div>
+                                  <div className="font-medium text-gray-900">
+                                    {tool.name}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {tool.description}
                                   </div>
                                 </div>
                               </Link>
@@ -329,6 +403,45 @@ export default function Navbar() {
                                   >
                                     <service.icon className="w-4 h-4 text-orange-500" />
                                     {service.name}
+                                  </Link>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      ) : item.hasToolsDropdown ? (
+                        <div>
+                          <button
+                            onClick={() => setIsToolsOpen(!isToolsOpen)}
+                            className="flex items-center justify-between w-full px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
+                          >
+                            <span className="flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-orange-500" />
+                              {item.name}
+                            </span>
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform ${
+                                isToolsOpen ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+                          <AnimatePresence>
+                            {isToolsOpen && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="pl-4 space-y-1"
+                              >
+                                {freeTools.map((tool) => (
+                                  <Link
+                                    key={tool.name}
+                                    href={tool.href}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                  >
+                                    <tool.icon className="w-4 h-4 text-orange-500" />
+                                    {tool.name}
                                   </Link>
                                 ))}
                               </motion.div>

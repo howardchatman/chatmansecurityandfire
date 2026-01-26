@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Bell, Phone, CheckCircle, ArrowLeft, AlertTriangle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIVAChat from "@/components/AIVAChat";
+import ChadChat from "@/components/ChadChat";
 
 const services = [
   "Device replacement and rewiring",
@@ -135,7 +135,7 @@ export default function FireAlarmPage() {
         </section>
       </main>
       <Footer />
-      <AIVAChat />
+      <ChadChat />
     </>
   );
 }

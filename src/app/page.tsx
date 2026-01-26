@@ -1,10 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
+import FreeTools from "@/components/FreeTools";
 import HowItWorks from "@/components/HowItWorks";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
-import AIVAChat from "@/components/AIVAChat";
+import ChadChat from "@/components/ChadChat";
 
 export default function Home() {
   return (
@@ -14,12 +15,13 @@ export default function Home() {
         <main className="flex-grow">
           <Hero />
           <Services />
+          <FreeTools />
           <HowItWorks />
           <CTA />
         </main>
         <Footer />
       </div>
-      <AIVAChat />
+      <ChadChat />
     </>
   );
 }

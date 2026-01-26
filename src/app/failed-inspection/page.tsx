@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIVAChat from "@/components/AIVAChat";
+import ChadChat from "@/components/ChadChat";
 
 const failureReasons = [
   {
@@ -228,7 +228,7 @@ export default function FailedInspectionPage() {
         </section>
       </main>
       <Footer />
-      <AIVAChat />
+      <ChadChat />
     </>
   );
 }

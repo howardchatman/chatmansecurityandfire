@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Lightbulb, Phone, CheckCircle, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIVAChat from "@/components/AIVAChat";
+import ChadChat from "@/components/ChadChat";
 
 const services = [
   "Battery failures",
@@ -122,7 +122,7 @@ export default function EmergencyLightingPage() {
         </section>
       </main>
       <Footer />
-      <AIVAChat />
+      <ChadChat />
     </>
   );
 }

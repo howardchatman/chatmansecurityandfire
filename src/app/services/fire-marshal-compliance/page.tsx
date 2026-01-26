@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Shield, Phone, CheckCircle, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIVAChat from "@/components/AIVAChat";
+import ChadChat from "@/components/ChadChat";
 
 const services = [
   "Identify exactly what the fire marshal is requiring",
@@ -134,7 +134,7 @@ export default function FireMarshalCompliancePage() {
         </section>
       </main>
       <Footer />
-      <AIVAChat />
+      <ChadChat />
     </>
   );
 }

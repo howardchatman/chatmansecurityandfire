@@ -49,7 +49,7 @@ const getMockBusinessData = () => {
     leads: [
       { name: "John Smith", email: "john.smith@email.com", phone: "(555) 123-4567", source: "Website", status: "new", daysOld: 0 },
       { name: "Sarah Johnson", email: "sarah.j@company.com", phone: "(555) 234-5678", source: "Referral", status: "contacted", daysOld: 1 },
-      { name: "Mike Davis", email: "mike.davis@business.com", phone: "(555) 345-6789", source: "AIVA Chat", status: "qualified", daysOld: 2 },
+      { name: "Mike Davis", email: "mike.davis@business.com", phone: "(555) 345-6789", source: "Chad Chat", status: "qualified", daysOld: 2 },
       { name: "Emily Brown", email: "emily.b@corp.com", phone: "(555) 456-7890", source: "Phone", status: "proposal", daysOld: 3 },
       { name: "David Martinez", email: "d.martinez@company.com", phone: "(555) 789-0123", source: "Referral", status: "new", daysOld: 6 },
     ],

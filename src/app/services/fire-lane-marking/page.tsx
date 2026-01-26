@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PaintBucket, Phone, CheckCircle, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIVAChat from "@/components/AIVAChat";
+import ChadChat from "@/components/ChadChat";
 
 const services = [
   "New fire lane striping",
@@ -121,7 +121,7 @@ export default function FireLaneMarkingPage() {
         </section>
       </main>
       <Footer />
-      <AIVAChat />
+      <ChadChat />
     </>
   );
 }

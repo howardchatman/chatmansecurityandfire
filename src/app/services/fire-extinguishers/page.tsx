@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FlameKindling, Phone, CheckCircle, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIVAChat from "@/components/AIVAChat";
+import ChadChat from "@/components/ChadChat";
 
 const services = [
   "Replacement and mounting",
@@ -165,7 +165,7 @@ export default function FireExtinguishersPage() {
         </section>
       </main>
       <Footer />
-      <AIVAChat />
+      <ChadChat />
     </>
   );
 }

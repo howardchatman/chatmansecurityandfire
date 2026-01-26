@@ -1,4 +1,4 @@
-// Retell.ai API integration for AIVA voice and chat
+// Retell.ai API integration for Chad voice and chat
 
 const RETELL_API_KEY = process.env.RETELL_API_KEY;
 const RETELL_BASE_URL = "https://api.retellai.com/v2";

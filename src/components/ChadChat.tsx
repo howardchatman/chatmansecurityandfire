@@ -33,7 +33,7 @@ const quickActions = [
   { label: "Schedule Service", action: "service" },
 ];
 
-export default function AIVAChat() {
+export default function ChadChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
