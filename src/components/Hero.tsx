@@ -90,25 +90,42 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Simple Stats */}
-      <div className="mt-20 lg:mt-24 border-t border-gray-200 pt-12">
+      {/* Simple Stats - Horizontal scroll on mobile, grid on desktop */}
+      <div className="mt-16 lg:mt-24 border-t border-gray-200 pt-8 lg:pt-12">
         <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-8 text-center">
-            <div className="px-1">
-              <p className="text-base sm:text-xl md:text-3xl font-bold text-gray-900">Since 2009</p>
-              <p className="text-xs sm:text-base text-gray-500 mt-1">Serving Houston</p>
+          {/* Mobile: horizontal scrolling pills */}
+          <div className="flex sm:hidden overflow-x-auto gap-3 pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="flex-shrink-0 bg-gray-100 rounded-full px-4 py-2">
+              <span className="font-semibold text-gray-900">Since 2009</span>
             </div>
-            <div className="px-1">
-              <p className="text-base sm:text-xl md:text-3xl font-bold text-gray-900">Commercial</p>
-              <p className="text-xs sm:text-base text-gray-500 mt-1">Specialists</p>
+            <div className="flex-shrink-0 bg-gray-100 rounded-full px-4 py-2">
+              <span className="font-semibold text-gray-900">Commercial</span>
             </div>
-            <div className="px-1">
-              <p className="text-base sm:text-xl md:text-3xl font-bold text-gray-900">24/7</p>
-              <p className="text-xs sm:text-base text-gray-500 mt-1">Dispatch</p>
+            <div className="flex-shrink-0 bg-gray-100 rounded-full px-4 py-2">
+              <span className="font-semibold text-gray-900">24/7 Dispatch</span>
             </div>
-            <div className="px-1">
-              <p className="text-base sm:text-xl md:text-3xl font-bold text-gray-900">Licensed</p>
-              <p className="text-xs sm:text-base text-gray-500 mt-1">& Insured</p>
+            <div className="flex-shrink-0 bg-gray-100 rounded-full px-4 py-2">
+              <span className="font-semibold text-gray-900">Licensed & Insured</span>
+            </div>
+          </div>
+
+          {/* Tablet/Desktop: grid layout */}
+          <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900">Since 2009</p>
+              <p className="text-gray-500 mt-1">Serving Houston</p>
+            </div>
+            <div>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900">Commercial</p>
+              <p className="text-gray-500 mt-1">Specialists</p>
+            </div>
+            <div>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900">24/7</p>
+              <p className="text-gray-500 mt-1">Dispatch</p>
+            </div>
+            <div>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900">Licensed</p>
+              <p className="text-gray-500 mt-1">& Insured</p>
             </div>
           </div>
         </div>
