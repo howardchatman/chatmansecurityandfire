@@ -12,6 +12,7 @@ export default function LeadCapture() {
     name: "",
     email: "",
     phone: "",
+    service: "",
   });
 
   useEffect(() => {
@@ -44,12 +45,7 @@ export default function LeadCapture() {
           email: formData.email,
           phone: formData.phone,
           source: "lead_capture_popup",
-          metadata: {
-            inquiry_type: "Lead Capture",
-            message: "Submitted via homepage popup",
-            preferred_contact: "email",
-            urgency: "normal",
-          },
+          message: formData.service ? `Service needed: ${formData.service}` : "Submitted via homepage popup",
         }),
       });
 
@@ -162,6 +158,25 @@ export default function LeadCapture() {
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors text-sm"
                         placeholder="Phone Number (optional)"
                       />
+                    </div>
+                    <div>
+                      <select
+                        value={formData.service}
+                        onChange={(e) =>
+                          setFormData({ ...formData, service: e.target.value })
+                        }
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors text-sm text-gray-700"
+                      >
+                        <option value="">Service Needed (optional)</option>
+                        <option value="Fire Alarm Systems">Fire Alarm Systems</option>
+                        <option value="Fire Sprinkler Systems">Fire Sprinkler Systems</option>
+                        <option value="Fire Extinguishers">Fire Extinguishers</option>
+                        <option value="Emergency & Exit Lighting">Emergency & Exit Lighting</option>
+                        <option value="Fire Lane Marking">Fire Lane Marking</option>
+                        <option value="Fire Marshal Compliance">Fire Marshal Compliance</option>
+                        <option value="Consulting">Consulting</option>
+                        <option value="Other">Other</option>
+                      </select>
                     </div>
                     <button
                       type="submit"
