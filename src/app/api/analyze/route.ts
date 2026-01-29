@@ -136,7 +136,7 @@ ${analysis.urgentItems?.length > 0 ? `\nURGENT ITEMS:\n${analysis.urgentItems.jo
     `.trim();
 
     const { data: lead, error: leadError } = await supabase
-      .from("security_leads")
+      .from("leads")
       .insert({
         name,
         email,

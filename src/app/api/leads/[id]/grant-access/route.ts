@@ -18,7 +18,7 @@ export async function POST(
 
     // Get the lead
     const { data: lead, error: leadError } = await supabase
-      .from("security_leads")
+      .from("leads")
       .select("*")
       .eq("id", id)
       .single();
@@ -101,7 +101,7 @@ export async function POST(
 
     // Update lead status to won
     const { error: updateError } = await supabase
-      .from("security_leads")
+      .from("leads")
       .update({ status: "won" })
       .eq("id", id);
 

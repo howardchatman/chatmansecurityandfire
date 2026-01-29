@@ -133,7 +133,7 @@ Estimated Budget: ${recommendations.estimatedBudgetRange || "Not calculated"}
     `.trim();
 
     const { data: lead, error: leadError } = await supabase
-      .from("security_leads")
+      .from("leads")
       .insert({
         name,
         email,

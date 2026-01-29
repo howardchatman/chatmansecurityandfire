@@ -63,7 +63,7 @@ export interface Lead {
 
 export async function createLead(lead: Lead) {
   const { data, error } = await supabaseAdmin
-    .from("security_leads")
+    .from("leads")
     .insert([
       {
         name: lead.name,
@@ -84,7 +84,7 @@ export async function createLead(lead: Lead) {
 
 export async function getLeads(status?: string) {
   let query = supabaseAdmin
-    .from("security_leads")
+    .from("leads")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -99,7 +99,7 @@ export async function getLeads(status?: string) {
 
 export async function updateLeadStatus(id: string, status: string) {
   const { data, error } = await supabaseAdmin
-    .from("security_leads")
+    .from("leads")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
