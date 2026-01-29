@@ -49,8 +49,8 @@ const contactMethods = [
   {
     title: "Email Us",
     description: "For detailed inquiries",
-    value: "info@chatmansecurity.com",
-    href: "mailto:info@chatmansecurity.com",
+    value: "info@chatmansecurityandfire.com",
+    href: "mailto:info@chatmansecurityandfire.com",
     icon: Mail,
     color: "bg-orange-500",
     available: "24/7 - Response within 24hrs",
@@ -104,6 +104,7 @@ const inquiryTypes = [
   "Fire Extinguisher Service",
   "Emergency Lighting",
   "Fire Lane Marking",
+  "Consulting",
   "General Question",
   "Request a Quote",
   "Other",

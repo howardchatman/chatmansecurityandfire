@@ -41,6 +41,12 @@ const services = [
     href: "/services/fire-lane-marking",
     image: "/fire_lane_marking.png",
   },
+  {
+    title: "Consulting",
+    description: "Expert fire & life-safety consulting.",
+    href: "/services/consulting",
+    image: "/consulting.png",
+  },
 ];
 
 export default function Services() {
