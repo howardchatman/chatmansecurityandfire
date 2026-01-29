@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseRetellPayload, determineEventType } from "@/lib/retell/parse";
 import { processRetellWebhook } from "@/lib/retell/db";
+import { sendLeadNotification } from "@/lib/email";
 
 const RETELL_WEBHOOK_SECRET = process.env.RETELL_WEBHOOK_SECRET;
 
@@ -97,7 +98,25 @@ export async function POST(request: NextRequest) {
     // 6. Process and store in database
     const result = await processRetellWebhook(parsed, eventType);
 
-    // 7. Log result
+    // 7. Send email notification for new leads and callbacks
+    if (result.lead && (eventType === "call_ended" || eventType === "callback_requested")) {
+      const phone = parsed.extracted.callerPhone || parsed.fromNumber || undefined;
+      const messageParts: string[] = [];
+      if (parsed.extracted.intent) messageParts.push(`Intent: ${parsed.extracted.intent}`);
+      if (parsed.extracted.urgency === "high") messageParts.push("URGENT");
+      if (parsed.extracted.callbackRequested) messageParts.push("Callback requested");
+      if (parsed.summary) messageParts.push(`Summary: ${parsed.summary}`);
+
+      sendLeadNotification({
+        name: result.lead.name || phone || "Unknown Caller",
+        email: result.lead.email || "no-email@retell-call.local",
+        phone,
+        message: messageParts.join("\n") || `Retell ${eventType}`,
+        source: "retell",
+      }).catch((err) => console.error("[Retell Webhook] Email notification failed:", err));
+    }
+
+    // 8. Log result
     const duration = Date.now() - startTime;
     console.log("[Retell Webhook] Processed:", {
       callId: parsed.callId,
