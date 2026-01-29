@@ -35,7 +35,7 @@ const sourceFilters = [
   { label: "Access Requests", value: "account_request" },
   { label: "Website", value: "website" },
   { label: "Chat", value: "chat" },
-  { label: "Retell", value: "retell" },
+  { label: "Voice", value: "retell" },
   { label: "Phone", value: "phone" },
   { label: "Referral", value: "referral" },
 ];
