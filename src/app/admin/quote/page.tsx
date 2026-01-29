@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -29,6 +29,8 @@ import {
   Printer,
   Sparkles,
   Wand2,
+  Search,
+  Users,
 } from "lucide-react";
 import {
   TEMPLATE_PRESETS,
@@ -96,6 +98,18 @@ interface QuoteState {
   taxRate: number;
 }
 
+interface CrmCustomer {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+}
+
 // ============================================
 // ICONS MAP
 // ============================================
@@ -139,6 +153,13 @@ export default function QuoteBuilderPage() {
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [aiNarrative, setAINarrative] = useState<string | null>(null);
   const pdfRef = useRef<HTMLDivElement>(null);
+
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [customerResults, setCustomerResults] = useState<CrmCustomer[]>([]);
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+  const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const customerSearchRef = useRef<HTMLDivElement>(null);
 
   const [quote, setQuote] = useState<QuoteState>({
     quoteType: null,
@@ -245,6 +266,64 @@ export default function QuoteBuilderPage() {
         zip: prev.customer.zip,
       },
     }));
+  }, []);
+
+  // Search customers from CRM
+  useEffect(() => {
+    if (customerSearch.length < 2) {
+      setCustomerResults([]);
+      setShowCustomerDropdown(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingCustomers(true);
+      try {
+        const response = await fetch(`/api/customers?search=${encodeURIComponent(customerSearch)}`);
+        const data = await response.json();
+        if (data.success && data.data) {
+          setCustomerResults(data.data);
+          setShowCustomerDropdown(true);
+        }
+      } catch {
+        // Silently fail
+      } finally {
+        setIsSearchingCustomers(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [customerSearch]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (customerSearchRef.current && !customerSearchRef.current.contains(e.target as Node)) {
+        setShowCustomerDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Select existing customer from CRM
+  const selectCustomer = useCallback((customer: CrmCustomer) => {
+    setQuote((prev) => ({
+      ...prev,
+      customer: {
+        name: customer.name || "",
+        company: customer.company || "",
+        email: customer.email || "",
+        phone: customer.phone || "",
+        address: customer.address || "",
+        city: customer.city || "",
+        state: customer.state || "TX",
+        zip: customer.zip || "",
+      },
+    }));
+    setSelectedCustomerId(customer.id);
+    setCustomerSearch("");
+    setShowCustomerDropdown(false);
   }, []);
 
   // Handle line item changes
@@ -664,9 +743,61 @@ export default function QuoteBuilderPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">
-                Customer Information
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Customer Information
+                </h2>
+                {selectedCustomerId && (
+                  <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
+                    Linked to CRM
+                  </span>
+                )}
+              </div>
+
+              {/* Customer Search */}
+              <div ref={customerSearchRef} className="relative mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-4 h-4 text-gray-500" />
+                  <label className="text-sm font-medium text-gray-700">
+                    Search Existing Customers
+                  </label>
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={customerSearch}
+                    onChange={(e) => setCustomerSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+                    placeholder="Search by name, email, company, or phone..."
+                  />
+                  {isSearchingCustomers && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 animate-spin" />
+                  )}
+                </div>
+                {showCustomerDropdown && customerResults.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {customerResults.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => selectCustomer(c)}
+                        className="w-full text-left px-4 py-3 hover:bg-orange-50 border-b border-gray-100 last:border-0 transition-colors"
+                      >
+                        <p className="font-medium text-gray-900 text-sm">{c.name}</p>
+                        <p className="text-xs text-gray-500">
+                          {[c.company, c.email, c.phone].filter(Boolean).join(" \u2022 ")}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {showCustomerDropdown && customerResults.length === 0 && customerSearch.length >= 2 && !isSearchingCustomers && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-center text-sm text-gray-500">
+                    No customers found. Fill in the form below to create a new one.
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
