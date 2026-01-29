@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
-import { sendLeadNotification } from "@/lib/email";
+import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,6 +42,14 @@ export async function POST(request: NextRequest) {
       message: lead.message || undefined,
       source: lead.source || "website",
     }).catch((err) => console.error("Failed to send lead notification:", err));
+
+    // Send confirmation email to customer
+    const serviceMatch = lead.message?.match(/Service needed: (.+)/);
+    sendCustomerConfirmation({
+      customerEmail: lead.email,
+      customerName: lead.name,
+      service: serviceMatch?.[1] || undefined,
+    }).catch((err) => console.error("Failed to send customer confirmation:", err));
 
     return NextResponse.json({
       success: true,

@@ -235,6 +235,46 @@ export const emailTemplates = {
     `,
   }),
 
+  // Customer confirmation email
+  customerConfirmation: (data: {
+    customerName: string;
+    service?: string;
+  }) => ({
+    subject: `We received your request - Chatman Security & Fire`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #ea580c; padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Request Received</h1>
+        </div>
+        <div style="padding: 30px; background-color: #f9fafb;">
+          <p style="color: #374151; font-size: 16px;">Hi ${data.customerName},</p>
+          <p style="color: #374151; font-size: 16px;">
+            Thank you for reaching out to Chatman Security & Fire. We've received your request${data.service ? ` for <strong>${data.service}</strong>` : ""} and a team member will be in touch within 24 hours.
+          </p>
+          <div style="background-color: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;">
+            <p style="color: #374151; font-size: 14px; margin: 0 0 10px 0;"><strong>Need immediate help?</strong></p>
+            <p style="color: #374151; font-size: 14px; margin: 0;">
+              Call us directly at <a href="tel:+18324301826" style="color: #ea580c; font-weight: bold;">(832) 430-1826</a>
+            </p>
+            <p style="color: #6b7280; font-size: 13px; margin: 10px 0 0 0;">
+              We offer 24/7 emergency service for urgent fire safety needs.
+            </p>
+          </div>
+          <div style="text-align: center; margin-top: 20px;">
+            <a href="https://www.chatmansecurityandfire.com"
+               style="display: inline-block; background-color: #ea580c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+              Visit Our Website
+            </a>
+          </div>
+        </div>
+        <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
+          Chatman Security & Fire | Houston, TX<br>
+          (832) 430-1826 | info@chatmansecurityandfire.com
+        </div>
+      </div>
+    `,
+  }),
+
   // Access granted email to customer
   accessGrantedEmail: (data: {
     customerName: string;
@@ -404,6 +444,22 @@ export async function sendAccessGrantedEmail(data: {
   const template = emailTemplates.accessGrantedEmail({
     customerName: data.customerName,
     portalUrl: data.portalUrl,
+  });
+  return sendEmail({
+    to: data.customerEmail,
+    subject: template.subject,
+    html: template.html,
+  });
+}
+
+export async function sendCustomerConfirmation(data: {
+  customerEmail: string;
+  customerName: string;
+  service?: string;
+}) {
+  const template = emailTemplates.customerConfirmation({
+    customerName: data.customerName,
+    service: data.service,
   });
   return sendEmail({
     to: data.customerEmail,
