@@ -364,9 +364,35 @@ export default function ChadChat() {
                               : "bg-white text-gray-700 rounded-tl-md border border-gray-200"
                           }`}
                         >
-                          <p className="text-sm leading-relaxed">
-                            {message.text}
-                          </p>
+                          <div className="text-sm leading-relaxed space-y-1.5">
+                            {message.text.split("\n").map((line, i) => {
+                              const trimmed = line.trim();
+                              if (!trimmed) return null;
+
+                              // Render bold markdown (**text**) as <strong>
+                              const renderLine = (text: string) => {
+                                const parts = text.split(/(\*\*[^*]+\*\*)/g);
+                                return parts.map((part, j) => {
+                                  if (part.startsWith("**") && part.endsWith("**")) {
+                                    return <strong key={j}>{part.slice(2, -2)}</strong>;
+                                  }
+                                  return <span key={j}>{part}</span>;
+                                });
+                              };
+
+                              // List items (- or •)
+                              if (trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
+                                return (
+                                  <div key={i} className="flex gap-1.5 ml-1">
+                                    <span className="text-orange-500 flex-shrink-0">•</span>
+                                    <span>{renderLine(trimmed.slice(2))}</span>
+                                  </div>
+                                );
+                              }
+
+                              return <p key={i}>{renderLine(trimmed)}</p>;
+                            })}
+                          </div>
                         </div>
                         <span className="text-xs text-gray-400 mt-1 block">
                           {formatTime(message.timestamp)}
