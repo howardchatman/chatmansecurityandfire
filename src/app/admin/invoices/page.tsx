@@ -1,78 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Plus, MoreHorizontal, DollarSign, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, MoreHorizontal, FileText } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 interface Invoice {
   id: string;
-  invoiceNumber: string;
-  customer: string;
-  amount: number;
+  invoice_number: string;
   status: string;
-  dueDate: string;
-  createdAt: string;
+  total: number;
+  amount_paid: number;
+  due_date: string | null;
+  created_at: string;
+  sent_at: string | null;
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+    company: string;
+  } | null;
 }
-
-// Mock data
-const mockInvoices: Invoice[] = [
-  {
-    id: "1",
-    invoiceNumber: "INV-2024-000045",
-    customer: "ABC Corporation",
-    amount: 2450.0,
-    status: "sent",
-    dueDate: "2024-02-01",
-    createdAt: "2024-01-15",
-  },
-  {
-    id: "2",
-    invoiceNumber: "INV-2024-000044",
-    customer: "Tech Solutions Inc",
-    amount: 850.0,
-    status: "paid",
-    dueDate: "2024-01-20",
-    createdAt: "2024-01-10",
-  },
-  {
-    id: "3",
-    invoiceNumber: "INV-2024-000043",
-    customer: "Medical Center West",
-    amount: 4200.0,
-    status: "overdue",
-    dueDate: "2024-01-10",
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "4",
-    invoiceNumber: "INV-2024-000042",
-    customer: "Downtown Retail",
-    amount: 1299.0,
-    status: "partial",
-    dueDate: "2024-01-25",
-    createdAt: "2024-01-08",
-  },
-  {
-    id: "5",
-    invoiceNumber: "INV-2024-000041",
-    customer: "Smith Residence",
-    amount: 149.0,
-    status: "paid",
-    dueDate: "2024-01-15",
-    createdAt: "2024-01-05",
-  },
-  {
-    id: "6",
-    invoiceNumber: "INV-2024-000040",
-    customer: "Johnson Family",
-    amount: 299.0,
-    status: "draft",
-    dueDate: "2024-02-05",
-    createdAt: "2024-01-14",
-  },
-];
 
 const statusFilters = [
   { label: "All", value: "all" },
@@ -81,27 +31,50 @@ const statusFilters = [
   { label: "Paid", value: "paid" },
   { label: "Partial", value: "partial" },
   { label: "Overdue", value: "overdue" },
+  { label: "Cancelled", value: "cancelled" },
 ];
 
 export default function InvoicesPage() {
+  const router = useRouter();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const filteredInvoices =
-    statusFilter === "all"
-      ? mockInvoices
-      : mockInvoices.filter((i) => i.status === statusFilter);
+  useEffect(() => {
+    fetchInvoices();
+  }, [statusFilter]);
 
-  const totalOutstanding = mockInvoices
+  const fetchInvoices = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      const res = await fetch(`/api/invoices?${params.toString()}`);
+      const data = await res.json();
+      if (data.success) {
+        setInvoices(data.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalOutstanding = invoices
     .filter((i) => ["sent", "partial", "overdue"].includes(i.status))
-    .reduce((sum, i) => sum + i.amount, 0);
+    .reduce((sum, i) => sum + (i.total - (i.amount_paid || 0)), 0);
 
-  const totalOverdue = mockInvoices
-    .filter((i) => i.status === "overdue")
-    .reduce((sum, i) => sum + i.amount, 0);
+  const totalOverdue = invoices
+    .filter((i) => i.status === "overdue" || (i.due_date && new Date(i.due_date) < new Date() && !["paid", "cancelled", "draft"].includes(i.status)))
+    .reduce((sum, i) => sum + (i.total - (i.amount_paid || 0)), 0);
+
+  const totalPaid = invoices
+    .filter((i) => i.status === "paid")
+    .reduce((sum, i) => sum + i.total, 0);
 
   const columns = [
     {
-      key: "invoiceNumber",
+      key: "invoice_number",
       label: "Invoice",
       sortable: true,
       render: (invoice: Invoice) => (
@@ -110,9 +83,9 @@ export default function InvoicesPage() {
             <FileText className="w-5 h-5 text-gray-500" />
           </div>
           <div>
-            <p className="font-medium text-gray-900">{invoice.invoiceNumber}</p>
+            <p className="font-medium text-gray-900">{invoice.invoice_number}</p>
             <p className="text-xs text-gray-500">
-              Created {new Date(invoice.createdAt).toLocaleDateString()}
+              Created {new Date(invoice.created_at).toLocaleDateString()}
             </p>
           </div>
         </div>
@@ -122,14 +95,29 @@ export default function InvoicesPage() {
       key: "customer",
       label: "Customer",
       sortable: true,
+      render: (invoice: Invoice) => (
+        <span className="text-gray-900">
+          {invoice.customer?.name || invoice.customer?.company || "N/A"}
+        </span>
+      ),
     },
     {
-      key: "amount",
+      key: "total",
       label: "Amount",
       sortable: true,
       render: (invoice: Invoice) => (
         <span className="font-semibold text-gray-900">
-          ${invoice.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          ${invoice.total?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </span>
+      ),
+    },
+    {
+      key: "amount_paid",
+      label: "Paid",
+      sortable: true,
+      render: (invoice: Invoice) => (
+        <span className={`font-medium ${(invoice.amount_paid || 0) > 0 ? "text-green-600" : "text-gray-400"}`}>
+          ${(invoice.amount_paid || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </span>
       ),
     },
@@ -140,15 +128,15 @@ export default function InvoicesPage() {
       render: (invoice: Invoice) => <StatusBadge status={invoice.status} />,
     },
     {
-      key: "dueDate",
+      key: "due_date",
       label: "Due Date",
       sortable: true,
       render: (invoice: Invoice) => {
-        const isOverdue =
-          new Date(invoice.dueDate) < new Date() && invoice.status !== "paid";
+        if (!invoice.due_date) return <span className="text-gray-400">N/A</span>;
+        const isOverdue = new Date(invoice.due_date) < new Date() && !["paid", "cancelled"].includes(invoice.status);
         return (
-          <span className={isOverdue ? "text-orange-600 font-medium" : "text-gray-500"}>
-            {new Date(invoice.dueDate).toLocaleDateString()}
+          <span className={isOverdue ? "text-red-600 font-medium" : "text-gray-500"}>
+            {new Date(invoice.due_date).toLocaleDateString()}
           </span>
         );
       },
@@ -178,27 +166,24 @@ export default function InvoicesPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Total Invoices</p>
-          <p className="text-2xl font-bold text-gray-900">{mockInvoices.length}</p>
+          <p className="text-2xl font-bold text-gray-900">{invoices.length}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Outstanding</p>
           <p className="text-2xl font-bold text-blue-600">
-            ${totalOutstanding.toLocaleString()}
+            ${totalOutstanding.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">Overdue</p>
-          <p className="text-2xl font-bold text-orange-600">
-            ${totalOverdue.toLocaleString()}
+          <p className="text-2xl font-bold text-red-600">
+            ${totalOverdue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Paid This Month</p>
+          <p className="text-sm text-gray-500">Paid</p>
           <p className="text-2xl font-bold text-green-600">
-            ${mockInvoices
-              .filter((i) => i.status === "paid")
-              .reduce((sum, i) => sum + i.amount, 0)
-              .toLocaleString()}
+            ${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
       </div>
@@ -221,20 +206,29 @@ export default function InvoicesPage() {
       </div>
 
       {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={filteredInvoices}
-        searchPlaceholder="Search invoices..."
-        onRowClick={(invoice) => console.log("View invoice:", invoice.id)}
-        actions={(invoice) => (
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
-        )}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center h-32">
+          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={invoices}
+          searchPlaceholder="Search invoices..."
+          onRowClick={(invoice) => router.push(`/admin/invoices/${invoice.id}`)}
+          actions={(invoice) => (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/admin/invoices/${invoice.id}`);
+              }}
+              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          )}
+        />
+      )}
     </div>
   );
 }
