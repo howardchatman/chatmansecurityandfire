@@ -42,7 +42,7 @@ export async function POST(
     // Check if customer already exists
     let customer;
     const { data: existingCustomer } = await supabase
-      .from("security_customers")
+      .from("customers")
       .select("*")
       .eq("email", lead.email)
       .single();
@@ -52,7 +52,7 @@ export async function POST(
     } else {
       // Create customer record
       const { data: newCustomer, error: customerError } = await supabase
-        .from("security_customers")
+        .from("customers")
         .insert({
           name: lead.name,
           email: lead.email,

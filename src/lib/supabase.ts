@@ -132,7 +132,7 @@ export interface Customer {
 
 export async function createCustomer(customer: Customer) {
   const { data, error } = await supabaseAdmin
-    .from("security_customers")
+    .from("customers")
     .insert([customer])
     .select()
     .single();
@@ -143,7 +143,7 @@ export async function createCustomer(customer: Customer) {
 
 export async function getCustomers() {
   const { data, error } = await supabaseAdmin
-    .from("security_customers")
+    .from("customers")
     .select("*")
     .order("name", { ascending: true });
 
@@ -153,7 +153,7 @@ export async function getCustomers() {
 
 export async function getCustomerById(id: string) {
   const { data, error } = await supabaseAdmin
-    .from("security_customers")
+    .from("customers")
     .select("*")
     .eq("id", id)
     .single();
@@ -204,7 +204,7 @@ export async function getServiceTickets(status?: string) {
     .from("security_service_tickets")
     .select(`
       *,
-      customer:security_customers(id, name, email, phone)
+      customer:customers(id, name, email, phone)
     `)
     .order("created_at", { ascending: false });
 
@@ -1566,7 +1566,7 @@ export async function getInspections(filters?: {
       *,
       inspector:profiles!inspections_inspector_id_fkey(id, full_name, email, phone),
       creator:profiles!inspections_created_by_fkey(id, full_name),
-      customer:security_customers(id, name, email, phone)
+      customer:customers(id, name, email, phone)
     `)
     .order("scheduled_date", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
@@ -1599,7 +1599,7 @@ export async function getInspectionById(id: string) {
       *,
       inspector:profiles!inspections_inspector_id_fkey(id, full_name, email, phone),
       creator:profiles!inspections_created_by_fkey(id, full_name, email),
-      customer:security_customers(id, name, email, phone, address, city, state, zip)
+      customer:customers(id, name, email, phone, address, city, state, zip)
     `)
     .eq("id", id)
     .single();
@@ -1897,7 +1897,7 @@ export async function getAssignedInspections(inspectorId: string) {
     .from("inspections")
     .select(`
       *,
-      customer:security_customers(id, name, email, phone)
+      customer:customers(id, name, email, phone)
     `)
     .eq("inspector_id", inspectorId)
     .in("status", ["scheduled", "in_progress"])
@@ -1913,7 +1913,7 @@ export async function getCompletedInspections(inspectorId: string, limit: number
     .from("inspections")
     .select(`
       *,
-      customer:security_customers(id, name, email, phone)
+      customer:customers(id, name, email, phone)
     `)
     .eq("inspector_id", inspectorId)
     .eq("status", "completed")

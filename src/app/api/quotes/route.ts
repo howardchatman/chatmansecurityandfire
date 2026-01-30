@@ -29,13 +29,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upsert customer to security_customers CRM table
+    // Upsert customer to customers CRM table
     const customerData = body.customer;
     if (customerData.email) {
       try {
         // Check if customer already exists by email
         const { data: existing } = await supabaseAdmin
-          .from("security_customers")
+          .from("customers")
           .select("id")
           .eq("email", customerData.email)
           .single();
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         if (existing) {
           // Update existing customer
           await supabaseAdmin
-            .from("security_customers")
+            .from("customers")
             .update({
               name: customerData.name,
               phone: customerData.phone || undefined,
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         } else {
           // Create new customer
           await supabaseAdmin
-            .from("security_customers")
+            .from("customers")
             .insert([{
               name: customerData.name,
               email: customerData.email,

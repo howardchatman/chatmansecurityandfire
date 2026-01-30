@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     if (search) {
       // Search customers by name, email, company, or phone
       const { data, error } = await supabaseAdmin
-        .from("security_customers")
+        .from("customers")
         .select("*")
         .or(`name.ilike.%${search}%,email.ilike.%${search}%,company.ilike.%${search}%,phone.ilike.%${search}%`)
         .order("name", { ascending: true })
