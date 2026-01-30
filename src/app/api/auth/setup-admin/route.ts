@@ -35,7 +35,7 @@ export async function POST() {
 
       // Upsert the user
       const { data, error } = await supabaseAdmin
-        .from("security_admin_users")
+        .from("admin_users")
         .upsert(
           {
             email: user.email,

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         // Update invoice status in database if tracking
         if (invoice.metadata?.invoice_db_id) {
           await supabase
-            .from("security_invoices")
+            .from("invoices")
             .update({
               status: "paid",
               paid_at: new Date().toISOString(),
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
         if (invoice.metadata?.invoice_db_id) {
           await supabase
-            .from("security_invoices")
+            .from("invoices")
             .update({ status: "payment_failed" })
             .eq("id", invoice.metadata.invoice_db_id);
         }

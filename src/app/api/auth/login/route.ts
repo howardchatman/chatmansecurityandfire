@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Look up user in security_admin_users table
+    // Look up user in admin_users table
     const { data: user, error } = await supabaseAdmin
-      .from("security_admin_users")
+      .from("admin_users")
       .select("*")
       .eq("email", email.toLowerCase())
       .eq("is_active", true)
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     // Update last login
     await supabaseAdmin
-      .from("security_admin_users")
+      .from("admin_users")
       .update({ last_login: new Date().toISOString() })
       .eq("id", user.id);
 

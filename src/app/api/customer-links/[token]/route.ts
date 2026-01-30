@@ -63,7 +63,7 @@ export async function GET(
       .from("customer_links")
       .select(`
         *,
-        quote:security_quotes(
+        quote:quotes(
           id,
           quote_number,
           status,

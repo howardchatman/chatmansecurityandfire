@@ -110,7 +110,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     }
 
     const { error: quoteError } = await supabase
-      .from("security_quotes")
+      .from("quotes")
       .update(updateData)
       .eq("id", quote_id);
 
@@ -200,7 +200,7 @@ async function handleRefund(charge: Stripe.Charge) {
 
     if (payment?.quote_id) {
       await supabase
-        .from("security_quotes")
+        .from("quotes")
         .update({ payment_status: "refunded" })
         .eq("id", payment.quote_id);
     }

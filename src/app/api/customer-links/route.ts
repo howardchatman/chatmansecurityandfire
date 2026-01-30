@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       .from("customer_links")
       .select(`
         *,
-        quote:security_quotes(id, quote_number, status, totals),
+        quote:quotes(id, quote_number, status, totals),
         job:jobs(id, job_number, status),
         created_by_user:profiles!customer_links_created_by_fkey(full_name)
       `)

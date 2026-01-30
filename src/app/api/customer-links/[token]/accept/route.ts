@@ -40,7 +40,7 @@ export async function POST(
       .from("customer_links")
       .select(`
         *,
-        quote:security_quotes(
+        quote:quotes(
           id,
           quote_number,
           status,
@@ -134,7 +134,7 @@ export async function POST(
 
     // Update the quote status
     const { error: quoteUpdateError } = await supabase
-      .from("security_quotes")
+      .from("quotes")
       .update({
         status: "accepted",
         accepted_at: new Date().toISOString(),

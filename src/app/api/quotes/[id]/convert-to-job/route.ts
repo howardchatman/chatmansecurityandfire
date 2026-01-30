@@ -80,7 +80,7 @@ export async function POST(
 
     // Fetch the quote
     const { data: quote, error: quoteError } = await supabase
-      .from("security_quotes")
+      .from("quotes")
       .select("*")
       .eq("id", quoteId)
       .single();

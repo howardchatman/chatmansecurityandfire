@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     // Try to save to Supabase if available
     try {
       const { data, error } = await supabaseAdmin
-        .from("security_service_requests")
+        .from("service_requests")
         .insert([
           {
             name: body.name,

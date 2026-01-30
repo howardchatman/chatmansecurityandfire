@@ -184,7 +184,7 @@ export interface ServiceTicket {
 
 export async function createServiceTicket(ticket: ServiceTicket) {
   const { data, error } = await supabaseAdmin
-    .from("security_service_tickets")
+    .from("service_tickets")
     .insert([
       {
         ...ticket,
@@ -201,7 +201,7 @@ export async function createServiceTicket(ticket: ServiceTicket) {
 
 export async function getServiceTickets(status?: string) {
   let query = supabaseAdmin
-    .from("security_service_tickets")
+    .from("service_tickets")
     .select(`
       *,
       customer:customers(id, name, email, phone)
@@ -239,7 +239,7 @@ export interface ChatConversation {
 
 export async function saveConversation(conversation: ChatConversation) {
   const { data, error } = await supabaseAdmin
-    .from("security_chat_conversations")
+    .from("chat_conversations")
     .upsert(
       {
         session_id: conversation.session_id,
@@ -278,7 +278,7 @@ export interface CallLog {
 
 export async function saveCallLog(callLog: CallLog) {
   const { data, error } = await supabaseAdmin
-    .from("security_call_logs")
+    .from("call_logs")
     .insert([callLog])
     .select()
     .single();
@@ -289,7 +289,7 @@ export async function saveCallLog(callLog: CallLog) {
 
 export async function getCallLogs() {
   const { data, error } = await supabaseAdmin
-    .from("security_call_logs")
+    .from("call_logs")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -375,7 +375,7 @@ export interface Quote {
 export async function generateQuoteNumber(): Promise<string> {
   const year = new Date().getFullYear();
   const { data, error } = await supabaseAdmin
-    .from("security_quotes")
+    .from("quotes")
     .select("quote_number")
     .like("quote_number", `QT-${year}-%`)
     .order("created_at", { ascending: false })
@@ -403,7 +403,7 @@ export async function createQuote(quote: Omit<Quote, "id" | "quote_number" | "cr
   const quote_number = await generateQuoteNumber();
 
   const { data, error } = await supabaseAdmin
-    .from("security_quotes")
+    .from("quotes")
     .insert([
       {
         ...quote,
@@ -420,7 +420,7 @@ export async function createQuote(quote: Omit<Quote, "id" | "quote_number" | "cr
 
 export async function updateQuote(id: string, updates: Partial<Quote>) {
   const { data, error } = await supabaseAdmin
-    .from("security_quotes")
+    .from("quotes")
     .update({
       ...updates,
       updated_at: new Date().toISOString(),
@@ -435,7 +435,7 @@ export async function updateQuote(id: string, updates: Partial<Quote>) {
 
 export async function getQuotes(status?: string) {
   let query = supabaseAdmin
-    .from("security_quotes")
+    .from("quotes")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -450,7 +450,7 @@ export async function getQuotes(status?: string) {
 
 export async function getQuoteById(id: string) {
   const { data, error } = await supabaseAdmin
-    .from("security_quotes")
+    .from("quotes")
     .select("*")
     .eq("id", id)
     .single();
@@ -461,7 +461,7 @@ export async function getQuoteById(id: string) {
 
 export async function getQuoteByNumber(quoteNumber: string) {
   const { data, error } = await supabaseAdmin
-    .from("security_quotes")
+    .from("quotes")
     .select("*")
     .eq("quote_number", quoteNumber)
     .single();
@@ -472,7 +472,7 @@ export async function getQuoteByNumber(quoteNumber: string) {
 
 export async function deleteQuote(id: string) {
   const { error } = await supabaseAdmin
-    .from("security_quotes")
+    .from("quotes")
     .delete()
     .eq("id", id);
 

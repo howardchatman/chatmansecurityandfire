@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       .from("payments")
       .select(`
         *,
-        quote:security_quotes(quote_number)
+        quote:quotes(quote_number)
       `)
       .eq("stripe_checkout_session_id", sessionId)
       .single();
