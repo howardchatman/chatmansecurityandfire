@@ -26,6 +26,45 @@ interface Message {
 
 type CallStatus = "idle" | "connecting" | "connected" | "error";
 
+// Reply button sets matching the Retell conversation flow
+const replyButtonSets: { keywords: string[]; buttons: string[] }[] = [
+  {
+    // Initial greeting / "How can we help?"
+    keywords: ["how can i", "how can we", "what's going on", "what can i help", "assist you", "help you with"],
+    buttons: ["Failed Inspection", "Schedule Service", "Get a Quote", "Emergency"],
+  },
+  {
+    // "What system failed?" / system type
+    keywords: ["what system", "which system", "what type of system", "what kind of system"],
+    buttons: ["Fire Alarm", "Sprinkler", "Emergency Lights", "Fire Extinguishers", "Fire Lane / Compliance", "Other"],
+  },
+  {
+    // "What type of property?"
+    keywords: ["what type of property", "property type", "what kind of property", "is this a commercial", "residential or commercial"],
+    buttons: ["Commercial", "Residential", "Institutional", "Industrial"],
+  },
+  {
+    // "What time works best?" / scheduling
+    keywords: ["what time works", "when would you like", "when works best", "schedule", "preferred time", "availability"],
+    buttons: ["Today", "This Week", "Next Week"],
+  },
+  {
+    // "What services are you needing?"
+    keywords: ["what services", "which service", "what do you need"],
+    buttons: ["Fire Alarm", "Sprinkler", "Emergency Lights", "Fire Extinguishers", "Fire Lane Marking", "Monitoring"],
+  },
+];
+
+function getReplyButtons(assistantText: string): string[] | null {
+  const lower = assistantText.toLowerCase();
+  for (const set of replyButtonSets) {
+    if (set.keywords.some((kw) => lower.includes(kw))) {
+      return set.buttons;
+    }
+  }
+  return null;
+}
+
 const quickActions = [
   { label: "Failed Inspection", action: "inspection" },
   { label: "Fire Marshal Issue", action: "marshal" },
@@ -413,22 +452,50 @@ export default function ChadChat() {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Quick Actions */}
-                {messages.length <= 2 && (
-                  <div className="px-4 pb-2 bg-neutral-50">
-                    <div className="flex flex-wrap gap-2">
-                      {quickActions.map((action) => (
-                        <button
-                          key={action.action}
-                          onClick={() => handleQuickAction(action.action)}
-                          className="px-3 py-1.5 text-xs bg-white hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-full transition-colors"
-                        >
-                          {action.label}
-                        </button>
-                      ))}
+                {/* Reply Buttons - show contextual buttons based on last assistant message */}
+                {!isLoading && callStatus === "idle" && (() => {
+                  const lastAssistant = [...messages].reverse().find((m) => m.sender === "assistant");
+                  if (!lastAssistant) return null;
+
+                  // First message: show initial quick actions
+                  if (messages.length <= 2) {
+                    return (
+                      <div className="px-4 pb-2 bg-neutral-50">
+                        <div className="flex flex-wrap gap-2">
+                          {quickActions.map((action) => (
+                            <button
+                              key={action.action}
+                              onClick={() => handleQuickAction(action.action)}
+                              className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-orange-50 hover:border-orange-300 text-gray-700 border border-gray-200 rounded-full transition-colors"
+                            >
+                              {action.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Subsequent messages: show contextual reply buttons
+                  const buttons = getReplyButtons(lastAssistant.text);
+                  if (!buttons) return null;
+
+                  return (
+                    <div className="px-4 pb-2 bg-neutral-50">
+                      <div className="flex flex-wrap gap-2">
+                        {buttons.map((label) => (
+                          <button
+                            key={label}
+                            onClick={() => handleSendMessage(label)}
+                            className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-orange-50 hover:border-orange-300 text-gray-700 border border-gray-200 rounded-full transition-colors"
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Input Area */}
                 <div className="p-4 border-t border-gray-200 bg-white">
