@@ -27,16 +27,22 @@ interface Message {
 type CallStatus = "idle" | "connecting" | "connected" | "error";
 
 // Reply button sets matching the Retell conversation flow
+// Order matters — first match wins
 const replyButtonSets: { keywords: string[]; buttons: string[] }[] = [
   {
-    // Initial greeting / "How can we help?"
-    keywords: ["how can i", "how can we", "what's going on", "what can i help", "assist you", "help you with"],
+    // "How can we help?" — initial intent
+    keywords: ["how can we help", "how can i help", "what's going on", "what can i help", "assist you", "help you with", "help you today"],
     buttons: ["Failed Inspection", "Schedule Service", "Get a Quote", "Emergency"],
   },
   {
-    // "What system failed?" / system type
+    // "What system failed?" / "What system is the violation/issue for?"
     keywords: ["what system", "which system", "what type of system", "what kind of system"],
     buttons: ["Fire Alarm", "Sprinkler", "Emergency Lights", "Fire Extinguishers", "Fire Lane / Compliance", "Other"],
+  },
+  {
+    // "What services are you needing?"
+    keywords: ["what services", "which service", "what do you need"],
+    buttons: ["Fire Alarm", "Sprinkler", "Emergency Lights", "Fire Extinguishers", "Fire Lane Marking", "Monitoring"],
   },
   {
     // "What type of property?"
@@ -44,14 +50,19 @@ const replyButtonSets: { keywords: string[]; buttons: string[] }[] = [
     buttons: ["Commercial", "Residential", "Institutional", "Industrial"],
   },
   {
+    // "What's the address?" — no buttons, user types freely
+    keywords: ["what's the address", "what is the address", "property address"],
+    buttons: [],
+  },
+  {
     // "What time works best?" / scheduling
-    keywords: ["what time works", "when would you like", "when works best", "schedule", "preferred time", "availability"],
+    keywords: ["what time works", "when would you like", "when works best", "preferred time", "availability", "when do you need"],
     buttons: ["Today", "This Week", "Next Week"],
   },
   {
-    // "What services are you needing?"
-    keywords: ["what services", "which service", "what do you need"],
-    buttons: ["Fire Alarm", "Sprinkler", "Emergency Lights", "Fire Extinguishers", "Fire Lane Marking", "Monitoring"],
+    // "What's the best email?" — no buttons, user types freely
+    keywords: ["best email", "email to send", "contact email", "email address"],
+    buttons: [],
   },
 ];
 
@@ -66,10 +77,10 @@ function getReplyButtons(assistantText: string): string[] | null {
 }
 
 const quickActions = [
-  { label: "Failed Inspection", action: "inspection" },
-  { label: "Fire Marshal Issue", action: "marshal" },
-  { label: "Deadline This Week", action: "urgent" },
-  { label: "Schedule Service", action: "service" },
+  "Failed Inspection",
+  "Schedule Service",
+  "Get a Quote",
+  "Emergency",
 ];
 
 export default function ChadChat() {
@@ -159,14 +170,8 @@ export default function ChadChat() {
     }
   };
 
-  const handleQuickAction = (action: string) => {
-    const actionMessages: Record<string, string> = {
-      inspection: "I failed an inspection and need help with corrections.",
-      marshal: "I have a fire marshal issue that needs to be resolved.",
-      urgent: "I have a deadline this week I need to hit.",
-      service: "I need to schedule service on my fire safety systems.",
-    };
-    handleSendMessage(actionMessages[action]);
+  const handleQuickAction = (label: string) => {
+    handleSendMessage(label);
   };
 
   // Initialize Retell event handlers
@@ -462,13 +467,13 @@ export default function ChadChat() {
                     return (
                       <div className="px-4 pb-2 bg-neutral-50">
                         <div className="flex flex-wrap gap-2">
-                          {quickActions.map((action) => (
+                          {quickActions.map((label) => (
                             <button
-                              key={action.action}
-                              onClick={() => handleQuickAction(action.action)}
+                              key={label}
+                              onClick={() => handleQuickAction(label)}
                               className="px-3 py-1.5 text-xs font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-full transition-colors"
                             >
-                              {action.label}
+                              {label}
                             </button>
                           ))}
                         </div>
@@ -478,7 +483,7 @@ export default function ChadChat() {
 
                   // Subsequent messages: show contextual reply buttons
                   const buttons = getReplyButtons(lastAssistant.text);
-                  if (!buttons) return null;
+                  if (!buttons || buttons.length === 0) return null;
 
                   return (
                     <div className="px-4 pb-2 bg-neutral-50">
