@@ -466,7 +466,7 @@ export default function ChadChat() {
                             <button
                               key={action.action}
                               onClick={() => handleQuickAction(action.action)}
-                              className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-orange-50 hover:border-orange-300 text-gray-700 border border-gray-200 rounded-full transition-colors"
+                              className="px-3 py-1.5 text-xs font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-full transition-colors"
                             >
                               {action.label}
                             </button>
@@ -487,7 +487,7 @@ export default function ChadChat() {
                           <button
                             key={label}
                             onClick={() => handleSendMessage(label)}
-                            className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-orange-50 hover:border-orange-300 text-gray-700 border border-gray-200 rounded-full transition-colors"
+                            className="px-3 py-1.5 text-xs font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-full transition-colors"
                           >
                             {label}
                           </button>
