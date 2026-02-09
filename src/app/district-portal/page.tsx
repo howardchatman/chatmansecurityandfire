@@ -2,6 +2,16 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
+// ========== TYPES ==========
+interface CheckItem { name: string; status: "pass" | "fail" | "warn"; }
+interface School {
+  id: number; name: string; address: string; type: string; region: string;
+  status: "compliant" | "in-progress" | "critical"; compliance: number;
+  priorityItems: number; lastInspected: string; sqft: string;
+  students: number; checks: CheckItem[]; nextInspection: string;
+  image: string;
+}
+
 // ========== DATA GENERATION ==========
 const regions = ["North", "South", "East", "West", "Central"];
 const schoolTypes = ["Elementary", "Middle", "High School", "Early Childhood", "K-8", "Alternative"];
@@ -19,12 +29,11 @@ function weightedStatus(): "compliant" | "in-progress" | "critical" {
   return statuses[0];
 }
 
-interface CheckItem { name: string; status: "pass" | "fail" | "warn"; }
-interface School {
-  id: number; name: string; address: string; type: string; region: string;
-  status: "compliant" | "in-progress" | "critical"; compliance: number;
-  priorityItems: number; lastInspected: string; sqft: string;
-  students: number; checks: CheckItem[]; nextInspection: string;
+// Deterministic school images using picsum with seed
+function schoolImage(id: number): string {
+  // Use specific picsum IDs that look like buildings/schools
+  const buildingIds = [101,103,164,174,183,199,209,211,224,238,248,256,260,271,274,279,281,286,290,299,301,304,308,312,316,319,322,325,328,335,338,341,344,349,352,356,358,362,365,368,372,376,380,384,387,390,393,396,399,402,405,408,411,414,417,420,423,426,429,432,435,438,441,444,447,450,453,456,459,462];
+  return `https://picsum.photos/seed/school${buildingIds[id % buildingIds.length]}/600/400`;
 }
 
 function generateSchools(): School[] {
@@ -52,7 +61,8 @@ function generateSchools(): School[] {
       type, region, status, compliance, priorityItems,
       lastInspected: inspDate.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),
       sqft: sqft.toLocaleString(), students: Math.floor(sqft/60),
-      checks, nextInspection: new Date(Date.now() + (Math.floor(Math.random()*60)+1)*86400000).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})
+      checks, nextInspection: new Date(Date.now() + (Math.floor(Math.random()*60)+1)*86400000).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),
+      image: schoolImage(i),
     });
   }
   return result;
@@ -65,10 +75,16 @@ export default function DistrictPortal() {
   const [currentFilter, setCurrentFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [detailSchool, setDetailSchool] = useState<School | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const perPage = 15;
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const perPage = 12;
   const initialized = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Add Location form state
+  const [newSchool, setNewSchool] = useState({ name: "", address: "", type: "Elementary", region: "North", image: "" });
+  const [uploadPreview, setUploadPreview] = useState<string>("");
 
   useEffect(() => {
     if (!initialized.current) {
@@ -76,6 +92,10 @@ export default function DistrictPortal() {
       setSchools(generateSchools());
     }
   }, []);
+
+  const compliantCount = schools.filter(s => s.status === "compliant").length;
+  const inProgressCount = schools.filter(s => s.status === "in-progress").length;
+  const criticalCount = schools.filter(s => s.status === "critical").length;
 
   const getFilteredSchools = useCallback(() => {
     let list = [...schools];
@@ -91,76 +111,113 @@ export default function DistrictPortal() {
   const switchTab = (tab: string) => {
     setCurrentTab(tab);
     setCurrentPage(1);
+    setSelectedSchool(null);
   };
 
-  const openDetail = (id: number) => {
+  const openSchoolProfile = (id: number) => {
     const s = schools.find(x => x.id === id);
-    if (s) { setDetailSchool(s); setDetailOpen(true); }
+    if (s) { setSelectedSchool(s); setCurrentTab("profile"); }
   };
 
-  const closeDetail = () => { setDetailOpen(false); };
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, schoolId?: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      if (schoolId) {
+        // Update existing school image
+        setSchools(prev => prev.map(s => s.id === schoolId ? { ...s, image: dataUrl } : s));
+        if (selectedSchool?.id === schoolId) {
+          setSelectedSchool(prev => prev ? { ...prev, image: dataUrl } : null);
+        }
+      } else {
+        // For the add-location form
+        setUploadPreview(dataUrl);
+        setNewSchool(prev => ({ ...prev, image: dataUrl }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAddSchool = () => {
+    if (!newSchool.name || !newSchool.address) return;
+    const id = schools.length + 1;
+    const status = "in-progress" as const;
+    const compliance = 0;
+    const checks: CheckItem[] = systemChecks.map(s => ({ name: s, status: "fail" as const }));
+    const now = new Date();
+    const added: School = {
+      id, name: newSchool.name, address: newSchool.address, type: newSchool.type, region: newSchool.region,
+      status, compliance, priorityItems: 12, sqft: "0", students: 0,
+      lastInspected: "Not yet inspected",
+      checks, nextInspection: new Date(Date.now() + 14*86400000).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),
+      image: newSchool.image || schoolImage(id),
+    };
+    setSchools(prev => [...prev, added]);
+    setNewSchool({ name: "", address: "", type: "Elementary", region: "North", image: "" });
+    setUploadPreview("");
+    setShowAddModal(false);
+  };
 
   const tabTitles: Record<string, string> = {
     overview: "District Overview", schools: "All Schools", compliance: "Compliance Tracker",
-    marshal: "Fire Marshal Coordination", reports: "Reports & Documents", schedule: "Schedule"
+    marshal: "Fire Marshal Coordination", reports: "Reports & Documents", profile: selectedSchool?.name || "School Profile"
   };
 
   const tabs = ["overview","schools","compliance","marshal","reports"];
   const navItems = [
     { id: "overview", label: "Overview", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
-    { id: "schools", label: "All Schools", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]"><path d="M2 20h20M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/><path d="M9 12h6"/></svg>, badge: "70" },
+    { id: "schools", label: "All Schools", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]"><path d="M2 20h20M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/><path d="M9 12h6"/></svg>, badge: String(schools.length) },
     { id: "compliance", label: "Compliance", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> },
-    { id: "marshal", label: "Fire Marshal", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>, badge: "5" },
+    { id: "marshal", label: "Fire Marshal", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>, badge: String(criticalCount) },
     { id: "reports", label: "Reports & Docs", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> },
     { id: "schedule", label: "Schedule", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
   ];
 
-  // Compliance chart data
+  // Chart data
   const complianceCats = [
-    {label:"Fire Alarms", pct:82, color:"#E87722"},
-    {label:"Sprinkler Systems", pct:71, color:"#E87722"},
-    {label:"Emergency Exits", pct:91, color:"#22C55E"},
-    {label:"Fire Extinguishers", pct:88, color:"#22C55E"},
-    {label:"Emergency Lighting", pct:64, color:"#F59E0B"},
-    {label:"Kitchen Suppression", pct:58, color:"#EF4444"},
-    {label:"Smoke Detectors", pct:86, color:"#22C55E"},
-    {label:"Egress Signage", pct:93, color:"#22C55E"},
+    {label:"Fire Alarms", pct:82, color:"#E87722"}, {label:"Sprinkler Systems", pct:71, color:"#E87722"},
+    {label:"Emergency Exits", pct:91, color:"#22C55E"}, {label:"Fire Extinguishers", pct:88, color:"#22C55E"},
+    {label:"Emergency Lighting", pct:64, color:"#F59E0B"}, {label:"Kitchen Suppression", pct:58, color:"#EF4444"},
+    {label:"Smoke Detectors", pct:86, color:"#22C55E"}, {label:"Egress Signage", pct:93, color:"#22C55E"},
   ];
 
-  // Donut data
   const donutData = [
-    {label:"Compliant", count:23, color:"#22C55E"},
-    {label:"In Progress", count:35, color:"#F59E0B"},
-    {label:"Critical", count:12, color:"#EF4444"},
+    {label:"Compliant", count:compliantCount, color:"#22C55E"},
+    {label:"In Progress", count:inProgressCount, color:"#F59E0B"},
+    {label:"Critical", count:criticalCount, color:"#EF4444"},
   ];
   const donutTotal = donutData.reduce((s,d) => s+d.count, 0);
   const cx=80, cy=80, r=60, sw=20;
+  let donutOffset = 0;
+  const donutPaths = donutData.map(d => {
+    const pct = d.count / (donutTotal || 1);
+    const dash = pct * 2 * Math.PI * r;
+    const gap = 2 * Math.PI * r - dash;
+    const off = donutOffset;
+    donutOffset += dash;
+    return { ...d, dash, gap, offset: off };
+  });
 
-  // Activity
   const activities = [
     {color:"#22C55E", text:<><strong>Adams Elementary</strong> passed Fire Marshal inspection</>, time:"2 hours ago"},
-    {color:"#E87722", text:<>Compliance report generated for <strong>Region North</strong> (14 campuses)</>, time:"5 hours ago"},
+    {color:"#E87722", text:<>Compliance report generated for <strong>Region North</strong></>, time:"5 hours ago"},
     {color:"#EF4444", text:<><strong>Harrison High School</strong> — critical sprinkler deficiency flagged</>, time:"Yesterday"},
     {color:"#3B82F6", text:<>Fire Marshal walkthrough scheduled for <strong>Kennedy Middle</strong></>, time:"Yesterday"},
     {color:"#22C55E", text:<><strong>Franklin K-8</strong> remediation complete — moved to Compliant</>, time:"2 days ago"},
     {color:"#F59E0B", text:<>Kitchen suppression work order created for <strong>Jefferson Elementary</strong></>, time:"3 days ago"},
   ];
 
-  // Deficiency data
   const deficiencyData = [
-    {label:"Kitchen Suppression", total:62, resolved:28, color:"#EF4444"},
-    {label:"Sprinkler Systems", total:54, resolved:31, color:"#E87722"},
-    {label:"Emergency Lighting", total:48, resolved:30, color:"#F59E0B"},
-    {label:"Fire Alarms", total:43, resolved:29, color:"#E87722"},
-    {label:"Smoke Detectors", total:38, resolved:28, color:"#F59E0B"},
-    {label:"Fire Extinguishers", total:35, resolved:25, color:"#22C55E"},
-    {label:"Emergency Exits", total:28, resolved:20, color:"#22C55E"},
-    {label:"Egress Signage", total:22, resolved:18, color:"#22C55E"},
+    {label:"Kitchen Suppression", total:62, resolved:28, color:"#EF4444"}, {label:"Sprinkler Systems", total:54, resolved:31, color:"#E87722"},
+    {label:"Emergency Lighting", total:48, resolved:30, color:"#F59E0B"}, {label:"Fire Alarms", total:43, resolved:29, color:"#E87722"},
+    {label:"Smoke Detectors", total:38, resolved:28, color:"#F59E0B"}, {label:"Fire Extinguishers", total:35, resolved:25, color:"#22C55E"},
+    {label:"Emergency Exits", total:28, resolved:20, color:"#22C55E"}, {label:"Egress Signage", total:22, resolved:18, color:"#22C55E"},
     {label:"Fire Doors", total:17, resolved:9, color:"#F59E0B"},
   ];
-  const maxDeficiency = Math.max(...deficiencyData.map(i => i.total));
+  const maxDef = Math.max(...deficiencyData.map(i => i.total));
 
-  // Marshal data
   const marshalItems = [
     {campus:"Harrison High School",date:"Feb 14, 2026",type:"Re-inspection",status:"critical" as const,notes:"Sprinkler deficiency follow-up required"},
     {campus:"Monroe Middle",date:"Feb 16, 2026",type:"Annual Inspection",status:"in-progress" as const,notes:"Kitchen hood suppression review"},
@@ -173,34 +230,20 @@ export default function DistrictPortal() {
     {campus:"Clark Elementary",date:"Mar 6, 2026",type:"Re-inspection",status:"critical" as const,notes:"Smoke detector replacement confirmation"},
   ];
 
-  // Reports data
-  const reports = [
-    {icon:"📊",title:"District Master Compliance Summary",desc:"Consolidated overview of all 70 campuses with risk prioritization",date:"Feb 7, 2026"},
-    {icon:"📋",title:"Region North Compliance Report",desc:"Individual reports for 14 campuses in the North region",date:"Feb 5, 2026"},
-    {icon:"📋",title:"Region South Compliance Report",desc:"Individual reports for 14 campuses in the South region",date:"Feb 3, 2026"},
-    {icon:"📋",title:"Region East Compliance Report",desc:"Individual reports for 14 campuses in the East region",date:"Feb 1, 2026"},
-    {icon:"📋",title:"Region West Compliance Report",desc:"Individual reports for 14 campuses in the West region",date:"Jan 30, 2026"},
-    {icon:"📋",title:"Region Central Compliance Report",desc:"Individual reports for 14 campuses in the Central region",date:"Jan 28, 2026"},
+  const reportsList = [
+    {icon:"📊",title:"District Master Compliance Summary",desc:"Consolidated overview of all campuses with risk prioritization",date:"Feb 7, 2026"},
+    {icon:"📋",title:"Region North Compliance Report",desc:"Individual reports for campuses in the North region",date:"Feb 5, 2026"},
+    {icon:"📋",title:"Region South Compliance Report",desc:"Individual reports for campuses in the South region",date:"Feb 3, 2026"},
+    {icon:"📋",title:"Region East Compliance Report",desc:"Individual reports for campuses in the East region",date:"Feb 1, 2026"},
+    {icon:"📋",title:"Region West Compliance Report",desc:"Individual reports for campuses in the West region",date:"Jan 30, 2026"},
+    {icon:"📋",title:"Region Central Compliance Report",desc:"Individual reports for campuses in the Central region",date:"Jan 28, 2026"},
     {icon:"💰",title:"District-Wide Cost Estimate",desc:"Detailed remediation cost breakdown by campus and priority level",date:"Feb 6, 2026"},
     {icon:"📄",title:"Fire Marshal Correspondence Log",desc:"All communications and inspection results with the Fire Marshal office",date:"Feb 7, 2026"},
     {icon:"📅",title:"Remediation Timeline & Schedule",desc:"Phased timeline for all approved compliance work",date:"Feb 4, 2026"},
     {icon:"📄",title:"Scope of Work — Full Service",desc:"Original signed scope of work and engagement terms",date:"Jan 10, 2026"},
   ];
 
-  // Donut SVG offset calculation
-  let donutOffset = 0;
-  const donutPaths = donutData.map(d => {
-    const pct = d.count / donutTotal;
-    const dash = pct * 2 * Math.PI * r;
-    const gap = 2 * Math.PI * r - dash;
-    const currentOffset = donutOffset;
-    donutOffset += dash;
-    return { ...d, dash, gap, offset: currentOffset };
-  });
-
   const upcomingInspections = schools.filter(s => s.status !== "compliant").slice(0, 6);
-
-  const statusLabel = (s: string) => s === "in-progress" ? "In Progress" : s === "compliant" ? "Compliant" : s === "critical" ? "Critical" : "Pending";
 
   return (
     <div className="font-sans" style={{ fontFamily: "'DM Sans', sans-serif", background: "#1A1A2E", color: "#F1F1F6", minHeight: "100vh" }}>
@@ -209,7 +252,7 @@ export default function DistrictPortal() {
         .dp-scrollbar::-webkit-scrollbar { width: 6px; }
         .dp-scrollbar::-webkit-scrollbar-track { background: #222240; }
         .dp-scrollbar::-webkit-scrollbar-thumb { background: #2A2A4A; border-radius: 3px; }
-        @keyframes dpFadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes dpFadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         .dp-fade-up { animation: dpFadeUp 0.5s ease both; }
       `}</style>
 
@@ -222,7 +265,7 @@ export default function DistrictPortal() {
         <div className="flex-1 p-3 overflow-y-auto dp-scrollbar">
           <div className="text-[10px] font-bold tracking-[1.5px] text-gray-500 px-3 pt-3 pb-2 uppercase">Main</div>
           {navItems.slice(0, 4).map(item => (
-            <div key={item.id} onClick={() => switchTab(item.id)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm mb-0.5 transition-all ${currentTab === item.id ? "font-semibold" : "text-gray-400 hover:bg-white/5 hover:text-white"}`} style={currentTab === item.id ? { background: "rgba(232,119,34,0.12)", color: "#E87722" } : {}}>
+            <div key={item.id} onClick={() => switchTab(item.id)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm mb-0.5 transition-all ${currentTab === item.id || (currentTab === "profile" && item.id === "schools") ? "font-semibold" : "text-gray-400 hover:bg-white/5 hover:text-white"}`} style={currentTab === item.id || (currentTab === "profile" && item.id === "schools") ? { background: "rgba(232,119,34,0.12)", color: "#E87722" } : {}}>
               {item.icon}
               {item.label}
               {item.badge && <span className="ml-auto text-[10px] font-bold px-[7px] py-0.5 rounded-[10px] text-white" style={{ background: "#EF4444" }}>{item.badge}</span>}
@@ -237,7 +280,7 @@ export default function DistrictPortal() {
           ))}
         </div>
         <div className="px-5 py-4 border-t border-white/[0.06] text-xs text-gray-500">
-          <div className="inline-block text-[10px] font-bold px-2 py-[3px] rounded text-white tracking-[0.5px] mb-1.5" style={{ background: "#E87722" }}>DEMO MODE</div>
+          <div className="inline-block text-[10px] font-bold px-2 py-[3px] rounded text-white tracking-[0.5px] mb-1.5" style={{ background: "#E87722" }}>DEMO</div>
           <div>District Compliance Portal v2.0</div>
           <div className="mt-1">chatmansecurityandfire.com</div>
         </div>
@@ -246,8 +289,13 @@ export default function DistrictPortal() {
       {/* HEADER */}
       <header className="fixed top-0 left-[260px] right-0 h-16 backdrop-blur-[20px] border-b border-white/[0.06] flex items-center justify-between px-8 z-[90] max-md:left-0" style={{ background: "rgba(26,26,46,0.85)" }}>
         <div className="flex items-center gap-4">
+          {currentTab === "profile" && (
+            <button onClick={() => switchTab("schools")} className="mr-1 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 border border-white/[0.08] hover:border-[#E87722] hover:text-[#E87722] transition-all" style={{ background: "#2A2A4A" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+            </button>
+          )}
           <h1 className="text-lg font-semibold">{tabTitles[currentTab] || "Dashboard"}</h1>
-          <span className="px-3 py-1 rounded-[20px] text-xs text-gray-400 border border-white/[0.08]" style={{ background: "#2A2A4A" }}>Houston ISD Demo &bull; 70 Campuses</span>
+          <span className="px-3 py-1 rounded-[20px] text-xs text-gray-400 border border-white/[0.08]" style={{ background: "#2A2A4A" }}>{schools.length} Campuses</span>
         </div>
         <div className="flex items-center gap-4">
           <button onClick={() => alert("Export feature — available in full version")} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] text-white border border-white/[0.08] transition-all hover:border-[#E87722] hover:text-[#E87722]" style={{ background: "#2A2A4A", fontFamily: "inherit" }}>
@@ -260,25 +308,26 @@ export default function DistrictPortal() {
 
       {/* MAIN */}
       <main className="ml-[260px] mt-16 p-7 min-h-[calc(100vh-64px)] max-md:ml-0">
-        {/* TABS */}
-        <div className="flex gap-1 p-1 rounded-xl w-fit mb-7" style={{ background: "#222240" }}>
-          {tabs.map(tab => (
-            <button key={tab} onClick={() => switchTab(tab)} className={`px-5 py-2 rounded-lg text-[13px] font-medium transition-all border-none capitalize ${currentTab === tab ? "text-white font-semibold" : "text-gray-400 hover:text-white"}`} style={currentTab === tab ? { background: "#E87722" } : { background: "transparent" }}>
-              {tab === "marshal" ? "Fire Marshal" : tab}
-            </button>
-          ))}
-        </div>
+        {/* TABS (hide when on profile) */}
+        {currentTab !== "profile" && (
+          <div className="flex gap-1 p-1 rounded-xl w-fit mb-7" style={{ background: "#222240" }}>
+            {tabs.map(tab => (
+              <button key={tab} onClick={() => switchTab(tab)} className={`px-5 py-2 rounded-lg text-[13px] font-medium transition-all border-none capitalize ${currentTab === tab ? "text-white font-semibold" : "text-gray-400 hover:text-white"}`} style={currentTab === tab ? { background: "#E87722" } : { background: "transparent" }}>
+                {tab === "marshal" ? "Fire Marshal" : tab}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ======= OVERVIEW TAB ======= */}
         {currentTab === "overview" && (
           <div>
-            {/* KPIs */}
             <div className="grid grid-cols-4 gap-4 mb-7 max-xl:grid-cols-2 max-md:grid-cols-1">
               {[
-                { icon: "🏫", label: "Total Campuses", value: "70", sub: "Across 5 regions", iconBg: "rgba(59,130,246,0.12)", iconColor: "#3B82F6", valueColor: "#F1F1F6", glowColor: "#3B82F6" },
-                { icon: "✓", label: "Fully Compliant", value: "23", trend: "↑ 8 this month", trendBg: "rgba(34,197,94,0.12)", trendColor: "#22C55E", iconBg: "rgba(34,197,94,0.12)", iconColor: "#22C55E", valueColor: "#22C55E", glowColor: "#22C55E" },
-                { icon: "⚠", label: "In Progress", value: "35", sub: "Remediation underway", iconBg: "rgba(245,158,11,0.12)", iconColor: "#F59E0B", valueColor: "#F59E0B", glowColor: "#F59E0B" },
-                { icon: "🔥", label: "Critical Issues", value: "12", trend: "↓ 3 from last week", trendBg: "rgba(239,68,68,0.12)", trendColor: "#EF4444", iconBg: "rgba(239,68,68,0.12)", iconColor: "#EF4444", valueColor: "#EF4444", glowColor: "#EF4444" },
+                { icon: "🏫", label: "Total Campuses", value: String(schools.length), sub: "Across 5 regions", iconBg: "rgba(59,130,246,0.12)", iconColor: "#3B82F6", valueColor: "#F1F1F6", glowColor: "#3B82F6" },
+                { icon: "✓", label: "Fully Compliant", value: String(compliantCount), trend: `${Math.round(compliantCount/schools.length*100)}% of district`, trendBg: "rgba(34,197,94,0.12)", trendColor: "#22C55E", iconBg: "rgba(34,197,94,0.12)", iconColor: "#22C55E", valueColor: "#22C55E", glowColor: "#22C55E" },
+                { icon: "⚠", label: "In Progress", value: String(inProgressCount), sub: "Remediation underway", iconBg: "rgba(245,158,11,0.12)", iconColor: "#F59E0B", valueColor: "#F59E0B", glowColor: "#F59E0B" },
+                { icon: "🔥", label: "Critical Issues", value: String(criticalCount), sub: "Requires immediate action", iconBg: "rgba(239,68,68,0.12)", iconColor: "#EF4444", valueColor: "#EF4444", glowColor: "#EF4444" },
               ].map((kpi, i) => (
                 <div key={i} className="relative overflow-hidden rounded-xl p-5 border border-white/[0.06] transition-all hover:-translate-y-0.5 hover:border-white/[0.12] dp-fade-up" style={{ background: "#252545", animationDelay: `${i*0.05}s` }}>
                   <div className="w-10 h-10 rounded-[10px] flex items-center justify-center mb-3.5 text-lg" style={{ background: kpi.iconBg, color: kpi.iconColor }}>{kpi.icon}</div>
@@ -291,7 +340,6 @@ export default function DistrictPortal() {
               ))}
             </div>
 
-            {/* CHARTS */}
             <div className="grid grid-cols-2 gap-4 mb-7 max-xl:grid-cols-1">
               <div className="rounded-xl p-6 border border-white/[0.06] dp-fade-up" style={{ background: "#252545", animationDelay: "0.25s" }}>
                 <h3 className="text-sm font-semibold mb-5">Compliance by Category</h3>
@@ -332,24 +380,20 @@ export default function DistrictPortal() {
               </div>
             </div>
 
-            {/* ACTIVITY + INSPECTIONS */}
             <div className="grid grid-cols-2 gap-4 max-xl:grid-cols-1">
               <div className="rounded-xl p-6 border border-white/[0.06] dp-fade-up" style={{ background: "#252545" }}>
                 <h3 className="text-sm font-semibold mb-4">Recent Activity</h3>
                 {activities.map((a, i) => (
                   <div key={i} className={`flex gap-3 py-2.5 ${i < activities.length-1 ? "border-b border-white/[0.04]" : ""}`}>
                     <div className="w-2 h-2 rounded-full mt-[5px] shrink-0" style={{ background: a.color }} />
-                    <div>
-                      <div className="text-[13px] text-gray-400 leading-relaxed">{a.text}</div>
-                      <div className="text-[11px] text-gray-500 mt-0.5">{a.time}</div>
-                    </div>
+                    <div><div className="text-[13px] text-gray-400 leading-relaxed">{a.text}</div><div className="text-[11px] text-gray-500 mt-0.5">{a.time}</div></div>
                   </div>
                 ))}
               </div>
               <div className="rounded-xl p-6 border border-white/[0.06] dp-fade-up" style={{ background: "#252545" }}>
                 <h3 className="text-sm font-semibold mb-4">Upcoming Inspections</h3>
                 {upcomingInspections.map((s, i) => (
-                  <div key={i} onClick={() => openDetail(s.id)} className={`flex gap-3 py-2.5 cursor-pointer ${i < upcomingInspections.length-1 ? "border-b border-white/[0.04]" : ""}`}>
+                  <div key={i} onClick={() => openSchoolProfile(s.id)} className={`flex gap-3 py-2.5 cursor-pointer ${i < upcomingInspections.length-1 ? "border-b border-white/[0.04]" : ""}`}>
                     <div className="w-2 h-2 rounded-full mt-[5px] shrink-0" style={{ background: s.status === "critical" ? "#EF4444" : "#F59E0B" }} />
                     <div className="flex-1">
                       <div className="text-[13px] text-gray-400"><strong className="text-white font-semibold">{s.name}</strong></div>
@@ -365,64 +409,207 @@ export default function DistrictPortal() {
 
         {/* ======= SCHOOLS TAB ======= */}
         {currentTab === "schools" && (
-          <div className="rounded-xl border border-white/[0.06] overflow-hidden dp-fade-up" style={{ background: "#252545" }}>
-            <div className="flex items-center gap-3 p-4 border-b border-white/[0.06] flex-wrap">
+          <div className="dp-fade-up">
+            {/* Toolbar */}
+            <div className="flex items-center gap-3 mb-6 flex-wrap">
               <div className="relative">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="text" placeholder="Search schools..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }} className="pl-9 pr-3.5 py-2 rounded-lg text-[13px] text-white w-[280px] outline-none transition-all border border-white/[0.08] focus:border-[#E87722]" style={{ background: "#2A2A4A", fontFamily: "inherit" }} />
               </div>
-              {[{label:`All (70)`,val:"all"},{label:"Compliant (23)",val:"compliant"},{label:"In Progress (35)",val:"in-progress"},{label:"Critical (12)",val:"critical"}].map(f => (
-                <button key={f.val} onClick={() => { setCurrentFilter(f.val); setCurrentPage(1); }} className={`px-3.5 py-1.5 rounded-[20px] text-xs transition-all border ${currentFilter === f.val ? "border-[#E87722] text-[#E87722]" : "border-white/[0.08] text-gray-400 hover:border-[#E87722] hover:text-[#E87722]"}`} style={{ background: currentFilter === f.val ? "rgba(232,119,34,0.1)" : "#2A2A4A", fontFamily: "inherit" }}>
-                  {f.label}
-                </button>
+              {[{label:`All (${schools.length})`,val:"all"},{label:`Compliant (${compliantCount})`,val:"compliant"},{label:`In Progress (${inProgressCount})`,val:"in-progress"},{label:`Critical (${criticalCount})`,val:"critical"}].map(f => (
+                <button key={f.val} onClick={() => { setCurrentFilter(f.val); setCurrentPage(1); }} className={`px-3.5 py-1.5 rounded-[20px] text-xs transition-all border ${currentFilter === f.val ? "border-[#E87722] text-[#E87722]" : "border-white/[0.08] text-gray-400 hover:border-[#E87722] hover:text-[#E87722]"}`} style={{ background: currentFilter === f.val ? "rgba(232,119,34,0.1)" : "#2A2A4A", fontFamily: "inherit" }}>{f.label}</button>
               ))}
+              <div className="ml-auto flex items-center gap-2">
+                {/* View toggle */}
+                <button onClick={() => setViewMode("grid")} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border ${viewMode==="grid" ? "border-[#E87722] text-[#E87722]" : "border-white/[0.08] text-gray-400"}`} style={{ background: viewMode==="grid" ? "rgba(232,119,34,0.1)" : "#2A2A4A" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                </button>
+                <button onClick={() => setViewMode("table")} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border ${viewMode==="table" ? "border-[#E87722] text-[#E87722]" : "border-white/[0.08] text-gray-400"}`} style={{ background: viewMode==="table" ? "rgba(232,119,34,0.1)" : "#2A2A4A" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                {/* Add Location */}
+                <button onClick={() => setShowAddModal(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] text-white font-medium transition-all hover:brightness-90 ml-2" style={{ background: "#E87722", fontFamily: "inherit" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add Location
+                </button>
+              </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {["Campus","Region","Status","Compliance","Priority Items","Last Inspected"].map(h => (
-                      <th key={h} className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-white/[0.06]">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageSchools.map(s => (
-                    <tr key={s.id} onClick={() => openDetail(s.id)} className="border-b border-white/[0.04] cursor-pointer transition-colors hover:bg-white/[0.03]">
-                      <td className="px-5 py-3.5 text-[13px]">
-                        <div className="font-semibold text-white">{s.name}</div>
-                        <div className="text-[11px] text-gray-500 mt-0.5">{s.address}</div>
-                      </td>
-                      <td className="px-5 py-3.5 text-[13px] text-gray-400">{s.region}</td>
-                      <td className="px-5 py-3.5"><StatusPill status={s.status} /></td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ background: "#2A2A4A" }}>
-                            <div className="h-full rounded-full transition-all duration-800" style={{ width: `${s.compliance}%`, background: s.compliance > 80 ? "#22C55E" : s.compliance > 50 ? "#F59E0B" : "#EF4444" }} />
-                          </div>
-                          <span className="text-xs text-gray-400" style={{ fontFamily: "'Space Mono', monospace" }}>{s.compliance}%</span>
+
+            {/* GRID VIEW */}
+            {viewMode === "grid" && (
+              <div className="grid grid-cols-3 gap-4 mb-6 max-xl:grid-cols-2 max-md:grid-cols-1">
+                {pageSchools.map(s => (
+                  <div key={s.id} onClick={() => openSchoolProfile(s.id)} className="rounded-xl border border-white/[0.06] overflow-hidden cursor-pointer transition-all hover:border-[#E87722] hover:-translate-y-1 group" style={{ background: "#252545" }}>
+                    {/* School Image */}
+                    <div className="relative h-44 overflow-hidden">
+                      <img src={s.image} alt={s.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onError={(e) => { (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${s.id}/600/400`; }} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute top-3 right-3"><StatusPill status={s.status} /></div>
+                      <div className="absolute bottom-3 left-4 right-4">
+                        <h3 className="text-white font-semibold text-[15px] leading-tight">{s.name}</h3>
+                        <p className="text-white/70 text-[11px] mt-0.5">{s.address}</p>
+                      </div>
+                    </div>
+                    {/* Card Body */}
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs text-gray-400">{s.region} Region</span>
+                        <span className="text-xs text-gray-400">{s.type}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "#2A2A4A" }}>
+                          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${s.compliance}%`, background: s.compliance > 80 ? "#22C55E" : s.compliance > 50 ? "#F59E0B" : "#EF4444" }} />
                         </div>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className={`text-[11px] font-semibold px-2 py-[3px] rounded ${s.priorityItems > 5 ? "text-red-400" : s.priorityItems > 2 ? "text-yellow-400" : "text-green-400"}`} style={{ background: s.priorityItems > 5 ? "rgba(239,68,68,0.12)" : s.priorityItems > 2 ? "rgba(245,158,11,0.12)" : "rgba(34,197,94,0.12)" }}>
-                          {s.priorityItems} items
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-xs text-gray-400">{s.lastInspected}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="flex items-center justify-between px-5 py-3.5 border-t border-white/[0.06]">
+                        <span className="text-xs font-bold" style={{ fontFamily: "'Space Mono', monospace", color: s.compliance > 80 ? "#22C55E" : s.compliance > 50 ? "#F59E0B" : "#EF4444" }}>{s.compliance}%</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-gray-500">
+                        <span>{s.priorityItems} priority items</span>
+                        <span>Inspected {s.lastInspected}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* TABLE VIEW */}
+            {viewMode === "table" && (
+              <div className="rounded-xl border border-white/[0.06] overflow-hidden mb-6" style={{ background: "#252545" }}>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {["","Campus","Region","Status","Compliance","Priority Items","Last Inspected"].map(h => (
+                          <th key={h} className="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-white/[0.06]">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pageSchools.map(s => (
+                        <tr key={s.id} onClick={() => openSchoolProfile(s.id)} className="border-b border-white/[0.04] cursor-pointer transition-colors hover:bg-white/[0.03]">
+                          <td className="px-4 py-3 w-16">
+                            <img src={s.image} alt={s.name} className="w-10 h-10 rounded-lg object-cover" onError={(e) => { (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${s.id}/100/100`; }} />
+                          </td>
+                          <td className="px-4 py-3 text-[13px]">
+                            <div className="font-semibold text-white">{s.name}</div>
+                            <div className="text-[11px] text-gray-500 mt-0.5">{s.address}</div>
+                          </td>
+                          <td className="px-4 py-3 text-[13px] text-gray-400">{s.region}</td>
+                          <td className="px-4 py-3"><StatusPill status={s.status} /></td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ background: "#2A2A4A" }}>
+                                <div className="h-full rounded-full" style={{ width: `${s.compliance}%`, background: s.compliance > 80 ? "#22C55E" : s.compliance > 50 ? "#F59E0B" : "#EF4444" }} />
+                              </div>
+                              <span className="text-xs text-gray-400" style={{ fontFamily: "'Space Mono', monospace" }}>{s.compliance}%</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`text-[11px] font-semibold px-2 py-[3px] rounded`} style={{ background: s.priorityItems > 5 ? "rgba(239,68,68,0.12)" : s.priorityItems > 2 ? "rgba(245,158,11,0.12)" : "rgba(34,197,94,0.12)", color: s.priorityItems > 5 ? "#EF4444" : s.priorityItems > 2 ? "#F59E0B" : "#22C55E" }}>{s.priorityItems} items</span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-gray-400">{s.lastInspected}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between">
               <div className="text-[13px] text-gray-400">Showing {(currentPage-1)*perPage+1}-{Math.min(currentPage*perPage, filteredSchools.length)} of {filteredSchools.length} campuses</div>
               <div className="flex gap-1">
                 {Array.from({length: totalPages}, (_, i) => i+1).map(p => (
-                  <button key={p} onClick={() => setCurrentPage(p)} className={`w-8 h-8 flex items-center justify-center rounded-md text-xs transition-all border ${p === currentPage ? "text-white border-[#E87722]" : "text-gray-400 border-white/[0.08] hover:border-[#E87722] hover:text-[#E87722]"}`} style={{ background: p === currentPage ? "#E87722" : "#2A2A4A", fontFamily: "inherit" }}>
-                    {p}
-                  </button>
+                  <button key={p} onClick={() => setCurrentPage(p)} className={`w-8 h-8 flex items-center justify-center rounded-md text-xs transition-all border ${p === currentPage ? "text-white border-[#E87722]" : "text-gray-400 border-white/[0.08] hover:border-[#E87722] hover:text-[#E87722]"}`} style={{ background: p === currentPage ? "#E87722" : "#2A2A4A", fontFamily: "inherit" }}>{p}</button>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ======= SCHOOL PROFILE ======= */}
+        {currentTab === "profile" && selectedSchool && (
+          <div className="dp-fade-up">
+            {/* Hero Banner */}
+            <div className="relative rounded-xl overflow-hidden mb-6 h-64">
+              <img src={selectedSchool.image} alt={selectedSchool.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${selectedSchool.id}/1200/400`; }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <StatusPill status={selectedSchool.status} />
+                    <span className="text-white/70 text-xs">{selectedSchool.type} &bull; {selectedSchool.region} Region</span>
+                  </div>
+                  <h2 className="text-3xl font-bold text-white">{selectedSchool.name}</h2>
+                  <p className="text-white/70 text-sm mt-1">{selectedSchool.address}</p>
+                </div>
+                <div className="flex gap-2">
+                  <label className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] text-white border border-white/20 cursor-pointer transition-all hover:border-[#E87722] hover:text-[#E87722]" style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)" }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    Update Photo
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, selectedSchool.id)} />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-6 gap-3 mb-6 max-xl:grid-cols-3 max-md:grid-cols-2">
+              {[
+                { label: "Compliance", value: `${selectedSchool.compliance}%`, color: selectedSchool.compliance > 80 ? "#22C55E" : selectedSchool.compliance > 50 ? "#F59E0B" : "#EF4444" },
+                { label: "Priority Items", value: String(selectedSchool.priorityItems), color: selectedSchool.priorityItems > 5 ? "#EF4444" : selectedSchool.priorityItems > 2 ? "#F59E0B" : "#22C55E" },
+                { label: "Square Footage", value: selectedSchool.sqft, color: "#F1F1F6" },
+                { label: "Est. Students", value: selectedSchool.students.toLocaleString(), color: "#F1F1F6" },
+                { label: "Last Inspection", value: selectedSchool.lastInspected, color: "#F1F1F6" },
+                { label: "Next Inspection", value: selectedSchool.nextInspection, color: "#E87722" },
+              ].map((stat, i) => (
+                <div key={i} className="rounded-xl p-4 border border-white/[0.06]" style={{ background: "#252545" }}>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">{stat.label}</div>
+                  <div className="text-lg font-bold" style={{ fontFamily: "'Space Mono', monospace", color: stat.color }}>{stat.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Compliance Progress */}
+            <div className="rounded-xl p-6 border border-white/[0.06] mb-6" style={{ background: "#252545" }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold">Overall Compliance</h3>
+                <span className="text-2xl font-bold" style={{ fontFamily: "'Space Mono', monospace", color: selectedSchool.compliance > 80 ? "#22C55E" : selectedSchool.compliance > 50 ? "#F59E0B" : "#EF4444" }}>{selectedSchool.compliance}%</span>
+              </div>
+              <div className="h-4 rounded-full overflow-hidden mb-2" style={{ background: "#2A2A4A" }}>
+                <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${selectedSchool.compliance}%`, background: selectedSchool.compliance > 80 ? "#22C55E" : selectedSchool.compliance > 50 ? "#F59E0B" : "#EF4444" }} />
+              </div>
+              <div className="flex justify-between text-[11px] text-gray-500">
+                <span>{selectedSchool.checks.filter(c => c.status === "pass").length} systems passing</span>
+                <span>{selectedSchool.checks.filter(c => c.status === "fail").length} failing &bull; {selectedSchool.checks.filter(c => c.status === "warn").length} warnings</span>
+              </div>
+            </div>
+
+            {/* System Checklist */}
+            <div className="rounded-xl p-6 border border-white/[0.06] mb-6" style={{ background: "#252545" }}>
+              <h3 className="text-sm font-semibold mb-4">System Checklist ({selectedSchool.checks.filter(c => c.status === "pass").length}/{selectedSchool.checks.length} Passing)</h3>
+              <div className="grid grid-cols-2 gap-2 max-md:grid-cols-1">
+                {selectedSchool.checks.map((c, i) => (
+                  <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-lg border border-white/[0.04]" style={{ background: "#1A1A2E" }}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold`} style={{ background: c.status === "pass" ? "rgba(34,197,94,0.15)" : c.status === "fail" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)", color: c.status === "pass" ? "#22C55E" : c.status === "fail" ? "#EF4444" : "#F59E0B" }}>
+                      {c.status === "pass" ? "✓" : c.status === "fail" ? "✕" : "!"}
+                    </div>
+                    <span className="flex-1 text-[13px]">{c.name}</span>
+                    <StatusPill status={c.status === "pass" ? "compliant" : c.status === "fail" ? "critical" : "in-progress"} label={c.status === "pass" ? "Pass" : c.status === "fail" ? "Fail" : "Warning"} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button onClick={() => alert("Full report download available in live version")} className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white text-center transition-all hover:brightness-90" style={{ background: "#E87722" }}>
+                Download Full Report
+              </button>
+              <button onClick={() => alert("Schedule inspection available in live version")} className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white text-center transition-all hover:bg-white/10 border border-white/[0.08]" style={{ background: "#2A2A4A" }}>
+                Schedule Inspection
+              </button>
             </div>
           </div>
         )}
@@ -432,7 +619,7 @@ export default function DistrictPortal() {
           <div>
             <div className="grid grid-cols-4 gap-4 mb-6 max-xl:grid-cols-2 max-md:grid-cols-1">
               {[
-                { label: "Total Deficiencies Found", value: "347", sub: "Across all 70 campuses", valueColor: "#E87722" },
+                { label: "Total Deficiencies Found", value: "347", sub: `Across all ${schools.length} campuses`, valueColor: "#E87722" },
                 { label: "Resolved", value: "198", trend: "57% complete", trendBg: "rgba(34,197,94,0.12)", trendColor: "#22C55E", valueColor: "#22C55E" },
                 { label: "In Remediation", value: "104", sub: "Work orders active", valueColor: "#F59E0B" },
                 { label: "Outstanding Critical", value: "45", sub: "Requires immediate action", valueColor: "#EF4444" },
@@ -452,18 +639,15 @@ export default function DistrictPortal() {
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-[130px] text-xs text-gray-400 shrink-0">{d.label}</div>
                     <div className="flex-1 h-7 rounded-md overflow-hidden relative" style={{ background: "#2A2A4A" }}>
-                      <div className="absolute top-0 left-0 h-full rounded-md" style={{ width: `${(d.total/maxDeficiency)*100}%`, background: d.color, opacity: 0.3 }} />
-                      <div className="h-full rounded-md relative z-[1] flex items-center" style={{ width: `${(d.resolved/maxDeficiency)*100}%`, background: d.color }}>
+                      <div className="absolute top-0 left-0 h-full rounded-md" style={{ width: `${(d.total/maxDef)*100}%`, background: d.color, opacity: 0.3 }} />
+                      <div className="h-full rounded-md relative z-[1] flex items-center" style={{ width: `${(d.resolved/maxDef)*100}%`, background: d.color }}>
                         <span className="ml-auto pr-2.5 text-[11px] font-semibold text-white" style={{ fontFamily: "'Space Mono', monospace" }}>{d.resolved}/{d.total}</span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-3 flex gap-4 text-[11px] text-gray-500">
-                <span>■ Resolved</span>
-                <span className="opacity-40">■ Total Found</span>
-              </div>
+              <div className="mt-3 flex gap-4 text-[11px] text-gray-500"><span>■ Resolved</span><span className="opacity-40">■ Total Found</span></div>
             </div>
           </div>
         )}
@@ -475,7 +659,7 @@ export default function DistrictPortal() {
               {[
                 { label: "Scheduled Inspections", value: "18", sub: "Next 30 days", valueColor: "#3B82F6" },
                 { label: "Inspections Passed", value: "41", trend: "93% pass rate", trendBg: "rgba(34,197,94,0.12)", trendColor: "#22C55E", valueColor: "#22C55E" },
-                { label: "Pending Responses", value: "5", sub: "Awaiting Fire Marshal review", valueColor: "#E87722" },
+                { label: "Pending Responses", value: String(criticalCount), sub: "Awaiting Fire Marshal review", valueColor: "#E87722" },
               ].map((kpi, i) => (
                 <div key={i} className="rounded-xl p-5 border border-white/[0.06] dp-fade-up" style={{ background: "#252545", animationDelay: `${i*0.05}s` }}>
                   <div className="text-[13px] text-gray-400 mb-1.5">{kpi.label}</div>
@@ -492,10 +676,7 @@ export default function DistrictPortal() {
                   <h4 className="text-sm font-semibold mb-1">{m.campus}</h4>
                   <p className="text-xs text-gray-400 mb-3">{m.notes}</p>
                   <div className="mb-2.5"><StatusPill status={m.status} /></div>
-                  <div className="flex gap-4 text-[11px] text-gray-500">
-                    <span>📅 {m.date}</span>
-                    <span>📋 {m.type}</span>
-                  </div>
+                  <div className="flex gap-4 text-[11px] text-gray-500"><span>📅 {m.date}</span><span>📋 {m.type}</span></div>
                 </div>
               ))}
             </div>
@@ -506,13 +687,10 @@ export default function DistrictPortal() {
         {currentTab === "reports" && (
           <div>
             <h2 className="text-base font-semibold mb-4">Available Reports & Documents</h2>
-            {reports.map((r, i) => (
+            {reportsList.map((r, i) => (
               <div key={i} onClick={() => alert("Download available in full version")} className="flex items-center gap-4 px-5 py-4 rounded-xl border border-white/[0.06] mb-2 cursor-pointer transition-all hover:border-[#E87722]" style={{ background: "#252545" }}>
                 <div className="w-[42px] h-[42px] rounded-[10px] flex items-center justify-center text-lg shrink-0" style={{ background: "#2A2A4A" }}>{r.icon}</div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold mb-0.5">{r.title}</h4>
-                  <p className="text-xs text-gray-400">{r.desc} &bull; {r.date}</p>
-                </div>
+                <div className="flex-1"><h4 className="text-sm font-semibold mb-0.5">{r.title}</h4><p className="text-xs text-gray-400">{r.desc} &bull; {r.date}</p></div>
                 <div className="text-xs font-semibold whitespace-nowrap" style={{ color: "#E87722" }}>Download ↓</div>
               </div>
             ))}
@@ -520,57 +698,63 @@ export default function DistrictPortal() {
         )}
       </main>
 
-      {/* DETAIL PANEL OVERLAY */}
-      {detailOpen && (
-        <div className="fixed inset-0 z-[200] bg-black/60 transition-opacity" onClick={closeDetail} />
-      )}
+      {/* ======= ADD LOCATION MODAL ======= */}
+      {showAddModal && (
+        <>
+          <div className="fixed inset-0 z-[200] bg-black/60" onClick={() => setShowAddModal(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-[90vw] z-[210] rounded-xl p-6 border border-white/[0.08]" style={{ background: "#222240" }}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold">Add New Location</h2>
+              <button onClick={() => setShowAddModal(false)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 border border-white/10 hover:text-white hover:border-[#E87722] transition-all" style={{ background: "#2A2A4A" }}>✕</button>
+            </div>
 
-      {/* DETAIL PANEL */}
-      <div className={`fixed top-0 right-0 bottom-0 w-[520px] max-md:w-full border-l border-white/[0.08] z-[210] overflow-y-auto p-7 transition-transform duration-300 ${detailOpen ? "translate-x-0" : "translate-x-full"}`} style={{ background: "#222240" }}>
-        <button onClick={closeDetail} className="absolute top-5 right-5 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 border border-white/10 transition-all hover:text-white hover:border-[#E87722]" style={{ background: "#2A2A4A" }}>✕</button>
-        {detailSchool && (
-          <div>
-            <div className="mb-6 pr-10">
-              <h2 className="text-xl font-bold mb-1">{detailSchool.name}</h2>
-              <p className="text-[13px] text-gray-400">{detailSchool.address} &bull; {detailSchool.region} Region</p>
+            {/* Image Upload */}
+            <div className="mb-4">
+              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">School Photo</label>
+              <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-white/[0.12] rounded-xl h-40 flex flex-col items-center justify-center cursor-pointer transition-all hover:border-[#E87722] overflow-hidden" style={{ background: "#1A1A2E" }}>
+                {uploadPreview ? (
+                  <img src={uploadPreview} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span className="text-xs text-gray-500 mt-2">Click to upload school photo</span>
+                  </>
+                )}
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e)} />
+            </div>
+
+            {/* Form Fields */}
+            <div className="mb-3">
+              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-1">School Name *</label>
+              <input type="text" value={newSchool.name} onChange={e => setNewSchool(p => ({...p, name: e.target.value}))} placeholder="e.g. Lincoln Elementary" className="w-full px-3.5 py-2.5 rounded-lg text-[13px] text-white outline-none border border-white/[0.08] focus:border-[#E87722] transition-all" style={{ background: "#2A2A4A", fontFamily: "inherit" }} />
+            </div>
+            <div className="mb-3">
+              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-1">Address *</label>
+              <input type="text" value={newSchool.address} onChange={e => setNewSchool(p => ({...p, address: e.target.value}))} placeholder="e.g. 1234 Oak St" className="w-full px-3.5 py-2.5 rounded-lg text-[13px] text-white outline-none border border-white/[0.08] focus:border-[#E87722] transition-all" style={{ background: "#2A2A4A", fontFamily: "inherit" }} />
             </div>
             <div className="grid grid-cols-2 gap-3 mb-6">
-              {[
-                { label: "Compliance", value: `${detailSchool.compliance}%`, color: detailSchool.compliance > 80 ? "#22C55E" : detailSchool.compliance > 50 ? "#F59E0B" : "#EF4444", fontSize: "20px" },
-                { label: "Status", isStatus: true },
-                { label: "Square Footage", value: detailSchool.sqft, fontSize: "16px" },
-                { label: "Est. Students", value: detailSchool.students.toLocaleString(), fontSize: "16px" },
-                { label: "Last Inspection", value: detailSchool.lastInspected, fontSize: "14px" },
-                { label: "Next Inspection", value: detailSchool.nextInspection, fontSize: "14px" },
-              ].map((stat, i) => (
-                <div key={i} className="rounded-lg p-3.5" style={{ background: "#2A2A4A" }}>
-                  <div className="text-[11px] text-gray-500 uppercase tracking-[0.5px] mb-1">{stat.label}</div>
-                  {stat.isStatus ? (
-                    <div className="mt-1"><StatusPill status={detailSchool.status} /></div>
-                  ) : (
-                    <div className="font-bold" style={{ fontFamily: "'Space Mono', monospace", fontSize: stat.fontSize, color: stat.color || "#F1F1F6" }}>{stat.value}</div>
-                  )}
-                </div>
-              ))}
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wider block mb-1">School Type</label>
+                <select value={newSchool.type} onChange={e => setNewSchool(p => ({...p, type: e.target.value}))} className="w-full px-3.5 py-2.5 rounded-lg text-[13px] text-white outline-none border border-white/[0.08] focus:border-[#E87722] transition-all" style={{ background: "#2A2A4A", fontFamily: "inherit" }}>
+                  {schoolTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wider block mb-1">Region</label>
+                <select value={newSchool.region} onChange={e => setNewSchool(p => ({...p, region: e.target.value}))} className="w-full px-3.5 py-2.5 rounded-lg text-[13px] text-white outline-none border border-white/[0.08] focus:border-[#E87722] transition-all" style={{ background: "#2A2A4A", fontFamily: "inherit" }}>
+                  {regions.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
             </div>
-            <div className="mb-5">
-              <h3 className="text-[13px] font-bold uppercase tracking-wider text-gray-500 mb-3">System Checklist ({detailSchool.checks.filter(c => c.status === "pass").length}/{detailSchool.checks.length} Passing)</h3>
-              {detailSchool.checks.map((c, i) => (
-                <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg mb-1.5 text-[13px] border border-white/[0.04]" style={{ background: "#252545" }}>
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[11px] ${c.status === "pass" ? "text-green-400" : c.status === "fail" ? "text-red-400" : "text-yellow-400"}`} style={{ background: c.status === "pass" ? "rgba(34,197,94,0.12)" : c.status === "fail" ? "rgba(239,68,68,0.12)" : "rgba(245,158,11,0.12)" }}>
-                    {c.status === "pass" ? "✓" : c.status === "fail" ? "✕" : "!"}
-                  </div>
-                  <span className="flex-1">{c.name}</span>
-                  <StatusPill status={c.status === "pass" ? "compliant" : c.status === "fail" ? "critical" : "in-progress"} label={c.status === "pass" ? "Pass" : c.status === "fail" ? "Fail" : "Warning"} />
-                </div>
-              ))}
+
+            <div className="flex gap-3">
+              <button onClick={() => setShowAddModal(false)} className="flex-1 py-2.5 rounded-lg text-[13px] font-medium text-gray-400 border border-white/[0.08] transition-all hover:text-white" style={{ background: "#2A2A4A" }}>Cancel</button>
+              <button onClick={handleAddSchool} disabled={!newSchool.name || !newSchool.address} className="flex-1 py-2.5 rounded-lg text-[13px] font-semibold text-white transition-all hover:brightness-90 disabled:opacity-40 disabled:cursor-not-allowed" style={{ background: "#E87722" }}>Add Location</button>
             </div>
-            <button onClick={() => alert("Full report download available in live version")} className="w-full py-2.5 rounded-lg text-[13px] font-medium text-white text-center transition-all hover:brightness-90" style={{ background: "#E87722" }}>
-              Download Full Report
-            </button>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
