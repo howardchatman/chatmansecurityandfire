@@ -33,6 +33,9 @@ const footerLinks = {
     { name: "Privacy Policy", href: "/privacy" },
     { name: "Terms of Service", href: "/terms" },
   ],
+  demo: [
+    { name: "School District Dashboard", href: "/district-portal" },
+  ],
 };
 
 const socialLinks = [
@@ -58,7 +61,7 @@ export default function Footer() {
 
       {/* Main Footer */}
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-12">
           {/* Brand & Contact */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6">
@@ -156,6 +159,23 @@ export default function Footer() {
                   <Link
                     href={link.href}
                     className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Demo */}
+          <div>
+            <h3 className="text-white font-semibold mb-4">Demo</h3>
+            <ul className="space-y-3">
+              {footerLinks.demo.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-orange-500 hover:text-orange-400 transition-colors text-sm font-medium"
                   >
                     {link.name}
                   </Link>
