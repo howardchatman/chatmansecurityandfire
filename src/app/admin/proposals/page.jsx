@@ -123,6 +123,30 @@ const tableCellS = { padding: "12px 16px", fontSize: 13, color: "#111827", borde
 const badgeS = (color) => ({ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 500, background: `${color}15`, color });
 
 // ── MAIN APP ──
+// ── STEP INDICATOR ──
+function StepIndicator({ steps, currentStep }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 24 }}>
+      {steps.map((s, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 12, fontWeight: 600,
+              background: i < currentStep ? "#22C55E" : i === currentStep ? "#EA580C" : "#E5E7EB",
+              color: i <= currentStep ? "#FFF" : "#6B7280"
+            }}>
+              {i < currentStep ? "✓" : i + 1}
+            </div>
+            <span style={{ fontSize: 13, fontWeight: i === currentStep ? 600 : 400, color: i === currentStep ? "#111827" : "#6B7280" }}>{s}</span>
+          </div>
+          {i < steps.length - 1 && <div style={{ width: 40, height: 2, background: i < currentStep ? "#22C55E" : "#E5E7EB", margin: "0 8px" }} />}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ProposalAgent() {
   const [page, setPage] = useState("dashboard");
   const [inventory, setInventory] = useState([]);
@@ -130,6 +154,9 @@ export default function ProposalAgent() {
   const [clients, setClients] = useState([]);
   const [proposals, setProposals] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState(null);
+  // Shape: { type: "document"|"floorplan", findings: [...], summary: {...}, devices: [...], costRange: [low, high] }
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -150,15 +177,25 @@ export default function ProposalAgent() {
   useEffect(() => { if (loaded) saveData("csf-clients", clients); }, [clients, loaded]);
   useEffect(() => { if (loaded) saveData("csf-proposals", proposals); }, [proposals, loaded]);
 
-  const navItems = [
-    { key: "dashboard", icon: "📊", label: "Dashboard" },
-    { key: "inventory", icon: "📦", label: "Inventory" },
-    { key: "procedures", icon: "📋", label: "Procedures" },
-    { key: "clients", icon: "👥", label: "Clients" },
-    { key: "floorplan", icon: "🏗️", label: "Floor Plan Markup" },
-    { key: "docanalysis", icon: "📝", label: "Document Analysis" },
-    { key: "generate", icon: "🤖", label: "Generate Proposal" },
-    { key: "history", icon: "📄", label: "Proposal History" },
+  const navGroups = [
+    { key: "dashboard", label: "Dashboard", icon: "📊" },
+    {
+      label: "New Analysis", icon: "🔍",
+      children: [
+        { key: "docanalysis", label: "Document Analysis", icon: "📝" },
+        { key: "floorplan", label: "Floor Plan Markup", icon: "🏗️" },
+      ]
+    },
+    { key: "generate", label: "Create Proposal", icon: "🤖" },
+    {
+      label: "Data", icon: "📦",
+      children: [
+        { key: "inventory", label: "Inventory", icon: "📦" },
+        { key: "procedures", label: "Procedures", icon: "📋" },
+        { key: "clients", label: "Clients", icon: "👥" },
+      ]
+    },
+    { key: "history", label: "History", icon: "📄" },
   ];
 
   if (!loaded) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "50vh", color: G }}>Loading database...</div>;
@@ -171,13 +208,38 @@ export default function ProposalAgent() {
         <p style={{ fontSize: 14, color: G, marginTop: 4 }}>{inventory.length} items · {procedures.length} SOPs · {clients.length} clients</p>
       </div>
 
-      {/* Horizontal Tab Bar */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 24, padding: "4px", background: "#F3F4F6", borderRadius: 10 }}>
-        {navItems.map(n => (
-          <div key={n.key} onClick={() => setPage(n.key)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, cursor: "pointer", background: page === n.key ? "#FFF" : "transparent", color: page === n.key ? O : G, fontSize: 13, fontWeight: page === n.key ? 600 : 400, transition: "all 0.15s", boxShadow: page === n.key ? "0 1px 3px rgba(0,0,0,0.08)" : "none" }}>
-            <span style={{ fontSize: 14 }}>{n.icon}</span>{n.label}
-          </div>
-        ))}
+      {/* Grouped Nav Bar */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 24, padding: "4px", background: "#F3F4F6", borderRadius: 10, position: "relative" }}>
+        {navGroups.map((group, gi) => {
+          if (group.children) {
+            const activeChild = group.children.find(c => c.key === page);
+            const isOpen = openDropdown === gi;
+            return (
+              <div key={gi} style={{ position: "relative" }}>
+                <div onClick={() => setOpenDropdown(isOpen ? null : gi)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, cursor: "pointer", background: activeChild ? "#FFF" : "transparent", color: activeChild ? O : G, fontSize: 13, fontWeight: activeChild ? 600 : 400, transition: "all 0.15s", boxShadow: activeChild ? "0 1px 3px rgba(0,0,0,0.08)" : "none", userSelect: "none" }}>
+                  <span style={{ fontSize: 14 }}>{activeChild ? activeChild.icon : group.icon}</span>
+                  {activeChild ? activeChild.label : group.label}
+                  <span style={{ fontSize: 10, marginLeft: 2, transition: "transform 0.15s", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
+                </div>
+                {isOpen && (
+                  <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, background: "#FFF", border: "1px solid #E5E7EB", borderRadius: 10, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 100, minWidth: 200, overflow: "hidden" }}>
+                    {group.children.map(child => (
+                      <div key={child.key} onClick={() => { setPage(child.key); setOpenDropdown(null); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", cursor: "pointer", background: page === child.key ? `${O}10` : "transparent", color: page === child.key ? O : "#374151", fontSize: 13, fontWeight: page === child.key ? 600 : 400, transition: "background 0.1s" }} onMouseEnter={e => { if (page !== child.key) e.currentTarget.style.background = "#F9FAFB"; }} onMouseLeave={e => { if (page !== child.key) e.currentTarget.style.background = "transparent"; }}>
+                        <span style={{ fontSize: 14 }}>{child.icon}</span>
+                        {child.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          }
+          return (
+            <div key={group.key} onClick={() => { setPage(group.key); setOpenDropdown(null); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, cursor: "pointer", background: page === group.key ? "#FFF" : "transparent", color: page === group.key ? O : G, fontSize: 13, fontWeight: page === group.key ? 600 : 400, transition: "all 0.15s", boxShadow: page === group.key ? "0 1px 3px rgba(0,0,0,0.08)" : "none" }}>
+              <span style={{ fontSize: 14 }}>{group.icon}</span>{group.label}
+            </div>
+          );
+        })}
       </div>
 
       {/* Main Content */}
@@ -186,9 +248,9 @@ export default function ProposalAgent() {
         {page === "inventory" && <InventoryPage inventory={inventory} setInventory={setInventory} />}
         {page === "procedures" && <ProceduresPage procedures={procedures} setProcedures={setProcedures} />}
         {page === "clients" && <ClientsPage clients={clients} setClients={setClients} />}
-        {page === "floorplan" && <FloorPlanPage inventory={inventory} />}
-        {page === "docanalysis" && <DocAnalysisPage inventory={inventory} procedures={procedures} />}
-        {page === "generate" && <GeneratePage inventory={inventory} procedures={procedures} clients={clients} proposals={proposals} setProposals={setProposals} setClients={setClients} />}
+        {page === "floorplan" && <FloorPlanPage inventory={inventory} setAnalysisResults={setAnalysisResults} setPage={setPage} />}
+        {page === "docanalysis" && <DocAnalysisPage inventory={inventory} procedures={procedures} setAnalysisResults={setAnalysisResults} setPage={setPage} />}
+        {page === "generate" && <GeneratePage inventory={inventory} procedures={procedures} clients={clients} proposals={proposals} setProposals={setProposals} setClients={setClients} analysisResults={analysisResults} setAnalysisResults={setAnalysisResults} />}
         {page === "history" && <HistoryPage proposals={proposals} setProposals={setProposals} clients={clients} />}
       </div>
     </div>
@@ -234,6 +296,20 @@ function DashboardPage({ inventory, procedures, clients, proposals, setPage }) {
               <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: `${s.color}08` }} />
             </div>
           ))}
+        </div>
+
+        {/* Workflow Action Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+          <div onClick={() => setPage("docanalysis")} style={{ ...cardS, cursor: "pointer", borderLeft: "4px solid #EA580C", transition: "all 0.15s" }} onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>📝</div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: W, marginBottom: 4 }}>Analyze Document</div>
+            <div style={{ fontSize: 13, color: G }}>Upload an inspection report, fire marshal checklist, or violation notice for AI-powered compliance analysis</div>
+          </div>
+          <div onClick={() => setPage("floorplan")} style={{ ...cardS, cursor: "pointer", borderLeft: "4px solid #3B82F6", transition: "all 0.15s" }} onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>🏗️</div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: W, marginBottom: 4 }}>Analyze Floor Plan</div>
+            <div style={{ fontSize: 13, color: G }}>Upload a floor plan for device placement per NFPA 72 and IFC Chapter 9</div>
+          </div>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
@@ -682,7 +758,7 @@ Use device types: smoke_detector, heat_detector, pull_station, horn_strobe, spri
 Label devices sequentially: SD-1, SD-2 for smoke detectors, PS-1, PS-2 for pull stations, etc.
 Be thorough - a real compliance plan needs EVERY required device placed.`;
 
-function FloorPlanPage({ inventory }) {
+function FloorPlanPage({ inventory, setAnalysisResults, setPage }) {
   const [image, setImage] = useState(null);
   const [imageSize, setImageSize] = useState({ w: 0, h: 0 });
   const [devices, setDevices] = useState([]);
@@ -698,6 +774,8 @@ function FloorPlanPage({ inventory }) {
   const [showLegend, setShowLegend] = useState(true);
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
+  const [fpStep, setFpStep] = useState(0); // 0=Upload, 1=Device Placement, 2=Review & Correct, 3=transition
+  const [editableDevices, setEditableDevices] = useState([]);
 
   function handleUpload(e) {
     const file = e.target.files[0];
@@ -759,6 +837,18 @@ function FloorPlanPage({ inventory }) {
         setAnalysis(parsed.analysis || "");
         setCodeNotes(parsed.code_notes || []);
         setCostEstimate(parsed.estimated_cost || null);
+        // Build editable device list grouped by type
+        const grouped = {};
+        parsed.devices.forEach(d => {
+          const dt = DEVICE_TYPES[d.type];
+          if (!grouped[d.type]) {
+            const invItem = inventory.find(i => i.name.toLowerCase().includes(dt?.label?.split(" ")[0]?.toLowerCase() || ""));
+            grouped[d.type] = { type: d.type, label: dt?.label || d.type, code: dt?.code || "", quantity: 0, unitCost: invItem?.unit_cost || 0, _id: d.type };
+          }
+          grouped[d.type].quantity++;
+        });
+        setEditableDevices(Object.values(grouped));
+        setFpStep(1);
       } else {
         setError("Unexpected response format. Please try again.");
       }
@@ -844,7 +934,105 @@ function FloorPlanPage({ inventory }) {
   const usedTypes = [...new Set(devices.map(d => d.type))];
   const filteredDevices = devices.filter(d => visibleTypes.includes(d.type));
 
+  // Editable devices helpers
+  const fpTotalCostLow = editableDevices.reduce((s, d) => s + (d.quantity * d.unitCost * 0.9), 0);
+  const fpTotalCostHigh = editableDevices.reduce((s, d) => s + (d.quantity * d.unitCost * 1.15), 0);
+  const fpTotalEquipment = editableDevices.reduce((s, d) => s + (d.quantity * d.unitCost), 0);
+
+  function updateDevice(idx, field, value) {
+    setEditableDevices(prev => prev.map((d, i) => i === idx ? { ...d, [field]: value } : d));
+  }
+
+  function removeDevice(idx) {
+    setEditableDevices(prev => prev.filter((_, i) => i !== idx));
+  }
+
+  function addDevice() {
+    const defaultType = Object.keys(DEVICE_TYPES)[0];
+    const dt = DEVICE_TYPES[defaultType];
+    setEditableDevices(prev => [...prev, { _id: Date.now().toString(), type: defaultType, label: dt.label, code: dt.code, quantity: 1, unitCost: 0 }]);
+  }
+
+  function fpContinueToProposal() {
+    setAnalysisResults({
+      type: "floorplan",
+      devices: editableDevices,
+      summary: { totalDevices: editableDevices.reduce((s, d) => s + d.quantity, 0), types: editableDevices.length },
+      costRange: [Math.round(fpTotalCostLow), Math.round(fpTotalCostHigh)]
+    });
+    setPage("generate");
+  }
+
   return (
+    <div>
+      <StepIndicator steps={["Upload", "Device Placement", "Review & Correct", "Create Proposal"]} currentStep={fpStep} />
+    {fpStep === 2 ? (
+      /* Step 2: Review & Correct Devices */
+      <div style={{ maxWidth: 960 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: W, marginBottom: 16 }}>Review & Correct Devices — adjust quantities, costs, or remove devices</div>
+
+        {/* Device table */}
+        <div style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${D4}`, marginBottom: 20 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead><tr style={{ background: D3 }}>
+              {["Device", "Label", "Code Reference", "Qty", "Unit Cost", "Line Total", ""].map((h, i) => (
+                <th key={i} style={{ ...tableHeaderS, ...(i === 3 ? { width: 70 } : i === 4 ? { width: 100 } : i === 5 ? { width: 110 } : i === 6 ? { width: 40 } : {}) }}>{h}</th>
+              ))}
+            </tr></thead>
+            <tbody>
+              {editableDevices.map((d, idx) => {
+                const dt = DEVICE_TYPES[d.type];
+                return (
+                  <tr key={d._id} style={{ background: D2 }}>
+                    <td style={tableCellS}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 16 }}>{dt?.icon || "📍"}</span>
+                        <span style={{ fontSize: 13, fontWeight: 500 }}>{d.label}</span>
+                      </div>
+                    </td>
+                    <td style={{ ...tableCellS, fontSize: 12, color: G }}>{d.type.replace(/_/g, " ").toUpperCase().slice(0, 3)}-{idx + 1}</td>
+                    <td style={{ ...tableCellS, fontSize: 11, color: G }}>{d.code}</td>
+                    <td style={tableCellS}>
+                      <input type="number" min="0" style={{ ...inputS, padding: "5px 6px", fontSize: 12, width: 55 }} value={d.quantity} onChange={e => updateDevice(idx, "quantity", parseInt(e.target.value) || 0)} />
+                    </td>
+                    <td style={tableCellS}>
+                      <input type="number" min="0" style={{ ...inputS, padding: "5px 6px", fontSize: 12, width: 85 }} value={d.unitCost} onChange={e => updateDevice(idx, "unitCost", parseFloat(e.target.value) || 0)} />
+                    </td>
+                    <td style={{ ...tableCellS, fontWeight: 600, color: O }}>${(d.quantity * d.unitCost).toLocaleString()}</td>
+                    <td style={tableCellS}>
+                      <button onClick={() => removeDevice(idx)} style={{ background: "none", border: "none", color: RD, cursor: "pointer", fontSize: 16 }} title="Remove device">×</button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <button onClick={addDevice} style={{ ...btnS(false), width: "100%", marginBottom: 20 }}>+ Add Device</button>
+
+        {/* Cost summary */}
+        <div style={{ ...cardS, marginBottom: 20, borderColor: `${O}30` }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: O, textTransform: "uppercase", marginBottom: 8 }}>Equipment Cost Summary</div>
+          <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ fontSize: 10, color: G }}>Total Equipment</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: W }}>${Math.round(fpTotalEquipment).toLocaleString()}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: G }}>Estimated Range</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: O }}>${Math.round(fpTotalCostLow).toLocaleString()} – ${Math.round(fpTotalCostHigh).toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <button onClick={() => setFpStep(1)} style={{ ...btnS(false), padding: "12px 24px" }}>← Back to Device View</button>
+          <button onClick={fpContinueToProposal} style={{ ...btnS(true), padding: "14px 32px", fontSize: 15, boxShadow: `0 4px 20px ${O}40` }}>Continue to Proposal →</button>
+        </div>
+      </div>
+    ) : (
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Left - Controls */}
       <div style={{ width: 320, minWidth: 320, background: D2, borderRight: `1px solid ${D4}`, display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -1009,12 +1197,21 @@ function FloorPlanPage({ inventory }) {
                       ))}
                     </div>
                   )}
+
+                  {/* Next: Review Devices button */}
+                  {fpStep === 1 && devices.length > 0 && (
+                    <div style={{ marginTop: 20, textAlign: "right" }}>
+                      <button onClick={() => setFpStep(2)} style={{ ...btnS(true), padding: "12px 28px", fontSize: 14 }}>Next: Review Devices →</button>
+                    </div>
+                  )}
                 </div>
               )}
             </>
           )}
         </div>
       </div>
+    </div>
+    )}
     </div>
   );
 }
@@ -1167,13 +1364,15 @@ RESPOND WITH ONLY VALID JSON (no markdown, no backticks):
 
 IMPORTANT: When reading the document, pay close attention to check marks, dashes, X marks, N/A notations, and any handwritten annotations that indicate pass/fail status. A dash (—) typically means deficient/failed. A check (✓) means compliant/passed. N/A means not applicable.`;
 
-function DocAnalysisPage({ inventory, procedures }) {
+function DocAnalysisPage({ inventory, procedures, setAnalysisResults, setPage }) {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("upload");
   const [checklistView, setChecklistView] = useState("all");
+  const [step, setStep] = useState(0); // 0=Upload, 1=Review, 2=Corrections, 3=transition
+  const [editableFindings, setEditableFindings] = useState([]);
 
   function handleUpload(e) {
     const files = Array.from(e.target.files);
@@ -1225,6 +1424,8 @@ function DocAnalysisPage({ inventory, procedures }) {
       const parsed = JSON.parse(cleaned);
       setResults(parsed);
       setActiveTab("results");
+      setEditableFindings((parsed.findings || []).map((f, i) => ({ ...f, _id: i })));
+      setStep(1);
     } catch (err) {
       setError("Analysis failed: " + err.message + ". Try again.");
     }
@@ -1247,7 +1448,41 @@ function DocAnalysisPage({ inventory, procedures }) {
 
   const totalRemediation = filteredFindings.reduce((s, f) => ({ low: s.low + (f.est_cost_low || 0), high: s.high + (f.est_cost_high || 0) }), { low: 0, high: 0 });
 
+  // Corrections helpers
+  const editableSummary = (() => {
+    const def = editableFindings.filter(f => f.status === "deficient").length;
+    const comp = editableFindings.filter(f => f.status === "compliant").length;
+    const total = editableFindings.length;
+    const costLow = editableFindings.reduce((s, f) => s + (f.est_cost_low || 0), 0);
+    const costHigh = editableFindings.reduce((s, f) => s + (f.est_cost_high || 0), 0);
+    return { deficient: def, compliant: comp, total, compliance_pct: total > 0 ? Math.round((comp / total) * 100) : 0, costLow, costHigh };
+  })();
+
+  function updateFinding(idx, field, value) {
+    setEditableFindings(prev => prev.map((f, i) => i === idx ? { ...f, [field]: value } : f));
+  }
+
+  function removeFinding(idx) {
+    setEditableFindings(prev => prev.filter((_, i) => i !== idx));
+  }
+
+  function addFinding() {
+    setEditableFindings(prev => [...prev, { _id: Date.now(), section: "Other", item: "New finding", status: "deficient", code_ref: "", remediation: "", est_cost_low: 0, est_cost_high: 0, critical: false, note: "" }]);
+  }
+
+  function continueToProposal() {
+    setAnalysisResults({
+      type: "document",
+      findings: editableFindings,
+      summary: { ...editableSummary, critical_deficiencies: editableFindings.filter(f => f.critical && f.status === "deficient").length },
+      costRange: [editableSummary.costLow, editableSummary.costHigh]
+    });
+    setPage("generate");
+  }
+
   return (
+    <div>
+      <StepIndicator steps={["Upload", "Review", "Corrections", "Create Proposal"]} currentStep={step} />
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Left panel */}
       <div style={{ width: 340, minWidth: 340, background: D2, borderRight: `1px solid ${D4}`, display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -1446,10 +1681,107 @@ function DocAnalysisPage({ inventory, procedures }) {
                   Chatman's assessment fee will be credited toward remediation work. Estimated remediation: <strong style={{ color: W }}>${totalRemediation.low.toLocaleString()} – ${totalRemediation.high.toLocaleString()}</strong>
                 </div>
               </div>
+
+              {/* Next: Make Corrections button */}
+              {step === 1 && (
+                <div style={{ marginTop: 20, textAlign: "right" }}>
+                  <button onClick={() => setStep(2)} style={{ ...btnS(true), padding: "12px 28px", fontSize: 14 }}>Next: Make Corrections →</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 2: Corrections */}
+          {step === 2 && results && (
+            <div style={{ maxWidth: 960, margin: "0 auto" }}>
+              {/* Summary bar */}
+              <div style={{ display: "flex", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
+                <div style={{ ...cardS, flex: 1, minWidth: 140, textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: G, textTransform: "uppercase", letterSpacing: 0.5 }}>Total Findings</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: W }}>{editableSummary.total}</div>
+                </div>
+                <div style={{ ...cardS, flex: 1, minWidth: 140, textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: G, textTransform: "uppercase", letterSpacing: 0.5 }}>Deficient</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: RD }}>{editableSummary.deficient}</div>
+                </div>
+                <div style={{ ...cardS, flex: 1, minWidth: 140, textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: G, textTransform: "uppercase", letterSpacing: 0.5 }}>Compliance</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: editableSummary.compliance_pct >= 80 ? GR : editableSummary.compliance_pct >= 60 ? YL : RD }}>{editableSummary.compliance_pct}%</div>
+                </div>
+                <div style={{ ...cardS, flex: 1, minWidth: 140, textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: G, textTransform: "uppercase", letterSpacing: 0.5 }}>Est. Cost Range</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: O }}>${editableSummary.costLow.toLocaleString()} – ${editableSummary.costHigh.toLocaleString()}</div>
+                </div>
+              </div>
+
+              <div style={{ fontSize: 14, fontWeight: 600, color: W, marginBottom: 12 }}>Edit Findings — adjust status, costs, or remove irrelevant items</div>
+
+              {editableFindings.map((f, idx) => (
+                <div key={f._id} style={{ ...cardS, marginBottom: 10, padding: 16 }}>
+                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+                    {/* Section + item */}
+                    <div style={{ flex: 2, minWidth: 200 }}>
+                      <div style={{ fontSize: 11, color: O, fontWeight: 600, marginBottom: 2 }}>{f.section}</div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: W }}>{f.item}</div>
+                      {f.note && <div style={{ fontSize: 11, color: G, marginTop: 2 }}>{f.note}</div>}
+                    </div>
+
+                    {/* Status dropdown */}
+                    <div style={{ minWidth: 130 }}>
+                      <label style={{ fontSize: 10, color: G, display: "block", marginBottom: 2 }}>Status</label>
+                      <select style={{ ...inputS, padding: "6px 8px", fontSize: 12 }} value={f.status} onChange={e => updateFinding(idx, "status", e.target.value)}>
+                        <option value="compliant">Compliant</option>
+                        <option value="deficient">Deficient</option>
+                        <option value="na">N/A</option>
+                        <option value="unclear">Unclear</option>
+                      </select>
+                    </div>
+
+                    {/* Code ref (read-only) */}
+                    <div style={{ minWidth: 120 }}>
+                      <label style={{ fontSize: 10, color: G, display: "block", marginBottom: 2 }}>Code Ref</label>
+                      <div style={{ fontSize: 12, color: G, padding: "7px 0" }}>{f.code_ref || "—"}</div>
+                    </div>
+
+                    {/* Cost inputs */}
+                    <div style={{ display: "flex", gap: 8, minWidth: 180 }}>
+                      <div>
+                        <label style={{ fontSize: 10, color: G, display: "block", marginBottom: 2 }}>Cost Low</label>
+                        <input type="number" style={{ ...inputS, padding: "6px 8px", fontSize: 12, width: 80 }} value={f.est_cost_low || 0} onChange={e => updateFinding(idx, "est_cost_low", parseInt(e.target.value) || 0)} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: G, display: "block", marginBottom: 2 }}>Cost High</label>
+                        <input type="number" style={{ ...inputS, padding: "6px 8px", fontSize: 12, width: 80 }} value={f.est_cost_high || 0} onChange={e => updateFinding(idx, "est_cost_high", parseInt(e.target.value) || 0)} />
+                      </div>
+                    </div>
+
+                    {/* Delete button */}
+                    <div style={{ display: "flex", alignItems: "center", paddingTop: 14 }}>
+                      <button onClick={() => removeFinding(idx)} style={{ background: "none", border: "none", color: RD, cursor: "pointer", fontSize: 18, padding: 4 }} title="Remove finding">×</button>
+                    </div>
+                  </div>
+
+                  {/* Remediation notes */}
+                  <div style={{ marginTop: 8 }}>
+                    <label style={{ fontSize: 10, color: G, display: "block", marginBottom: 2 }}>Remediation Notes</label>
+                    <textarea style={{ ...inputS, minHeight: 36, resize: "vertical", fontSize: 12 }} value={f.remediation || ""} onChange={e => updateFinding(idx, "remediation", e.target.value)} placeholder="Remediation notes..." />
+                  </div>
+                </div>
+              ))}
+
+              {/* Add Finding button */}
+              <button onClick={addFinding} style={{ ...btnS(false), width: "100%", marginTop: 8, marginBottom: 20 }}>+ Add Finding</button>
+
+              {/* Continue to Proposal button */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, marginBottom: 20 }}>
+                <button onClick={() => setStep(1)} style={{ ...btnS(false), padding: "12px 24px" }}>← Back to Review</button>
+                <button onClick={continueToProposal} style={{ ...btnS(true), padding: "14px 32px", fontSize: 15, boxShadow: `0 4px 20px ${O}40` }}>Continue to Proposal →</button>
+              </div>
             </div>
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }
@@ -1457,12 +1789,17 @@ function DocAnalysisPage({ inventory, procedures }) {
 // ═══════════════════════════════════════
 //  GENERATE PROPOSAL PAGE
 // ═══════════════════════════════════════
-function GeneratePage({ inventory, procedures, clients, proposals, setProposals, setClients }) {
+function GeneratePage({ inventory, procedures, clients, proposals, setProposals, setClients, analysisResults, setAnalysisResults }) {
   const [selectedClient, setSelectedClient] = useState("");
   const [newClient, setNewClient] = useState(false);
   const [clientForm, setClientForm] = useState({ name: "", contact_name: "", contact_title: "", contact_email: "", org_type: "school_district", num_facilities: "", address: "", notes: "" });
   const [tier, setTier] = useState("3");
-  const [messages, setMessages] = useState([{ role: "assistant", content: "Ready to build a proposal. Select or add a client on the left, then tell me about the opportunity. I have full access to your inventory (" + inventory.length + " items), procedures (" + procedures.length + " SOPs), and client records." }]);
+  const initialMsg = analysisResults
+    ? (analysisResults.type === "document"
+      ? `Analysis results loaded: Document Analysis with ${analysisResults.findings?.length || 0} findings (${analysisResults.summary?.deficient || 0} deficiencies, ${analysisResults.summary?.compliance_pct || "N/A"}% compliance). Estimated remediation: $${analysisResults.costRange?.[0]?.toLocaleString() || 0} – $${analysisResults.costRange?.[1]?.toLocaleString() || 0}.\n\nI have full access to your inventory (${inventory.length} items), procedures (${procedures.length} SOPs), and client records. Select or add a client on the left to build a proposal incorporating these findings.`
+      : `Analysis results loaded: Floor Plan Analysis with ${analysisResults.devices?.length || 0} device types (${analysisResults.summary?.totalDevices || 0} total devices). Estimated equipment cost: $${analysisResults.costRange?.[0]?.toLocaleString() || 0} – $${analysisResults.costRange?.[1]?.toLocaleString() || 0}.\n\nI have full access to your inventory (${inventory.length} items), procedures (${procedures.length} SOPs), and client records. Select or add a client on the left to build a proposal incorporating these device placements.`)
+    : "Ready to build a proposal. Select or add a client on the left, then tell me about the opportunity. I have full access to your inventory (" + inventory.length + " items), procedures (" + procedures.length + " SOPs), and client records.";
+  const [messages, setMessages] = useState([{ role: "assistant", content: initialMsg }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -1521,7 +1858,11 @@ ${procedures.map(p => `--- ${p.name} ---\n${p.steps}\nNotes: ${p.notes}`).join("
 
 PROPOSAL STRUCTURE: 6 phases — Initial Consultation, On-Site Assessment, Reporting, Fire Marshal Coordination, Cost Estimation, Remediation Oversight.
 
-When helping with proposals, reference ACTUAL inventory items and pricing from the database. Reference actual procedures by name. Be concise and direct.`;
+When helping with proposals, reference ACTUAL inventory items and pricing from the database. Reference actual procedures by name. Be concise and direct.` + (analysisResults ? (
+      analysisResults.type === "document"
+        ? `\n\nPREVIOUS ANALYSIS RESULTS:\nDocument analysis found ${analysisResults.findings?.length || 0} items. ${analysisResults.summary?.deficient || 0} deficiencies found. Compliance: ${analysisResults.summary?.compliance_pct || 'N/A'}%. Estimated remediation cost: $${analysisResults.costRange?.[0]?.toLocaleString()} - $${analysisResults.costRange?.[1]?.toLocaleString()}.\n\nDeficient items:\n${analysisResults.findings?.filter(f => f.status === 'deficient').map(f => `- ${f.item} (${f.code_ref}) - Est: $${f.est_cost_low}-$${f.est_cost_high}`).join('\n') || 'None'}`
+        : `\n\nPREVIOUS ANALYSIS RESULTS:\nFloor plan analysis identified ${analysisResults.devices?.length || 0} device placements per NFPA 72 / IFC Ch.9.\n\nDevices:\n${analysisResults.devices?.map(d => `- ${d.label}: ${d.quantity}x @ $${d.unitCost} = $${d.quantity * d.unitCost}`).join('\n') || 'None'}\n\nTotal equipment estimate: $${analysisResults.costRange?.[0]?.toLocaleString()} - $${analysisResults.costRange?.[1]?.toLocaleString()}`
+    ) : '');
   }
 
   async function sendMessage() {
@@ -1792,6 +2133,21 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
           </div>
           {(client || clientForm.name) && <span style={{ padding: "4px 12px", background: `${O}18`, borderRadius: 20, fontSize: 11, color: O, fontWeight: 600 }}>{client?.name || clientForm.name}</span>}
         </div>
+        {/* Analysis Results Banner */}
+        {analysisResults && (
+          <div style={{ padding: "10px 24px", background: `${analysisResults.type === "document" ? O : BL}10`, borderBottom: `1px solid ${analysisResults.type === "document" ? O : BL}30`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ fontSize: 13, color: W }}>
+              <span style={{ fontWeight: 600 }}>{analysisResults.type === "document" ? "📝 Document Analysis" : "🏗️ Floor Plan Analysis"}</span>
+              <span style={{ color: G, marginLeft: 8 }}>
+                {analysisResults.type === "document"
+                  ? `${analysisResults.findings?.length || 0} findings · ${analysisResults.summary?.deficient || 0} deficiencies · Est. $${analysisResults.costRange?.[0]?.toLocaleString()} – $${analysisResults.costRange?.[1]?.toLocaleString()}`
+                  : `${analysisResults.summary?.totalDevices || 0} devices · ${analysisResults.devices?.length || 0} types · Est. $${analysisResults.costRange?.[0]?.toLocaleString()} – $${analysisResults.costRange?.[1]?.toLocaleString()}`
+                }
+              </span>
+            </div>
+            <button onClick={() => setAnalysisResults(null)} style={{ background: "none", border: "none", color: G, cursor: "pointer", fontSize: 16, padding: "2px 6px" }} title="Dismiss">×</button>
+          </div>
+        )}
         <div style={{ flex: 1, overflow: "auto", padding: "16px 24px" }}>
           {messages.map((msg, i) => (
             <div key={i} style={{ marginBottom: 14, display: "flex", gap: 10, justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
