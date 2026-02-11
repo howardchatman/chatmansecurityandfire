@@ -58,6 +58,7 @@ const navigation = [
       { name: "Quotes", href: "/admin/quotes", icon: FileCheck },
       { name: "Estimates", href: "/admin/estimates", icon: Calculator },
       { name: "Inventory", href: "/admin/inventory", icon: Package },
+      { name: "Proposal Agent", href: "/admin/proposals", icon: FileText },
     ],
   },
   {
