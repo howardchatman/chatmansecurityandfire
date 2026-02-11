@@ -5,9 +5,9 @@ const LOGO_B64 = "iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAB15UlEQVR42ux9eZ
 const LOGO_URI = "data:image/png;base64," + LOGO_B64;
 
 // ── Colors ──
-const O = "#E87722", OL = "#FEF3E8", OD = "#C4601A";
-const D = "#0F0F17", D2 = "#16161F", D3 = "#1E1E2B", D4 = "#282838";
-const G = "#8B8FA3", W = "#F0F0F5", GR = "#22C55E", RD = "#EF4444", YL = "#F59E0B", BL = "#3B82F6";
+const O = "#EA580C", OL = "#FFF7ED", OD = "#C2410C";
+const D = "#F9FAFB", D2 = "#F3F4F6", D3 = "#FFFFFF", D4 = "#E5E7EB";
+const G = "#6B7280", W = "#111827", GR = "#22C55E", RD = "#EF4444", YL = "#F59E0B", BL = "#3B82F6";
 
 // ── Default data ──
 const DEFAULT_INVENTORY = [
@@ -112,15 +112,15 @@ async function saveData(key, data) {
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 // ── Styles ──
-const sidebarS = { position: "fixed", left: 0, top: 0, bottom: 0, width: 240, background: D2, borderRight: `1px solid ${D4}`, display: "flex", flexDirection: "column", zIndex: 100 };
-const mainS = { marginLeft: 240, minHeight: "100vh", background: D };
-const btnS = (primary) => ({ padding: "10px 18px", background: primary ? O : D4, color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" });
-const inputS = { width: "100%", padding: "10px 12px", background: D4, border: `1px solid rgba(255,255,255,0.08)`, borderRadius: 8, color: W, fontSize: 13, outline: "none", fontFamily: "inherit" };
-const labelS = { fontSize: 11, fontWeight: 600, color: G, display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 };
-const cardS = { background: D3, borderRadius: 12, border: `1px solid ${D4}`, padding: 20 };
-const tableHeaderS = { padding: "10px 14px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G, textTransform: "uppercase", letterSpacing: 0.8, borderBottom: `1px solid ${D4}` };
-const tableCellS = { padding: "12px 14px", fontSize: 13, color: W, borderBottom: `1px solid ${D4}` };
-const badgeS = (color) => ({ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: `${color}18`, color });
+// sidebar removed - using admin layout sidebar
+const mainS = { minHeight: "auto" };
+const btnS = (primary) => ({ padding: "8px 16px", background: primary ? O : "#FFF", color: primary ? "#FFF" : "#4B5563", border: primary ? "none" : "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s" });
+const inputS = { width: "100%", padding: "10px 12px", background: "#FFF", border: "1px solid #E5E7EB", borderRadius: 8, color: "#111827", fontSize: 13, outline: "none", fontFamily: "inherit" };
+const labelS = { fontSize: 13, fontWeight: 500, color: "#374151", display: "block", marginBottom: 6 };
+const cardS = { background: "#FFF", borderRadius: 12, border: "1px solid #E5E7EB", padding: 20 };
+const tableHeaderS = { padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", letterSpacing: 0.5, background: "#F9FAFB", borderBottom: "1px solid #E5E7EB" };
+const tableCellS = { padding: "12px 16px", fontSize: 13, color: "#111827", borderBottom: "1px solid #F3F4F6" };
+const badgeS = (color) => ({ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 500, background: `${color}15`, color });
 
 // ── MAIN APP ──
 export default function ProposalAgent() {
@@ -161,34 +161,27 @@ export default function ProposalAgent() {
     { key: "history", icon: "📄", label: "Proposal History" },
   ];
 
-  if (!loaded) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: D, color: G, fontFamily: "'DM Sans', system-ui, sans-serif" }}>Loading database...</div>;
+  if (!loaded) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "50vh", color: G }}>Loading database...</div>;
 
   return (
-    <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: W, background: D, minHeight: "100vh" }}>
-      {/* Sidebar */}
-      <nav style={sidebarS}>
-        <div style={{ padding: "16px 18px", borderBottom: `1px solid ${D4}`, display: "flex", alignItems: "center", gap: 10 }}>
-          <img src={LOGO_URI} alt="Logo" style={{ width: 34, height: 34, borderRadius: 6, objectFit: "cover" }} />
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.2 }}><span style={{ color: O }}>Chatman</span> SF</div>
-            <div style={{ fontSize: 10, color: G }}>Proposal Agent</div>
-          </div>
-        </div>
-        <div style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: 2 }}>
-          {navItems.map(n => (
-            <div key={n.key} onClick={() => setPage(n.key)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8, cursor: "pointer", background: page === n.key ? `${O}18` : "transparent", color: page === n.key ? O : G, fontSize: 13, fontWeight: page === n.key ? 600 : 400, transition: "all 0.15s" }}>
-              <span>{n.icon}</span>{n.label}
-            </div>
-          ))}
-        </div>
-        <div style={{ padding: "12px 16px", borderTop: `1px solid ${D4}`, fontSize: 10, color: G, textAlign: "center" }}>
-          <div style={{ padding: "4px 10px", background: `${O}18`, borderRadius: 12, color: O, fontWeight: 700, fontSize: 10, marginBottom: 6, display: "inline-block" }}>DATABASE CONNECTED</div>
-          <div>{inventory.length} items · {procedures.length} SOPs · {clients.length} clients</div>
-        </div>
-      </nav>
+    <div style={{ color: W }}>
+      {/* Page Header */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: W, margin: 0 }}>Proposal Agent</h1>
+        <p style={{ fontSize: 14, color: G, marginTop: 4 }}>{inventory.length} items · {procedures.length} SOPs · {clients.length} clients</p>
+      </div>
 
-      {/* Main */}
-      <main style={mainS}>
+      {/* Horizontal Tab Bar */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 24, padding: "4px", background: "#F3F4F6", borderRadius: 10 }}>
+        {navItems.map(n => (
+          <div key={n.key} onClick={() => setPage(n.key)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, cursor: "pointer", background: page === n.key ? "#FFF" : "transparent", color: page === n.key ? O : G, fontSize: 13, fontWeight: page === n.key ? 600 : 400, transition: "all 0.15s", boxShadow: page === n.key ? "0 1px 3px rgba(0,0,0,0.08)" : "none" }}>
+            <span style={{ fontSize: 14 }}>{n.icon}</span>{n.label}
+          </div>
+        ))}
+      </div>
+
+      {/* Main Content */}
+      <div style={mainS}>
         {page === "dashboard" && <DashboardPage inventory={inventory} procedures={procedures} clients={clients} proposals={proposals} setPage={setPage} />}
         {page === "inventory" && <InventoryPage inventory={inventory} setInventory={setInventory} />}
         {page === "procedures" && <ProceduresPage procedures={procedures} setProcedures={setProcedures} />}
@@ -197,7 +190,7 @@ export default function ProposalAgent() {
         {page === "docanalysis" && <DocAnalysisPage inventory={inventory} procedures={procedures} />}
         {page === "generate" && <GeneratePage inventory={inventory} procedures={procedures} clients={clients} proposals={proposals} setProposals={setProposals} setClients={setClients} />}
         {page === "history" && <HistoryPage proposals={proposals} setProposals={setProposals} clients={clients} />}
-      </main>
+      </div>
     </div>
   );
 }
@@ -354,7 +347,7 @@ function ItemModal({ item, onSave, onClose }) {
   const [form, setForm] = useState(item);
   const u = (k, v) => setForm(p => ({ ...p, [k]: v }));
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
       <div style={{ ...cardS, width: 480, maxHeight: "80vh", overflow: "auto" }} onClick={e => e.stopPropagation()}>
         <h3 style={{ margin: "0 0 20px", fontSize: 16, fontWeight: 700 }}>{item.id ? "Edit Item" : "Add Item"}</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -439,7 +432,7 @@ function ProcModal({ proc, onSave, onClose }) {
   const u = (k, v) => setForm(p => ({ ...p, [k]: v }));
   const cats = ["Assessment", "Coordination", "Reporting", "Estimating", "Project Mgmt", "Other"];
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
       <div style={{ ...cardS, width: 560, maxHeight: "85vh", overflow: "auto" }} onClick={e => e.stopPropagation()}>
         <h3 style={{ margin: "0 0 20px", fontSize: 16, fontWeight: 700 }}>{proc.id ? "Edit Procedure" : "Add Procedure"}</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -535,7 +528,7 @@ function ClientModal({ client, onSave, onClose }) {
   const u = (k, v) => setForm(p => ({ ...p, [k]: v }));
   const types = [["school_district","School District"],["commercial","Commercial"],["healthcare","Healthcare"],["government","Government"],["industrial","Industrial"],["other","Other"]];
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
       <div style={{ ...cardS, width: 520, maxHeight: "85vh", overflow: "auto" }} onClick={e => e.stopPropagation()}>
         <h3 style={{ margin: "0 0 20px", fontSize: 16, fontWeight: 700 }}>{client.id ? "Edit Client" : "Add Client"}</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -966,7 +959,7 @@ function FloorPlanPage({ inventory }) {
                   return (
                     <div key={i} onClick={() => setSelectedDevice(selectedDevice === i ? null : i)} style={{ position: "absolute", left: `${d.x}%`, top: `${d.y}%`, transform: "translate(-50%, -50%)", cursor: "pointer", zIndex: selectedDevice === i ? 50 : 10 }}>
                       {/* Marker */}
-                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: dt.color, border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 800, color: "#fff", boxShadow: `0 2px 8px ${dt.color}80`, transition: "transform 0.15s", transform: selectedDevice === i ? "scale(1.4)" : "scale(1)" }}>
+                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: dt.color, border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 800, color: "#111827", boxShadow: `0 2px 8px ${dt.color}80`, transition: "transform 0.15s", transform: selectedDevice === i ? "scale(1.4)" : "scale(1)" }}>
                         {d.label?.replace(/[^0-9]/g, "") || ""}
                       </div>
 
@@ -1803,7 +1796,7 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
           {messages.map((msg, i) => (
             <div key={i} style={{ marginBottom: 14, display: "flex", gap: 10, justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
               {msg.role === "assistant" && <img src={LOGO_URI} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: "cover", flexShrink: 0, marginTop: 2 }} />}
-              <div style={{ maxWidth: "75%", padding: "10px 14px", borderRadius: 12, background: msg.role === "user" ? O : D3, color: "#fff", fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", borderTopLeftRadius: msg.role === "assistant" ? 3 : 12, borderTopRightRadius: msg.role === "user" ? 3 : 12 }}>
+              <div style={{ maxWidth: "75%", padding: "10px 14px", borderRadius: 12, background: msg.role === "user" ? O : D3, color: "#111827", fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", borderTopLeftRadius: msg.role === "assistant" ? 3 : 12, borderTopRightRadius: msg.role === "user" ? 3 : 12 }}>
                 {msg.content}
               </div>
             </div>
