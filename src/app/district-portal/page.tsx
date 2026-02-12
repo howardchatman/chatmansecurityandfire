@@ -78,6 +78,11 @@ export default function DistrictPortal() {
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [kpiPopup, setKpiPopup] = useState<string | null>(null);
+  const [categoryPopup, setCategoryPopup] = useState<string | null>(null);
+  const [marshalPopup, setMarshalPopup] = useState<number | null>(null);
+  const [reportPopup, setReportPopup] = useState<number | null>(null);
   const perPage = 12;
   const initialized = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -201,12 +206,12 @@ export default function DistrictPortal() {
   });
 
   const activities = [
-    {color:"#22C55E", text:<><strong>Adams Elementary</strong> passed Fire Marshal inspection</>, time:"2 hours ago"},
-    {color:"#E87722", text:<>Compliance report generated for <strong>Region North</strong></>, time:"5 hours ago"},
-    {color:"#EF4444", text:<><strong>Harrison High School</strong> — critical sprinkler deficiency flagged</>, time:"Yesterday"},
-    {color:"#3B82F6", text:<>Fire Marshal walkthrough scheduled for <strong>Kennedy Middle</strong></>, time:"Yesterday"},
-    {color:"#22C55E", text:<><strong>Franklin K-8</strong> remediation complete — moved to Compliant</>, time:"2 days ago"},
-    {color:"#F59E0B", text:<>Kitchen suppression work order created for <strong>Jefferson Elementary</strong></>, time:"3 days ago"},
+    {color:"#22C55E", text:<><strong>Adams Elementary</strong> passed Fire Marshal inspection</>, time:"2 hours ago", schoolHint:"Adams"},
+    {color:"#E87722", text:<>Compliance report generated for <strong>Region North</strong></>, time:"5 hours ago", schoolHint:""},
+    {color:"#EF4444", text:<><strong>Harrison High School</strong> — critical sprinkler deficiency flagged</>, time:"Yesterday", schoolHint:"Harrison"},
+    {color:"#3B82F6", text:<>Fire Marshal walkthrough scheduled for <strong>Kennedy Middle</strong></>, time:"Yesterday", schoolHint:"Kennedy"},
+    {color:"#22C55E", text:<><strong>Franklin K-8</strong> remediation complete — moved to Compliant</>, time:"2 days ago", schoolHint:"Franklin"},
+    {color:"#F59E0B", text:<>Kitchen suppression work order created for <strong>Jefferson Elementary</strong></>, time:"3 days ago", schoolHint:"Jefferson"},
   ];
 
   const deficiencyData = [
@@ -246,7 +251,7 @@ export default function DistrictPortal() {
   const upcomingInspections = schools.filter(s => s.status !== "compliant").slice(0, 6);
 
   return (
-    <div className="font-sans" style={{ fontFamily: "'DM Sans', sans-serif", background: "#1A1A2E", color: "#F1F1F6", minHeight: "100vh" }}>
+    <div className="font-sans overflow-x-hidden" style={{ fontFamily: "'DM Sans', sans-serif", background: "#1A1A2E", color: "#F1F1F6", minHeight: "100vh" }}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
         .dp-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -254,10 +259,14 @@ export default function DistrictPortal() {
         .dp-scrollbar::-webkit-scrollbar-thumb { background: #2A2A4A; border-radius: 3px; }
         @keyframes dpFadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         .dp-fade-up { animation: dpFadeUp 0.5s ease both; }
+        .max-md\\:scrollbar-hide::-webkit-scrollbar { display: none; }
       `}</style>
 
+      {/* MOBILE OVERLAY */}
+      {sidebarOpen && <div className="fixed inset-0 bg-black/40 z-[95] md:hidden" onClick={() => setSidebarOpen(false)} />}
+
       {/* SIDEBAR */}
-      <nav className="fixed left-0 top-0 bottom-0 w-[260px] flex flex-col z-[100] border-r border-white/[0.06] max-md:-translate-x-full transition-transform" style={{ background: "#222240" }}>
+      <nav className={`fixed left-0 top-0 bottom-0 w-[260px] flex flex-col z-[100] border-r border-white/[0.06] transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'max-md:-translate-x-full'}`} style={{ background: "#222240" }}>
         <div className="px-6 py-5 border-b border-white/[0.06] flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-base text-white" style={{ background: "#E87722" }}>CS</div>
           <div className="text-[13px] font-semibold leading-tight"><span style={{ color: "#E87722" }}>Chatman</span> Security<br/>& Fire</div>
@@ -265,7 +274,7 @@ export default function DistrictPortal() {
         <div className="flex-1 p-3 overflow-y-auto dp-scrollbar">
           <div className="text-[10px] font-bold tracking-[1.5px] text-gray-500 px-3 pt-3 pb-2 uppercase">Main</div>
           {navItems.slice(0, 4).map(item => (
-            <div key={item.id} onClick={() => switchTab(item.id)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm mb-0.5 transition-all ${currentTab === item.id || (currentTab === "profile" && item.id === "schools") ? "font-semibold" : "text-gray-400 hover:bg-white/5 hover:text-white"}`} style={currentTab === item.id || (currentTab === "profile" && item.id === "schools") ? { background: "rgba(232,119,34,0.12)", color: "#E87722" } : {}}>
+            <div key={item.id} onClick={() => { switchTab(item.id); setSidebarOpen(false); }} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm mb-0.5 transition-all ${currentTab === item.id || (currentTab === "profile" && item.id === "schools") ? "font-semibold" : "text-gray-400 hover:bg-white/5 hover:text-white"}`} style={currentTab === item.id || (currentTab === "profile" && item.id === "schools") ? { background: "rgba(232,119,34,0.12)", color: "#E87722" } : {}}>
               {item.icon}
               {item.label}
               {item.badge && <span className="ml-auto text-[10px] font-bold px-[7px] py-0.5 rounded-[10px] text-white" style={{ background: "#EF4444" }}>{item.badge}</span>}
@@ -273,7 +282,7 @@ export default function DistrictPortal() {
           ))}
           <div className="text-[10px] font-bold tracking-[1.5px] text-gray-500 px-3 pt-3 pb-2 uppercase">Reports</div>
           {navItems.slice(4).map(item => (
-            <div key={item.id} onClick={() => switchTab(item.id)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm mb-0.5 transition-all ${currentTab === item.id ? "font-semibold" : "text-gray-400 hover:bg-white/5 hover:text-white"}`} style={currentTab === item.id ? { background: "rgba(232,119,34,0.12)", color: "#E87722" } : {}}>
+            <div key={item.id} onClick={() => { switchTab(item.id); setSidebarOpen(false); }} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm mb-0.5 transition-all ${currentTab === item.id ? "font-semibold" : "text-gray-400 hover:bg-white/5 hover:text-white"}`} style={currentTab === item.id ? { background: "rgba(232,119,34,0.12)", color: "#E87722" } : {}}>
               {item.icon}
               {item.label}
             </div>
@@ -287,8 +296,11 @@ export default function DistrictPortal() {
       </nav>
 
       {/* HEADER */}
-      <header className="fixed top-0 left-[260px] right-0 h-16 backdrop-blur-[20px] border-b border-white/[0.06] flex items-center justify-between px-8 z-[90] max-md:left-0" style={{ background: "rgba(26,26,46,0.85)" }}>
+      <header className="fixed top-0 left-[260px] right-0 h-16 backdrop-blur-[20px] border-b border-white/[0.06] flex items-center justify-between px-8 z-[90] max-md:left-0 max-md:px-4" style={{ background: "rgba(26,26,46,0.85)" }}>
         <div className="flex items-center gap-4">
+          <button className="max-md:block hidden shrink-0" onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E87722" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           {currentTab === "profile" && (
             <button onClick={() => switchTab("schools")} className="mr-1 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 border border-white/[0.08] hover:border-[#E87722] hover:text-[#E87722] transition-all" style={{ background: "#2A2A4A" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -297,22 +309,22 @@ export default function DistrictPortal() {
           <h1 className="text-lg font-semibold">{tabTitles[currentTab] || "Dashboard"}</h1>
           <span className="px-3 py-1 rounded-[20px] text-xs text-gray-400 border border-white/[0.08]" style={{ background: "#2A2A4A" }}>{schools.length} Campuses</span>
         </div>
-        <div className="flex items-center gap-4">
-          <button onClick={() => alert("Export feature — available in full version")} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] text-white border border-white/[0.08] transition-all hover:border-[#E87722] hover:text-[#E87722]" style={{ background: "#2A2A4A", fontFamily: "inherit" }}>
+        <div className="flex items-center gap-4 max-md:gap-2">
+          <button onClick={() => alert("Export feature — available in full version")} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] text-white border border-white/[0.08] transition-all hover:border-[#E87722] hover:text-[#E87722] max-md:hidden" style={{ background: "#2A2A4A", fontFamily: "inherit" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export
           </button>
-          <button onClick={() => alert("Schedule a consultation at chatmansecurityandfire.com")} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] text-white font-medium transition-all hover:brightness-90" style={{ background: "#E87722", fontFamily: "inherit" }}>Get Started</button>
+          <button onClick={() => alert("Schedule a consultation at chatmansecurityandfire.com")} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] text-white font-medium transition-all hover:brightness-90 max-md:px-3 max-md:text-[12px]" style={{ background: "#E87722", fontFamily: "inherit" }}>Get Started</button>
         </div>
       </header>
 
       {/* MAIN */}
-      <main className="ml-[260px] mt-16 p-7 min-h-[calc(100vh-64px)] max-md:ml-0">
+      <main className="ml-[260px] mt-16 p-7 min-h-[calc(100vh-64px)] max-md:ml-0 max-md:p-4">
         {/* TABS (hide when on profile) */}
         {currentTab !== "profile" && (
-          <div className="flex gap-1 p-1 rounded-xl w-fit mb-7" style={{ background: "#222240" }}>
+          <div className="flex gap-1 p-1 rounded-xl w-fit mb-7 max-md:w-full max-md:overflow-x-auto max-md:scrollbar-hide" style={{ background: "#222240", scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {tabs.map(tab => (
-              <button key={tab} onClick={() => switchTab(tab)} className={`px-5 py-2 rounded-lg text-[13px] font-medium transition-all border-none capitalize ${currentTab === tab ? "text-white font-semibold" : "text-gray-400 hover:text-white"}`} style={currentTab === tab ? { background: "#E87722" } : { background: "transparent" }}>
+              <button key={tab} onClick={() => switchTab(tab)} className={`px-5 py-2 rounded-lg text-[13px] font-medium transition-all border-none capitalize whitespace-nowrap ${currentTab === tab ? "text-white font-semibold" : "text-gray-400 hover:text-white"}`} style={currentTab === tab ? { background: "#E87722" } : { background: "transparent" }}>
                 {tab === "marshal" ? "Fire Marshal" : tab}
               </button>
             ))}
@@ -324,17 +336,18 @@ export default function DistrictPortal() {
           <div>
             <div className="grid grid-cols-4 gap-4 mb-7 max-xl:grid-cols-2 max-md:grid-cols-1">
               {[
-                { icon: "🏫", label: "Total Campuses", value: String(schools.length), sub: "Across 5 regions", iconBg: "rgba(59,130,246,0.12)", iconColor: "#3B82F6", valueColor: "#F1F1F6", glowColor: "#3B82F6" },
-                { icon: "✓", label: "Fully Compliant", value: String(compliantCount), trend: `${Math.round(compliantCount/schools.length*100)}% of district`, trendBg: "rgba(34,197,94,0.12)", trendColor: "#22C55E", iconBg: "rgba(34,197,94,0.12)", iconColor: "#22C55E", valueColor: "#22C55E", glowColor: "#22C55E" },
-                { icon: "⚠", label: "In Progress", value: String(inProgressCount), sub: "Remediation underway", iconBg: "rgba(245,158,11,0.12)", iconColor: "#F59E0B", valueColor: "#F59E0B", glowColor: "#F59E0B" },
-                { icon: "🔥", label: "Critical Issues", value: String(criticalCount), sub: "Requires immediate action", iconBg: "rgba(239,68,68,0.12)", iconColor: "#EF4444", valueColor: "#EF4444", glowColor: "#EF4444" },
+                { key: "total", icon: "🏫", label: "Total Campuses", value: String(schools.length), sub: "Across 5 regions", iconBg: "rgba(59,130,246,0.12)", iconColor: "#3B82F6", valueColor: "#F1F1F6", glowColor: "#3B82F6" },
+                { key: "compliant", icon: "✓", label: "Fully Compliant", value: String(compliantCount), trend: `${Math.round(compliantCount/schools.length*100)}% of district`, trendBg: "rgba(34,197,94,0.12)", trendColor: "#22C55E", iconBg: "rgba(34,197,94,0.12)", iconColor: "#22C55E", valueColor: "#22C55E", glowColor: "#22C55E" },
+                { key: "progress", icon: "⚠", label: "In Progress", value: String(inProgressCount), sub: "Remediation underway", iconBg: "rgba(245,158,11,0.12)", iconColor: "#F59E0B", valueColor: "#F59E0B", glowColor: "#F59E0B" },
+                { key: "critical", icon: "🔥", label: "Critical Issues", value: String(criticalCount), sub: "Requires immediate action", iconBg: "rgba(239,68,68,0.12)", iconColor: "#EF4444", valueColor: "#EF4444", glowColor: "#EF4444" },
               ].map((kpi, i) => (
-                <div key={i} className="relative overflow-hidden rounded-xl p-5 border border-white/[0.06] transition-all hover:-translate-y-0.5 hover:border-white/[0.12] dp-fade-up" style={{ background: "#252545", animationDelay: `${i*0.05}s` }}>
+                <div key={i} onClick={() => setKpiPopup(kpi.key)} className="relative overflow-hidden rounded-xl p-5 border border-white/[0.06] transition-all hover:-translate-y-0.5 hover:border-[#E87722]/40 cursor-pointer dp-fade-up" style={{ background: "#252545", animationDelay: `${i*0.05}s` }}>
                   <div className="w-10 h-10 rounded-[10px] flex items-center justify-center mb-3.5 text-lg" style={{ background: kpi.iconBg, color: kpi.iconColor }}>{kpi.icon}</div>
                   <div className="text-[13px] text-gray-400 mb-1.5">{kpi.label}</div>
                   <div className="text-[28px] font-bold" style={{ fontFamily: "'Space Mono', monospace", color: kpi.valueColor }}>{kpi.value}</div>
                   {kpi.sub && <div className="text-xs text-gray-500 mt-1">{kpi.sub}</div>}
                   {kpi.trend && <div className="inline-flex items-center gap-[3px] text-[11px] font-semibold mt-2 px-2 py-[3px] rounded" style={{ background: kpi.trendBg, color: kpi.trendColor }}>{kpi.trend}</div>}
+                  <div className="text-[10px] text-gray-500 mt-2 group-hover:text-[#E87722]">Click for details &rarr;</div>
                   <div className="absolute -top-[30px] -right-[30px] w-[100px] h-[100px] rounded-full opacity-[0.08] pointer-events-none" style={{ background: kpi.glowColor }} />
                 </div>
               ))}
@@ -345,7 +358,7 @@ export default function DistrictPortal() {
                 <h3 className="text-sm font-semibold mb-5">Compliance by Category</h3>
                 <div className="flex flex-col gap-3">
                   {complianceCats.map((c, i) => (
-                    <div key={i} className="flex items-center gap-3">
+                    <div key={i} className="flex items-center gap-3 cursor-pointer hover:bg-white/[0.03] rounded-lg px-1 py-0.5 -mx-1 transition-all" onClick={() => setCategoryPopup(c.label)}>
                       <div className="w-[130px] text-xs text-gray-400 shrink-0">{c.label}</div>
                       <div className="flex-1 h-7 rounded-md overflow-hidden" style={{ background: "#2A2A4A" }}>
                         <div className="h-full rounded-md flex items-center pl-2.5 transition-all duration-1000" style={{ width: `${c.pct}%`, background: c.color }}>
@@ -383,21 +396,24 @@ export default function DistrictPortal() {
             <div className="grid grid-cols-2 gap-4 max-xl:grid-cols-1">
               <div className="rounded-xl p-6 border border-white/[0.06] dp-fade-up" style={{ background: "#252545" }}>
                 <h3 className="text-sm font-semibold mb-4">Recent Activity</h3>
-                {activities.map((a, i) => (
-                  <div key={i} className={`flex gap-3 py-2.5 ${i < activities.length-1 ? "border-b border-white/[0.04]" : ""}`}>
-                    <div className="w-2 h-2 rounded-full mt-[5px] shrink-0" style={{ background: a.color }} />
-                    <div><div className="text-[13px] text-gray-400 leading-relaxed">{a.text}</div><div className="text-[11px] text-gray-500 mt-0.5">{a.time}</div></div>
-                  </div>
-                ))}
+                {activities.map((a, i) => {
+                  const matchedSchool = a.schoolHint ? schools.find(s => s.name.toLowerCase().includes(a.schoolHint.toLowerCase())) : null;
+                  return (
+                    <div key={i} className={`flex gap-3 py-2.5 ${matchedSchool ? 'cursor-pointer hover:bg-white/[0.03] rounded-lg px-1 -mx-1' : ''} transition-all ${i < activities.length-1 ? "border-b border-white/[0.04]" : ""}`} onClick={() => matchedSchool && openSchoolProfile(matchedSchool.id)}>
+                      <div className="w-2 h-2 rounded-full mt-[5px] shrink-0" style={{ background: a.color }} />
+                      <div className="flex-1"><div className="text-[13px] text-gray-400 leading-relaxed">{a.text}</div><div className="text-[11px] text-gray-500 mt-0.5">{a.time}{matchedSchool ? <span className="ml-2" style={{ color: '#E87722' }}>&rarr; View profile</span> : ''}</div></div>
+                    </div>
+                  );
+                })}
               </div>
               <div className="rounded-xl p-6 border border-white/[0.06] dp-fade-up" style={{ background: "#252545" }}>
                 <h3 className="text-sm font-semibold mb-4">Upcoming Inspections</h3>
                 {upcomingInspections.map((s, i) => (
-                  <div key={i} onClick={() => openSchoolProfile(s.id)} className={`flex gap-3 py-2.5 cursor-pointer ${i < upcomingInspections.length-1 ? "border-b border-white/[0.04]" : ""}`}>
+                  <div key={i} onClick={() => openSchoolProfile(s.id)} className={`flex gap-3 py-2.5 cursor-pointer hover:bg-white/[0.03] rounded-lg px-1 -mx-1 transition-all ${i < upcomingInspections.length-1 ? "border-b border-white/[0.04]" : ""}`}>
                     <div className="w-2 h-2 rounded-full mt-[5px] shrink-0" style={{ background: s.status === "critical" ? "#EF4444" : "#F59E0B" }} />
                     <div className="flex-1">
                       <div className="text-[13px] text-gray-400"><strong className="text-white font-semibold">{s.name}</strong></div>
-                      <div className="text-[11px] text-gray-500 mt-0.5">{s.nextInspection} &bull; {s.region} Region</div>
+                      <div className="text-[11px] text-gray-500 mt-0.5">{s.nextInspection} &bull; {s.region} Region <span style={{ color: '#E87722' }}>&rarr;</span></div>
                     </div>
                     <StatusPill status={s.status} />
                   </div>
@@ -407,6 +423,98 @@ export default function DistrictPortal() {
           </div>
         )}
 
+        {/* KPI POPUP */}
+        {kpiPopup && (() => {
+          const kpiSchools = kpiPopup === 'total' ? schools
+            : kpiPopup === 'compliant' ? schools.filter(s => s.status === 'compliant')
+            : kpiPopup === 'progress' ? schools.filter(s => s.status === 'in-progress')
+            : schools.filter(s => s.status === 'critical');
+          const sorted = [...kpiSchools].sort((a, b) => b.compliance - a.compliance);
+          const top5 = sorted.slice(0, 5);
+          const filterVal = kpiPopup === 'total' ? 'all' : kpiPopup === 'compliant' ? 'compliant' : kpiPopup === 'progress' ? 'in-progress' : 'critical';
+          const titles: Record<string, string> = { total: 'All Campuses', compliant: 'Fully Compliant Campuses', progress: 'In-Progress Campuses', critical: 'Critical Campuses' };
+          return (
+            <Popup title={titles[kpiPopup] || 'Details'} onClose={() => setKpiPopup(null)}>
+              <div className="text-sm text-gray-400 mb-4">{kpiSchools.length} campuses in this category across {new Set(kpiSchools.map(s => s.region)).size} regions</div>
+              <div className="mb-4">
+                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Region Breakdown</div>
+                <div className="grid grid-cols-5 gap-2 max-md:grid-cols-3">
+                  {regions.map(r => {
+                    const cnt = kpiSchools.filter(s => s.region === r).length;
+                    return (
+                      <div key={r} className="rounded-lg p-2 text-center border border-white/[0.06]" style={{ background: '#1A1A2E' }}>
+                        <div className="text-lg font-bold" style={{ fontFamily: "'Space Mono', monospace", color: '#E87722' }}>{cnt}</div>
+                        <div className="text-[10px] text-gray-500">{r}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="mb-4">
+                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Top 5 Schools</div>
+                {top5.map((s, i) => (
+                  <div key={s.id} className="flex items-center gap-3 py-2 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/[0.03] rounded px-2 transition-all" onClick={() => { setKpiPopup(null); openSchoolProfile(s.id); }}>
+                    <span className="text-xs font-bold text-gray-500 w-5">{i+1}</span>
+                    <span className="flex-1 text-sm text-white">{s.name}</span>
+                    <span className="text-xs font-bold" style={{ fontFamily: "'Space Mono', monospace", color: s.compliance > 80 ? '#22C55E' : s.compliance > 50 ? '#F59E0B' : '#EF4444' }}>{s.compliance}%</span>
+                    <StatusPill status={s.status} />
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => { setKpiPopup(null); setCurrentFilter(filterVal); switchTab('schools'); }} className="w-full py-2.5 rounded-lg text-[13px] font-semibold text-white transition-all hover:brightness-90" style={{ background: '#E87722' }}>
+                View All {kpiSchools.length} Schools &rarr;
+              </button>
+            </Popup>
+          );
+        })()}
+
+        {/* CATEGORY POPUP */}
+        {categoryPopup && (() => {
+          const cat = complianceCats.find(c => c.label === categoryPopup);
+          if (!cat) return null;
+          const affectedSchools = schools.filter(s => s.checks.some(c => c.name === categoryPopup && c.status !== 'pass')).slice(0, 8);
+          const passCount = schools.filter(s => s.checks.some(c => c.name === categoryPopup && c.status === 'pass')).length;
+          const failCount = schools.filter(s => s.checks.some(c => c.name === categoryPopup && c.status === 'fail')).length;
+          const warnCount = schools.filter(s => s.checks.some(c => c.name === categoryPopup && c.status === 'warn')).length;
+          return (
+            <Popup title={categoryPopup} onClose={() => setCategoryPopup(null)}>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {[
+                  { label: 'Passing', value: passCount, color: '#22C55E' },
+                  { label: 'Warning', value: warnCount, color: '#F59E0B' },
+                  { label: 'Failing', value: failCount, color: '#EF4444' },
+                ].map((st, i) => (
+                  <div key={i} className="rounded-lg p-3 text-center border border-white/[0.06]" style={{ background: '#1A1A2E' }}>
+                    <div className="text-xl font-bold" style={{ fontFamily: "'Space Mono', monospace", color: st.color }}>{st.value}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">{st.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mb-1">
+                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">District Compliance Rate</div>
+                <div className="h-3 rounded-full overflow-hidden mb-1" style={{ background: '#2A2A4A' }}>
+                  <div className="h-full rounded-full" style={{ width: `${cat.pct}%`, background: cat.color }} />
+                </div>
+                <div className="text-right text-xs font-bold" style={{ fontFamily: "'Space Mono', monospace", color: cat.color }}>{cat.pct}%</div>
+              </div>
+              {affectedSchools.length > 0 && (
+                <div className="mb-4 mt-3">
+                  <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Schools With Issues</div>
+                  {affectedSchools.map(s => (
+                    <div key={s.id} className="flex items-center gap-3 py-1.5 cursor-pointer hover:bg-white/[0.03] rounded px-2 transition-all" onClick={() => { setCategoryPopup(null); openSchoolProfile(s.id); }}>
+                      <span className="flex-1 text-sm text-white">{s.name}</span>
+                      <StatusPill status={s.status} />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button onClick={() => { setCategoryPopup(null); alert('Inspection scheduling available in full version'); }} className="w-full py-2.5 rounded-lg text-[13px] font-semibold text-white transition-all hover:brightness-90" style={{ background: '#E87722' }}>
+                Schedule Inspections
+              </button>
+            </Popup>
+          );
+        })()}
+
         {/* ======= SCHOOLS TAB ======= */}
         {currentTab === "schools" && (
           <div className="dp-fade-up">
@@ -414,7 +522,7 @@ export default function DistrictPortal() {
             <div className="flex items-center gap-3 mb-6 flex-wrap">
               <div className="relative">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search schools..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }} className="pl-9 pr-3.5 py-2 rounded-lg text-[13px] text-white w-[280px] outline-none transition-all border border-white/[0.08] focus:border-[#E87722]" style={{ background: "#2A2A4A", fontFamily: "inherit" }} />
+                <input type="text" placeholder="Search schools..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }} className="pl-9 pr-3.5 py-2 rounded-lg text-[13px] text-white w-[280px] max-md:w-full outline-none transition-all border border-white/[0.08] focus:border-[#E87722]" style={{ background: "#2A2A4A", fontFamily: "inherit" }} />
               </div>
               {[{label:`All (${schools.length})`,val:"all"},{label:`Compliant (${compliantCount})`,val:"compliant"},{label:`In Progress (${inProgressCount})`,val:"in-progress"},{label:`Critical (${criticalCount})`,val:"critical"}].map(f => (
                 <button key={f.val} onClick={() => { setCurrentFilter(f.val); setCurrentPage(1); }} className={`px-3.5 py-1.5 rounded-[20px] text-xs transition-all border ${currentFilter === f.val ? "border-[#E87722] text-[#E87722]" : "border-white/[0.08] text-gray-400 hover:border-[#E87722] hover:text-[#E87722]"}`} style={{ background: currentFilter === f.val ? "rgba(232,119,34,0.1)" : "#2A2A4A", fontFamily: "inherit" }}>{f.label}</button>
@@ -453,7 +561,10 @@ export default function DistrictPortal() {
                     {/* Card Body */}
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs text-gray-400">{s.region} Region</span>
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <span>{s.type === 'Elementary' || s.type === 'Early Childhood' ? '\uD83C\uDFEB' : s.type === 'Middle' || s.type === 'K-8' ? '\uD83C\uDFE2' : s.type === 'High School' ? '\uD83C\uDF93' : '\uD83C\uDFEB'}</span>
+                          {s.region} Region
+                        </span>
                         <span className="text-xs text-gray-400">{s.type}</span>
                       </div>
                       <div className="flex items-center gap-3 mb-2">
@@ -462,10 +573,11 @@ export default function DistrictPortal() {
                         </div>
                         <span className="text-xs font-bold" style={{ fontFamily: "'Space Mono', monospace", color: s.compliance > 80 ? "#22C55E" : s.compliance > 50 ? "#F59E0B" : "#EF4444" }}>{s.compliance}%</span>
                       </div>
-                      <div className="flex items-center justify-between text-[11px] text-gray-500">
+                      <div className="flex items-center justify-between text-[11px] text-gray-500 mb-2">
                         <span>{s.priorityItems} priority items</span>
                         <span>Inspected {s.lastInspected}</span>
                       </div>
+                      <div className="text-[11px] font-semibold group-hover:translate-x-1 transition-transform" style={{ color: '#E87722' }}>View Profile &rarr;</div>
                     </div>
                   </div>
                 ))}
@@ -602,13 +714,101 @@ export default function DistrictPortal() {
               </div>
             </div>
 
+            {/* Contact & Cost Estimate */}
+            <div className="grid grid-cols-2 gap-4 mb-6 max-md:grid-cols-1">
+              <div className="rounded-xl p-6 border border-white/[0.06]" style={{ background: "#252545" }}>
+                <h3 className="text-sm font-semibold mb-3">Contact Information</h3>
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                    <span className="text-base">📞</span>
+                    <span>(555) {300 + selectedSchool.id}-{1000 + selectedSchool.id * 7}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                    <span className="text-base">📧</span>
+                    <span>admin@{selectedSchool.name.split(' ')[0].toLowerCase()}.edu</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                    <span className="text-base">👤</span>
+                    <span>Principal {lastNamePool[(selectedSchool.id + 20) % lastNamePool.length]}</span>
+                  </div>
+                </div>
+                <button onClick={() => alert('Contact feature available in full version')} className="w-full mt-4 py-2 rounded-lg text-[12px] font-semibold text-white border border-white/[0.08] transition-all hover:border-[#E87722] hover:text-[#E87722]" style={{ background: '#2A2A4A' }}>Contact School</button>
+              </div>
+              <div className="rounded-xl p-6 border border-white/[0.06]" style={{ background: "#252545" }}>
+                <h3 className="text-sm font-semibold mb-3">Remediation Cost Estimate</h3>
+                <div className="text-[28px] font-bold mb-1" style={{ fontFamily: "'Space Mono', monospace", color: '#E87722' }}>
+                  ${(selectedSchool.priorityItems * 2800 + 5000).toLocaleString()} &ndash; ${(selectedSchool.priorityItems * 4200 + 12000).toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-500 mb-3">Based on {selectedSchool.priorityItems} priority items identified</div>
+                <div className="space-y-1.5">
+                  {[
+                    { label: 'Parts & Materials', pct: 40 },
+                    { label: 'Labor & Installation', pct: 35 },
+                    { label: 'Permits & Inspection Fees', pct: 15 },
+                    { label: 'Project Management', pct: 10 },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2 text-[11px] text-gray-400">
+                      <div className="w-[100px] shrink-0">{item.label}</div>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#2A2A4A' }}>
+                        <div className="h-full rounded-full" style={{ width: `${item.pct}%`, background: '#E87722', opacity: 0.4 + (i * 0.15) }} />
+                      </div>
+                      <span className="w-8 text-right" style={{ fontFamily: "'Space Mono', monospace" }}>{item.pct}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Compliance History Timeline */}
+            <div className="rounded-xl p-6 border border-white/[0.06] mb-6" style={{ background: "#252545" }}>
+              <h3 className="text-sm font-semibold mb-4">Compliance History</h3>
+              <div className="relative pl-6 border-l-2 border-white/[0.08] space-y-4">
+                {[
+                  { date: 'Jan 2026', event: 'Annual compliance audit completed', detail: `Overall score: ${selectedSchool.compliance}%`, color: selectedSchool.compliance > 80 ? '#22C55E' : selectedSchool.compliance > 50 ? '#F59E0B' : '#EF4444' },
+                  { date: 'Oct 2025', event: 'Fire Marshal follow-up inspection', detail: 'Sprinkler system pressure test passed', color: '#22C55E' },
+                  { date: 'Jul 2025', event: 'Emergency lighting upgrade completed', detail: 'All exit signs replaced with LED models', color: '#3B82F6' },
+                  { date: 'Mar 2025', event: 'Initial assessment by Chatman Security & Fire', detail: 'Baseline compliance score established', color: '#E87722' },
+                ].map((entry, i) => (
+                  <div key={i} className="relative">
+                    <div className="absolute -left-[31px] w-3 h-3 rounded-full border-2 border-[#222240]" style={{ background: entry.color }} />
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">{entry.date}</div>
+                    <div className="text-sm text-white font-medium">{entry.event}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">{entry.detail}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Notes */}
+            <div className="rounded-xl p-6 border border-white/[0.06] mb-6" style={{ background: "#252545" }}>
+              <h3 className="text-sm font-semibold mb-4">Recent Notes</h3>
+              <div className="space-y-3">
+                {[
+                  { author: 'Chatman Field Tech', date: '2 days ago', note: `Completed walkthrough of ${selectedSchool.name}. ${selectedSchool.priorityItems} items flagged for remediation. Kitchen suppression hood requires immediate attention.` },
+                  { author: 'District Facilities Mgr', date: '1 week ago', note: 'Budget approved for Phase 1 remediation. Awaiting vendor quotes for fire alarm panel replacement.' },
+                  { author: 'Fire Marshal Office', date: '2 weeks ago', note: `Re-inspection scheduled. Previous citation for emergency lighting deficiency must be resolved prior to visit.` },
+                ].map((n, i) => (
+                  <div key={i} className="rounded-lg p-3.5 border border-white/[0.04]" style={{ background: '#1A1A2E' }}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-semibold text-white">{n.author}</span>
+                      <span className="text-[10px] text-gray-500">{n.date}</span>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed">{n.note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 max-md:flex-col">
               <button onClick={() => alert("Full report download available in live version")} className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white text-center transition-all hover:brightness-90" style={{ background: "#E87722" }}>
                 Download Full Report
               </button>
               <button onClick={() => alert("Schedule inspection available in live version")} className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white text-center transition-all hover:bg-white/10 border border-white/[0.08]" style={{ background: "#2A2A4A" }}>
                 Schedule Inspection
+              </button>
+              <button onClick={() => alert("Contact feature available in full version")} className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white text-center transition-all hover:bg-white/10 border border-white/[0.08]" style={{ background: "#2A2A4A" }}>
+                Contact School
               </button>
             </div>
           </div>
@@ -672,11 +872,12 @@ export default function DistrictPortal() {
             <h2 className="text-base font-semibold mb-4">Upcoming Inspections & Coordination</h2>
             <div className="grid grid-cols-3 gap-4 max-xl:grid-cols-2 max-md:grid-cols-1">
               {marshalItems.map((m, i) => (
-                <div key={i} className="rounded-xl p-5 border border-white/[0.06] cursor-pointer transition-all hover:border-[#E87722] hover:-translate-y-0.5" style={{ background: "#252545" }}>
+                <div key={i} onClick={() => setMarshalPopup(i)} className="rounded-xl p-5 border border-white/[0.06] cursor-pointer transition-all hover:border-[#E87722] hover:-translate-y-0.5" style={{ background: "#252545" }}>
                   <h4 className="text-sm font-semibold mb-1">{m.campus}</h4>
                   <p className="text-xs text-gray-400 mb-3">{m.notes}</p>
                   <div className="mb-2.5"><StatusPill status={m.status} /></div>
                   <div className="flex gap-4 text-[11px] text-gray-500"><span>📅 {m.date}</span><span>📋 {m.type}</span></div>
+                  <div className="text-[10px] mt-2" style={{ color: '#E87722' }}>Click for details &rarr;</div>
                 </div>
               ))}
             </div>
@@ -688,21 +889,123 @@ export default function DistrictPortal() {
           <div>
             <h2 className="text-base font-semibold mb-4">Available Reports & Documents</h2>
             {reportsList.map((r, i) => (
-              <div key={i} onClick={() => alert("Download available in full version")} className="flex items-center gap-4 px-5 py-4 rounded-xl border border-white/[0.06] mb-2 cursor-pointer transition-all hover:border-[#E87722]" style={{ background: "#252545" }}>
+              <div key={i} onClick={() => setReportPopup(i)} className="flex items-center gap-4 px-5 py-4 rounded-xl border border-white/[0.06] mb-2 cursor-pointer transition-all hover:border-[#E87722] hover:bg-white/[0.02]" style={{ background: "#252545" }}>
                 <div className="w-[42px] h-[42px] rounded-[10px] flex items-center justify-center text-lg shrink-0" style={{ background: "#2A2A4A" }}>{r.icon}</div>
                 <div className="flex-1"><h4 className="text-sm font-semibold mb-0.5">{r.title}</h4><p className="text-xs text-gray-400">{r.desc} &bull; {r.date}</p></div>
-                <div className="text-xs font-semibold whitespace-nowrap" style={{ color: "#E87722" }}>Download ↓</div>
+                <div className="text-xs font-semibold whitespace-nowrap" style={{ color: "#E87722" }}>View &rarr;</div>
               </div>
             ))}
           </div>
         )}
       </main>
 
+      {/* MARSHAL POPUP */}
+      {marshalPopup !== null && (() => {
+        const m = marshalItems[marshalPopup];
+        if (!m) return null;
+        const inspectorNames = ['Chief Robert Daniels','Lt. Maria Sanchez','Inspector James Park','Captain Olivia Chen','Inspector David Lee'];
+        const inspector = inspectorNames[marshalPopup % inspectorNames.length];
+        const checkItems = [
+          { name: 'Fire alarm panel operational', status: m.status === 'critical' ? 'fail' : 'pass' },
+          { name: 'Sprinkler system pressure test', status: m.status === 'critical' ? 'fail' : 'pass' },
+          { name: 'Emergency exit signage visible', status: 'pass' },
+          { name: 'Fire extinguisher inspection tags', status: m.status === 'critical' ? 'warn' : 'pass' },
+          { name: 'Kitchen suppression system', status: m.type === 'Re-inspection' ? 'fail' : 'pass' },
+          { name: 'Smoke detector functionality', status: 'pass' },
+          { name: 'Emergency lighting backup power', status: m.status === 'in-progress' ? 'warn' : 'pass' },
+          { name: 'Egress pathway clearance', status: 'pass' },
+        ];
+        return (
+          <Popup title={m.campus} onClose={() => setMarshalPopup(null)}>
+            <div className="grid grid-cols-2 gap-3 mb-4 max-md:grid-cols-1">
+              <div className="rounded-lg p-3 border border-white/[0.06]" style={{ background: '#1A1A2E' }}>
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Inspection Date</div>
+                <div className="text-sm font-semibold text-white">{m.date}</div>
+              </div>
+              <div className="rounded-lg p-3 border border-white/[0.06]" style={{ background: '#1A1A2E' }}>
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Type</div>
+                <div className="text-sm font-semibold text-white">{m.type}</div>
+              </div>
+              <div className="rounded-lg p-3 border border-white/[0.06]" style={{ background: '#1A1A2E' }}>
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Assigned Inspector</div>
+                <div className="text-sm font-semibold text-white">{inspector}</div>
+              </div>
+              <div className="rounded-lg p-3 border border-white/[0.06]" style={{ background: '#1A1A2E' }}>
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Status</div>
+                <div><StatusPill status={m.status} /></div>
+              </div>
+            </div>
+            <div className="text-sm text-gray-400 mb-3"><strong className="text-white">Notes:</strong> {m.notes}</div>
+            <div className="mb-4">
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Inspection Checklist Preview</div>
+              <div className="grid grid-cols-1 gap-1.5">
+                {checkItems.map((c, i) => (
+                  <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-white/[0.04]" style={{ background: '#1A1A2E' }}>
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold" style={{ background: c.status === 'pass' ? 'rgba(34,197,94,0.15)' : c.status === 'fail' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', color: c.status === 'pass' ? '#22C55E' : c.status === 'fail' ? '#EF4444' : '#F59E0B' }}>
+                      {c.status === 'pass' ? '\u2713' : c.status === 'fail' ? '\u2715' : '!'}
+                    </div>
+                    <span className="flex-1 text-xs text-gray-300">{c.name}</span>
+                    <span className="text-[10px] font-semibold" style={{ color: c.status === 'pass' ? '#22C55E' : c.status === 'fail' ? '#EF4444' : '#F59E0B' }}>{c.status.toUpperCase()}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => { setMarshalPopup(null); alert('Contact feature available in full version'); }} className="flex-1 py-2.5 rounded-lg text-[13px] font-semibold text-white transition-all hover:brightness-90" style={{ background: '#E87722' }}>
+                Contact Inspector
+              </button>
+              <button onClick={() => { setMarshalPopup(null); const s = schools.find(x => m.campus.toLowerCase().includes(x.name.split(' ')[0].toLowerCase())); if (s) openSchoolProfile(s.id); }} className="flex-1 py-2.5 rounded-lg text-[13px] font-semibold text-white border border-white/[0.08] transition-all hover:bg-white/10" style={{ background: '#2A2A4A' }}>
+                View Campus
+              </button>
+            </div>
+          </Popup>
+        );
+      })()}
+
+      {/* REPORT POPUP */}
+      {reportPopup !== null && (() => {
+        const r = reportsList[reportPopup];
+        if (!r) return null;
+        const fileSizes = ['2.4 MB','1.8 MB','1.6 MB','1.5 MB','1.7 MB','1.4 MB','3.2 MB','890 KB','2.1 MB','1.1 MB'];
+        const fileSize = fileSizes[reportPopup % fileSizes.length];
+        return (
+          <Popup title={r.title} onClose={() => setReportPopup(null)}>
+            <div className="rounded-lg p-4 border border-white/[0.06] mb-4" style={{ background: '#1A1A2E' }}>
+              <div className="text-4xl mb-3">{r.icon}</div>
+              <p className="text-sm text-gray-300 leading-relaxed mb-3">{r.desc}</p>
+              <div className="flex gap-4 text-[11px] text-gray-500">
+                <span>Generated: {r.date}</span>
+                <span>Size: {fileSize}</span>
+                <span>Format: PDF</span>
+              </div>
+            </div>
+            <div className="rounded-lg p-4 border border-white/[0.06] mb-4" style={{ background: '#1A1A2E' }}>
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Report Contents</div>
+              <ul className="text-sm text-gray-400 space-y-1.5">
+                <li className="flex items-center gap-2"><span style={{ color: '#E87722' }}>&bull;</span> Executive Summary & Key Findings</li>
+                <li className="flex items-center gap-2"><span style={{ color: '#E87722' }}>&bull;</span> Detailed Compliance Metrics by Campus</li>
+                <li className="flex items-center gap-2"><span style={{ color: '#E87722' }}>&bull;</span> Priority Remediation Recommendations</li>
+                <li className="flex items-center gap-2"><span style={{ color: '#E87722' }}>&bull;</span> Cost Estimates & Timeline Projections</li>
+                <li className="flex items-center gap-2"><span style={{ color: '#E87722' }}>&bull;</span> Photographic Documentation</li>
+              </ul>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => alert('PDF download available in full version')} className="flex-1 py-2.5 rounded-lg text-[13px] font-semibold text-white transition-all hover:brightness-90" style={{ background: '#E87722' }}>
+                Download PDF
+              </button>
+              <button onClick={() => alert('Share feature available in full version')} className="flex-1 py-2.5 rounded-lg text-[13px] font-semibold text-white border border-white/[0.08] transition-all hover:bg-white/10" style={{ background: '#2A2A4A' }}>
+                Share Report
+              </button>
+            </div>
+          </Popup>
+        );
+      })()}
+
       {/* ======= ADD LOCATION MODAL ======= */}
       {showAddModal && (
         <>
           <div className="fixed inset-0 z-[200] bg-black/60" onClick={() => setShowAddModal(false)} />
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-[90vw] z-[210] rounded-xl p-6 border border-white/[0.08]" style={{ background: "#222240" }}>
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-[90vw] max-h-[90vh] overflow-auto z-[210] rounded-xl p-6 border border-white/[0.08] max-md:w-[95vw]" style={{ background: "#222240" }}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold">Add New Location</h2>
               <button onClick={() => setShowAddModal(false)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 border border-white/10 hover:text-white hover:border-[#E87722] transition-all" style={{ background: "#2A2A4A" }}>✕</button>
@@ -755,6 +1058,21 @@ export default function DistrictPortal() {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+// ========== POPUP COMPONENT ==========
+function Popup({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
+      <div className="bg-[#222240] rounded-2xl shadow-2xl w-[600px] max-w-[92vw] max-h-[80vh] overflow-auto border border-white/[0.08] max-md:w-full max-md:h-full max-md:rounded-none max-md:max-w-full max-md:max-h-full" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center p-5 border-b border-white/[0.06] sticky top-0 z-10" style={{ background: '#222240' }}>
+          <h3 className="text-lg font-bold text-white">{title}</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 border border-white/10 hover:text-white hover:border-[#E87722] transition-all" style={{ background: '#2A2A4A' }}>&#x2715;</button>
+        </div>
+        <div className="p-5">{children}</div>
+      </div>
     </div>
   );
 }
