@@ -958,7 +958,8 @@ function FloorPlanPage({ inventory, setAnalysisResults, setPage }) {
       type: "floorplan",
       devices: editableDevices,
       summary: { totalDevices: editableDevices.reduce((s, d) => s + d.quantity, 0), types: editableDevices.length },
-      costRange: [Math.round(fpTotalCostLow), Math.round(fpTotalCostHigh)]
+      costRange: [Math.round(fpTotalCostLow), Math.round(fpTotalCostHigh)],
+      floorPlanImage: image
     });
     setPage("generate");
   }
@@ -1793,7 +1794,22 @@ function GeneratePage({ inventory, procedures, clients, proposals, setProposals,
   const [selectedClient, setSelectedClient] = useState("");
   const [newClient, setNewClient] = useState(false);
   const [clientForm, setClientForm] = useState({ name: "", contact_name: "", contact_title: "", contact_email: "", org_type: "school_district", num_facilities: "", address: "", notes: "" });
-  const [tier, setTier] = useState("3");
+  const [proposalType, setProposalType] = useState("standard"); // "standard" | "voice_evac"
+  const [facilityInfo, setFacilityInfo] = useState({
+    address: "", sqft: "", occupancy: "Business (B)", ahj: "Houston Fire Marshal",
+    sprinkler: "none", facilityType: "school"
+  });
+  const [devices, setDevices] = useState([
+    { id: "facp", label: "Fire Alarm Control Panel (FACP)", qty: 1 },
+    { id: "smoke", label: "Smoke Detectors", qty: 0 },
+    { id: "pull", label: "Pull Stations", qty: 0 },
+    { id: "horn_strobe", label: "Horn/Strobes", qty: 0 },
+  ]);
+  const [totalPrice, setTotalPrice] = useState("");
+  const [categoryBreakdown, setCategoryBreakdown] = useState({ equipment: 0, wiring: 0, labor: 0, programming: 0, permit: 0 });
+  const [autoDistribute, setAutoDistribute] = useState(true);
+  const [floorPlanImage, setFloorPlanImage] = useState(null);
+  const [showChat, setShowChat] = useState(true);
   const initialMsg = analysisResults
     ? (analysisResults.type === "document"
       ? `Analysis results loaded: Document Analysis with ${analysisResults.findings?.length || 0} findings (${analysisResults.summary?.deficient || 0} deficiencies, ${analysisResults.summary?.compliance_pct || "N/A"}% compliance). Estimated remediation: $${analysisResults.costRange?.[0]?.toLocaleString() || 0} – $${analysisResults.costRange?.[1]?.toLocaleString() || 0}.\n\nI have full access to your inventory (${inventory.length} items), procedures (${procedures.length} SOPs), and client records. Select or add a client on the left to build a proposal incorporating these findings.`
@@ -1809,23 +1825,46 @@ function GeneratePage({ inventory, procedures, clients, proposals, setProposals,
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const client = clients.find(c => c.id === selectedClient);
-  const numFac = client?.num_facilities || clientForm.num_facilities || 1;
-  const pricing = calcPrice(numFac);
 
-  function calcPrice(n) {
-    n = parseInt(n) || 1;
-    if (n >= 40) return { t1: [150000, 175000], t2: [175000, 225000], t3: [225000, 275000] };
-    if (n >= 20) { const b = n * 2800; return { t1: [Math.round(b * .9), Math.round(b * 1.1)], t2: [Math.round(b * 1.15), Math.round(b * 1.4)], t3: [Math.round(b * 1.45), Math.round(b * 1.75)] }; }
-    if (n >= 5) { const b = n * 3200; return { t1: [Math.round(b * .9), Math.round(b * 1.1)], t2: [Math.round(b * 1.15), Math.round(b * 1.4)], t3: [Math.round(b * 1.45), Math.round(b * 1.75)] }; }
-    const b = n * 3500; return { t1: [Math.round(b * .85), Math.round(b * 1.15)], t2: [Math.round(b * 1.2), Math.round(b * 1.5)], t3: [Math.round(b * 1.5), Math.round(b * 1.85)] };
+  function getDefaultDevices(type) {
+    const base = [
+      { id: "facp", label: "Fire Alarm Control Panel (FACP)", qty: 1 },
+      { id: "smoke", label: "Smoke Detectors", qty: 0 },
+      { id: "pull", label: "Pull Stations", qty: 0 },
+    ];
+    if (type === "voice_evac") {
+      return [...base,
+        { id: "voice_panel", label: "Voice Evacuation Panel", qty: 1 },
+        { id: "duct_smoke", label: "Duct Smoke Detectors", qty: 0 },
+        { id: "heat", label: "Heat Detectors", qty: 0 },
+        { id: "speaker_strobe", label: "Speaker/Strobes", qty: 0 },
+        { id: "strobe", label: "Strobes (visual only)", qty: 0 },
+        { id: "waterflow", label: "Waterflow Switch", qty: 0 },
+        { id: "tamper", label: "Tamper Switch", qty: 0 },
+        { id: "communicator", label: "Cell Communicator", qty: 1 },
+      ];
+    }
+    return [...base, { id: "horn_strobe", label: "Horn/Strobes", qty: 0 }];
   }
 
-  const fmt = n => "$" + n.toLocaleString();
-  const tierOpts = [
-    { v: "1", l: "Tier 1 — Assessment Only", r: pricing.t1 },
-    { v: "2", l: "Tier 2 — Assessment + Coordination", r: pricing.t2 },
-    { v: "3", l: "Tier 3 — Full Service", r: pricing.t3 },
-  ];
+  useEffect(() => { setDevices(getDefaultDevices(proposalType)); }, [proposalType]);
+
+  useEffect(() => {
+    if (!autoDistribute) return;
+    const t = parseFloat(totalPrice) || 0;
+    if (t <= 0) { setCategoryBreakdown({ equipment: 0, wiring: 0, labor: 0, programming: 0, permit: 0 }); return; }
+    const isVE = proposalType === "voice_evac";
+    const pcts = isVE
+      ? { equipment: 0.38, wiring: 0.18, labor: 0.25, programming: 0.12 }
+      : { equipment: 0.35, wiring: 0.15, labor: 0.28, programming: 0.10 };
+    const e = Math.round(t * pcts.equipment), w = Math.round(t * pcts.wiring),
+          l = Math.round(t * pcts.labor), p = Math.round(t * pcts.programming);
+    setCategoryBreakdown({ equipment: e, wiring: w, labor: l, programming: p, permit: t - e - w - l - p });
+  }, [totalPrice, autoDistribute, proposalType]);
+
+  useEffect(() => {
+    if (analysisResults?.floorPlanImage) setFloorPlanImage(analysisResults.floorPlanImage);
+  }, [analysisResults]);
 
   function buildSystemPrompt() {
     const invSummary = CATEGORIES.map(cat => {
@@ -1845,7 +1884,7 @@ KEY DIFFERENTIATOR: Consulting Fee Offset — fees credited toward remediation w
 
 ${clientInfo}
 
-SELECTED TIER: ${tier} | PRICING: Tier 1 ${fmt(pricing.t1[0])}-${fmt(pricing.t1[1])}, Tier 2 ${fmt(pricing.t2[0])}-${fmt(pricing.t2[1])}, Tier 3 ${fmt(pricing.t3[0])}-${fmt(pricing.t3[1])}+
+PROPOSAL TYPE: ${proposalType === "voice_evac" ? "Voice Evacuation + Fire Alarm" : "Standard Fire Alarm"} | TOTAL PRICE: $${(parseFloat(totalPrice) || 0).toLocaleString()} | DEVICES: ${devices.filter(d => d.qty > 0).map(d => `${d.label}: ${d.qty}`).join(", ") || "None configured"}
 
 REAL INVENTORY (${inventory.length} items):
 ${invSummary}
@@ -1888,10 +1927,11 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
   }
 
   async function handleGenerate() {
-    const name = client?.name || clientForm.name;
-    if (!name) { alert("Select or add a client first."); return; }
+    const cName = clients.find(c => c.id === selectedClient)?.name || clientForm.name;
+    if (!cName) { alert("Select or add a client first."); return; }
+    const total = parseFloat(totalPrice);
+    if (!total || total <= 0) { alert("Enter a total project price."); return; }
 
-    // If new client, save them
     let clientId = selectedClient;
     if (newClient && clientForm.name) {
       const newCl = { ...clientForm, id: uid(), created_at: new Date().toISOString() };
@@ -1912,266 +1952,396 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
       }
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: "pt", format: "letter" });
-      const PW = 612, PH = 792, M = 54, CW = PW - M * 2;
-      let y = 0;
-
-      const cName = client?.name || clientForm.name;
-      const cContact = client?.contact_name || clientForm.contact_name;
-      const cTitle = client?.contact_title || clientForm.contact_title;
-      const nFac = client?.num_facilities || clientForm.num_facilities || "TBD";
-      const p = pricing;
-      const tierNames = { "1": "Assessment Only", "2": "Assessment + Fire Marshal Coordination", "3": "Full Service (Recommended)" };
-
-      function addPage() { doc.addPage(); y = M; }
-      function orangeLine(yp) { doc.setDrawColor(232,119,34); doc.setLineWidth(3); doc.line(M, yp, PW - M, yp); }
-      function sectionTitle(text) {
-        if (y > PH - 120) addPage();
-        y += 28; doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(232,119,34);
-        doc.text(text, M, y); y += 8; orangeLine(y); y += 20;
-      }
-      function body(text, opts = {}) {
-        doc.setFont("helvetica","normal"); doc.setFontSize(opts.size || 11); doc.setTextColor(51,51,51);
-        const lines = doc.splitTextToSize(text, CW);
-        for (const line of lines) { if (y > PH - 60) addPage(); doc.text(line, M, y); y += 17; }
-        y += 4;
-      }
-      function bold(text) {
-        doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(51,51,51);
-        const lines = doc.splitTextToSize(text, CW);
-        for (const line of lines) { if (y > PH - 60) addPage(); doc.text(line, M, y); y += 17; }
-        y += 4;
-      }
-      function bullet(text) {
-        doc.setFont("helvetica","normal"); doc.setFontSize(11);
-        const lines = doc.splitTextToSize(text, CW - 20);
-        for (let i = 0; i < lines.length; i++) {
-          if (y > PH - 60) addPage();
-          if (i === 0) { doc.setTextColor(232,119,34); doc.text("•", M + 4, y); }
-          doc.setTextColor(51,51,51); doc.text(lines[i], M + 20, y); y += 17;
-        }
-      }
-
-      // Cover
-      doc.setFillColor(232,119,34); doc.rect(0,0,PW,8,"F");
-      try { doc.addImage(LOGO_URI, "PNG", M, 30, 80, 80); } catch{}
-      doc.setFont("helvetica","bold"); doc.setFontSize(28); doc.setTextColor(232,119,34); doc.text("CHATMAN", M+95, 62);
-      doc.setTextColor(80,80,80); doc.text("SECURITY & FIRE", M+95, 96);
-      orangeLine(130);
-      doc.setFont("helvetica","bold"); doc.setFontSize(22); doc.setTextColor(51,51,51);
-      doc.text("Fire & Life Safety", M, 180); doc.text("Compliance Consulting Proposal", M, 210);
-      doc.setFont("helvetica","normal"); doc.setFontSize(14); doc.setTextColor(120,120,120);
-      doc.text("Prepared for:", M, 260);
-      doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(51,51,51);
-      doc.text(cName, M, 286);
-      if (cContact) { doc.setFont("helvetica","normal"); doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text(`Attn: ${cContact}${cTitle ? ", " + cTitle : ""}`, M, 310); }
+      const PW = 612, PH = 792, M = 50, CW = PW - M * 2;
+      const OR = [232,119,34], ORL = [254,243,232], DK = [51,51,51], GY = [102,102,102], LG = [153,153,153], BG = [245,245,245];
+      const cClient = clients.find(c => c.id === selectedClient);
+      const cContact = cClient?.contact_name || clientForm.contact_name || "";
+      const cTitle = cClient?.contact_title || clientForm.contact_title || "";
+      const cAddress = facilityInfo.address || cClient?.address || "TBD";
       const dateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-      doc.setFont("helvetica","normal"); doc.setFontSize(12); doc.setTextColor(120,120,120);
-      doc.text(`Date: ${dateStr}`, M, 350); doc.text(`Facilities: ${nFac}`, M, 370);
-      doc.text(`Recommended Tier: Tier ${tier} — ${tierNames[tier]}`, M, 390);
-      doc.setFillColor(80,80,80); doc.rect(0, PH-60, PW, 60, "F");
-      doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(255,255,255);
-      doc.text("Chatman Security & Fire  |  Houston, TX  |  chatmansecurityandfire.com", M, PH-30);
+      const deposit = Math.round(total * 0.3);
+      const isVE = proposalType === "voice_evac";
+      const titleText = isVE ? "Voice Evacuation & Fire Alarm System Proposal" : "Fire Alarm System Installation Proposal";
 
-      // Exec Summary
-      addPage();
-      sectionTitle("1. Executive Summary");
-      body(`Chatman Security & Fire is pleased to present this proposal for comprehensive fire and life safety compliance consulting services for ${cName}. With ${nFac} facilities requiring assessment, our team will deliver a systematic approach to identifying compliance gaps, coordinating with the Fire Marshal's office, and providing a clear roadmap to full compliance.`);
-      body("Our consulting fee offset means your assessment investment can be credited toward remediation work — making Chatman the obvious choice for the full project lifecycle.");
+      function addFooter(pg) {
+        doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(0, PH - 44, PW, PH - 44);
+        doc.setFillColor(...BG); doc.rect(0, PH - 42, PW, 42, "F");
+        doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...LG);
+        doc.text("Chatman Security & Fire | Houston, TX | chatmansecurityandfire.com", M, PH - 18);
+        doc.text("Page " + pg, PW - M - 30, PH - 18);
+      }
 
-      // Scope
-      sectionTitle("2. Scope of Services");
-      procedures.forEach(proc => {
-        if (y > PH - 140) addPage();
-        bold(proc.name);
-        proc.steps.split("\n").forEach(step => { if (step.trim()) bullet(step.trim()); });
-        if (proc.notes) { doc.setFont("helvetica","italic"); doc.setFontSize(10); doc.setTextColor(120,120,120); body("Note: " + proc.notes, { size: 10 }); }
+      // ===== PAGE 1: COVER =====
+      doc.setFillColor(...OR); doc.rect(0, 0, PW, 10, "F");
+      try { doc.addImage(LOGO_URI, "PNG", M, 40, 80, 80); } catch {}
+      doc.setFont("helvetica","bold"); doc.setFontSize(28); doc.setTextColor(...OR); doc.text("CHATMAN", M + 90, 75);
+      doc.setFontSize(16); doc.setTextColor(...GY); doc.text("SECURITY & FIRE", M + 90, 96);
+      doc.setDrawColor(...OR); doc.setLineWidth(3); doc.line(M, 130, PW - M, 130);
+
+      doc.setFont("helvetica","bold"); doc.setFontSize(22); doc.setTextColor(...DK);
+      const tLines = doc.splitTextToSize(titleText, CW); let ty = 175;
+      tLines.forEach(l => { doc.text(l, M, ty); ty += 28; });
+
+      ty += 16;
+      doc.setFont("helvetica","normal"); doc.setFontSize(12); doc.setTextColor(...LG); doc.text("Prepared for:", M, ty);
+      ty += 24;
+      doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(...DK); doc.text(cName, M, ty);
+      ty += 20;
+      if (cContact) { doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor(...GY); doc.text(`Attn: ${cContact}${cTitle ? ", " + cTitle : ""}`, M, ty); ty += 18; }
+      if (cAddress !== "TBD") { doc.setTextColor(...GY); doc.text(cAddress, M, ty); ty += 18; }
+
+      ty += 30;
+      const details = [
+        ["Date", dateStr],
+        ["AHJ", facilityInfo.ahj],
+        ["Occupancy", facilityInfo.occupancy],
+        ["Square Footage", facilityInfo.sqft ? parseInt(facilityInfo.sqft).toLocaleString() + " sq ft" : "TBD"],
+        ["Fire Sprinkler", facilityInfo.sprinkler === "full" ? "Yes — Fully Sprinklered" : facilityInfo.sprinkler === "partial" ? "Partial Coverage" : "No"],
+        ["Fire Alarm", isVE ? "Voice Evacuation + Fire Alarm System" : "Addressable Fire Alarm System"],
+        ["Applicable Codes", "IFC 2021, NFPA 72 (2022), NEC"],
+        ["Notification", isVE ? "Speaker/Strobes + Strobes" : "Horn/Strobes"],
+      ];
+      details.forEach(([label, val]) => {
+        doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...LG); doc.text(label + ":", M, ty);
+        doc.setFont("helvetica","bold"); doc.setTextColor(...DK); doc.text(val, M + 120, ty);
+        ty += 18;
+      });
+      addFooter(1);
+
+      // ===== PAGE 2: SCOPE & PRICING =====
+      doc.addPage(); let y = M;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("2. Scope & Pricing", M, y);
+      y += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, y, PW - M, y); y += 22;
+
+      doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor(...DK);
+      const scopeText = isVE
+        ? `Chatman Security & Fire proposes to furnish and install a complete voice evacuation and fire alarm system at ${cAddress}. The system includes an addressable fire alarm control panel, voice evacuation panel, smoke and duct smoke detectors, heat detectors, speaker/strobes, visual strobes, manual pull stations, dual wiring infrastructure, full system programming with STI intelligibility testing, and AHJ acceptance testing per NFPA 72 and ${facilityInfo.ahj} requirements.`
+        : `Chatman Security & Fire proposes to furnish and install a complete addressable fire alarm system at ${cAddress}. The system includes a fire alarm control panel, photoelectric smoke detectors, horn/strobe notification appliances, manual pull stations, wiring infrastructure, full system programming, and AHJ acceptance testing per NFPA 72 and ${facilityInfo.ahj} requirements.`;
+      doc.splitTextToSize(scopeText, CW).forEach(l => { doc.text(l, M, y); y += 15; });
+      y += 16;
+
+      const cats = [
+        { label: isVE ? "Fire Alarm & Voice Evacuation Equipment" : "Fire Alarm Equipment", amount: categoryBreakdown.equipment,
+          desc: isVE ? "FACP, voice evac panel, smoke detectors, duct smokes, heat detectors,\nspeaker/strobes, strobes, pull stations, waterflow & tamper switches,\ncell communicator, end-of-line resistors" : "FACP, smoke detectors, horn/strobes, pull stations,\nEOL resistors, central station communicator" },
+        { label: "Wiring & Infrastructure", amount: categoryBreakdown.wiring,
+          desc: isVE ? "Fire wire (initiating circuits) + dedicated speaker wire (voice evac circuits),\nfire-rated conduit, fittings, junction boxes — dual wiring throughout" : "Fire wire, conduit, fittings, junction boxes" },
+        { label: "Installation Labor", amount: categoryBreakdown.labor,
+          desc: "Professional installation crew, device mounting, circuit termination" },
+        { label: "System Programming & Testing", amount: categoryBreakdown.programming,
+          desc: isVE ? "Voice message recording (English/Spanish), zone sequencing,\nSTI intelligibility testing, addressable device programming,\nsensitivity testing, functional verification" : "Addressable device programming, sensitivity testing,\nfunctional verification, acceptance test" },
+        { label: "Plans, Permit & Inspection", amount: categoryBreakdown.permit,
+          desc: `Shop drawings, ${facilityInfo.ahj} permit fee, Fire Marshal inspection\ncoordination, as-built documentation & O&M manuals` },
+      ];
+
+      cats.forEach(cat => {
+        doc.setFillColor(...BG); doc.rect(M, y - 12, CW, 22, "F");
+        doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...DK); doc.text(cat.label, M + 8, y + 2);
+        doc.text("$" + cat.amount.toLocaleString(), PW - M - 8, y + 2, { align: "right" });
+        y += 18;
+        doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...LG);
+        cat.desc.split("\n").forEach(l => { doc.text(l, M + 8, y); y += 12; });
         y += 8;
       });
 
-      // Pricing
-      addPage();
-      sectionTitle("3. Investment & Pricing");
-      body("We offer three engagement tiers:"); y += 8;
-      const tiers = [
-        { t: "Tier 1", n: "Assessment Only", r: p.t1, d: "Full compliance audit, individual reports, master compliance summary" },
-        { t: "Tier 2", n: "Assessment + Coordination", r: p.t2, d: "Tier 1 + Fire Marshal liaison, inspection attendance, timeline management" },
-        { t: "Tier 3", n: "Full Service (Recommended)", r: p.t3, d: "Tier 2 + full remediation project management with consulting fee offset" },
-      ];
-      tiers.forEach(t => {
-        if (y > PH - 100) addPage();
-        const sel = t.t.includes(tier);
-        if (sel) { doc.setFillColor(254,243,232); doc.roundedRect(M-4, y-14, CW+8, 70, 4, 4, "F"); }
-        doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(232,119,34);
-        doc.text(`${t.t} — ${t.n}`, M+4, y); y += 18;
-        doc.setFontSize(14); doc.setTextColor(51,51,51);
-        doc.text(`${fmt(t.r[0])} – ${fmt(t.r[1])}${t.t === "Tier 3" ? "+" : ""}`, M+4, y); y += 18;
-        doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(100,100,100);
-        doc.text(t.d, M+4, y); y += 28;
-      });
+      y += 8;
+      doc.setFillColor(...OR); doc.roundedRect(M, y - 8, CW, 52, 6, 6, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(255,255,255);
+      doc.text("TOTAL PROJECT INVESTMENT", M + 16, y + 8);
+      doc.setFontSize(24); doc.text("$" + total.toLocaleString(), PW - M - 16, y + 10, { align: "right" });
+      doc.setFont("helvetica","normal"); doc.setFontSize(9);
+      doc.text("Equipment + Wiring + Labor + Programming + Plans/Permit", M + 16, y + 26);
+      doc.text(`30% Deposit: $${deposit.toLocaleString()}`, M + 16, y + 38);
+      y += 66;
 
-      // Equipment reference
-      y += 10; if (y > PH - 100) addPage();
-      sectionTitle("4. Equipment & Pricing Reference");
-      body("The following equipment and service pricing is based on our current inventory and will be applied to the remediation cost estimate:");
-      y += 4;
-      CATEGORIES.forEach(cat => {
-        const items = inventory.filter(i => i.category === cat);
-        if (!items.length) return;
-        if (y > PH - 80) addPage();
-        bold(cat);
-        items.forEach(item => bullet(`${item.name}: $${item.unit_cost.toLocaleString()} ${item.unit} — ${item.description}`));
-        y += 6;
-      });
+      doc.setFillColor(...ORL); doc.roundedRect(M, y - 4, CW, 40, 6, 6, "F");
+      doc.setDrawColor(...OR); doc.setLineWidth(1); doc.roundedRect(M, y - 4, CW, 40, 6, 6, "S");
+      doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(...OR); doc.text("Consulting Fee Offset", M + 12, y + 10);
+      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...DK);
+      doc.text("Your assessment/consulting fee will be credited toward the total project cost,", M + 12, y + 24);
+      addFooter(2);
 
-      // Timeline
-      if (y > PH - 180) addPage();
-      sectionTitle("5. Proposed Timeline");
-      [["Weeks 1–2", "Document review, consultation, scheduling"], ["Weeks 3–8", `On-site assessments across all ${nFac} facilities`], ["Weeks 9–10", "Report compilation, cost estimation"], ["Weeks 11–12", "Findings presentation, Fire Marshal coordination"]].forEach(([wk, desc]) => {
-        if (y > PH - 60) addPage();
-        doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(232,119,34); doc.text(wk, M, y);
-        doc.setFont("helvetica","normal"); doc.setTextColor(80,80,80); doc.text(desc, M+90, y); y += 22;
-      });
+      // ===== PAGE 3: DEVICE PLACEMENT =====
+      doc.addPage(); y = M;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("3. Device Placement Plan", M, y);
+      y += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, y, PW - M, y); y += 22;
 
-      // Terms + signatures
-      y += 20; if (y > PH - 200) addPage();
-      sectionTitle("6. Terms & Conditions");
-      ["Proposal valid 60 days from date of issue.", "30% deposit required to initiate services.", "Payment terms: Net 30.", "Chatman Security & Fire maintains full liability insurance and bonding.", `Consulting fee offset applies when ${cName} awards remediation work within 12 months.`].forEach(t => bullet(t));
-      y += 30; if (y > PH - 120) addPage();
-      doc.setDrawColor(200,200,200); doc.setLineWidth(.5); doc.line(M, y, PW-M, y); y += 24;
-      doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(51,51,51); doc.text("AUTHORIZED BY:", M, y); y += 30;
-      doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(120,120,120);
-      doc.text("____________________________________", M, y); doc.text(`${cContact || "Authorized Rep"}, ${cName}`, M, y+16);
-      doc.text("____________________________________", PW/2+20, y); doc.text("Howard Chatman, Chatman Security & Fire", PW/2+20, y+16);
+      doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor(...DK);
+      doc.text("Device placement per NFPA 72 (2022) and IFC Chapter 9 requirements.", M, y); y += 24;
 
-      // Page footers
-      const pc = doc.internal.getNumberOfPages();
-      for (let i = 2; i <= pc; i++) {
-        doc.setPage(i); doc.setFillColor(245,245,245); doc.rect(0,PH-40,PW,40,"F");
-        doc.setDrawColor(232,119,34); doc.setLineWidth(2); doc.line(0,PH-40,PW,PH-40);
-        doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(150,150,150);
-        doc.text("Chatman Security & Fire  |  Houston, TX  |  chatmansecurityandfire.com", M, PH-18);
-        doc.text(`Page ${i-1} of ${pc-1}`, PW-M-50, PH-18);
+      if (floorPlanImage) {
+        try {
+          const imgProps = doc.getImageProperties(floorPlanImage);
+          const maxW = CW, maxH = 320;
+          const ratio = Math.min(maxW / imgProps.width, maxH / imgProps.height);
+          const imgW = imgProps.width * ratio, imgH = imgProps.height * ratio;
+          doc.addImage(floorPlanImage, "AUTO", M + (CW - imgW) / 2, y, imgW, imgH);
+          y += imgH + 16;
+        } catch { doc.setFont("helvetica","italic"); doc.setFontSize(10); doc.setTextColor(...LG); doc.text("(Floor plan image could not be embedded)", M, y); y += 20; }
+      } else {
+        doc.setFillColor(...BG); doc.roundedRect(M, y, CW, 80, 6, 6, "F");
+        doc.setFont("helvetica","italic"); doc.setFontSize(11); doc.setTextColor(...LG);
+        doc.text("Floor plan to be provided during site survey.", M + CW / 2, y + 40, { align: "center" }); y += 100;
       }
 
-      const fn = `Chatman_Proposal_${cName.replace(/[^a-zA-Z0-9]/g,"_")}_${new Date().toISOString().slice(0,10)}.pdf`;
+      doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...DK); doc.text("System Includes:", M, y); y += 18;
+      const activeDevs = devices.filter(d => d.qty > 0);
+      const colW = CW / 2;
+      activeDevs.forEach((dev, i) => {
+        const col = i % 2, x = M + col * colW;
+        if (col === 0 && i > 0) y += 16;
+        doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...DK);
+        doc.text(`• ${dev.qty} ${dev.label}`, x + 8, y);
+      });
+      if (activeDevs.length % 2 === 1) y += 16; y += 20;
+      doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...OR);
+      doc.text("Total Devices: " + devices.reduce((s, d) => s + d.qty, 0), M, y);
+      addFooter(3);
+
+      // ===== PAGE 4: TIMELINE + TERMS + SIGNATURES =====
+      doc.addPage(); y = M;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("4. Project Timeline", M, y);
+      y += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, y, PW - M, y); y += 22;
+
+      const phases = isVE ? [
+        ["Week 1", "Permit Submission & Plan Review", "Submit engineered drawings to " + facilityInfo.ahj + " for review and approval."],
+        ["Weeks 2-3", "Rough-In & Wiring", "Install dual SLC/NAC circuit wiring, conduit, backboxes, junction boxes."],
+        ["Weeks 3-4", "Device Installation", "Mount all detectors, speaker/strobes, strobes, and pull stations."],
+        ["Week 5", "Panel Programming", "Program FACP and voice evacuation panel. Configure zones and sequences."],
+        ["Week 6", "Testing & Acceptance", "STI intelligibility testing, sensitivity testing, full system acceptance."],
+        ["Week 6-7", "Inspection & Closeout", facilityInfo.ahj + " final inspection. As-built documentation delivered."],
+      ] : [
+        ["Week 1", "Permit Submission & Plan Review", "Submit plans to " + facilityInfo.ahj + " for review and approval."],
+        ["Weeks 2-3", "Rough-In & Wiring", "Install SLC/NAC circuit wiring, conduit, backboxes, junction boxes."],
+        ["Week 3-4", "Device Installation", "Mount all smoke detectors, horn/strobes, and pull stations."],
+        ["Week 4-5", "Programming & Testing", "Program FACP, configure zones, conduct acceptance test."],
+        ["Week 5-6", "Inspection & Closeout", facilityInfo.ahj + " final inspection. As-built documentation delivered."],
+      ];
+
+      phases.forEach(([week, title, desc]) => {
+        doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(...OR); doc.text(week, M, y);
+        doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...DK); doc.text(title, M + 80, y);
+        y += 14;
+        doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...GY);
+        doc.splitTextToSize(desc, CW - 80).forEach(l => { doc.text(l, M + 80, y); y += 11; });
+        y += 8;
+      });
+
+      y += 12;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("5. Terms & Conditions", M, y);
+      y += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, y, PW - M, y); y += 20;
+
+      [
+        "This proposal is valid for 60 days from the date of issue.",
+        `30% deposit ($${deposit.toLocaleString()}) required to initiate. Balance due upon ${facilityInfo.ahj} inspection.`,
+        "Net 30. 1-year warranty. NICET-certified technicians. Full liability insurance.",
+        "Consulting fee offset applies when project awarded within 12 months of assessment.",
+        "Changes after permit submission may result in additional fees.",
+      ].forEach(term => {
+        doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...OR); doc.text("•", M + 4, y);
+        doc.setTextColor(...DK); doc.splitTextToSize(term, CW - 16).forEach(l => { doc.text(l, M + 16, y); y += 12; }); y += 4;
+      });
+
+      y += 20;
+      doc.setDrawColor(200,200,200); doc.setLineWidth(0.5);
+      doc.line(M, y, M + CW / 2 - 20, y);
+      doc.line(PW / 2 + 20, y, PW - M, y);
+      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...GY);
+      doc.text(cContact || "Authorized Representative", M, y + 14);
+      doc.text(cName, M, y + 26);
+      doc.text("Date: _______________", M, y + 40);
+      doc.text("Howard Chatman", PW / 2 + 20, y + 14);
+      doc.text("Chatman Security & Fire", PW / 2 + 20, y + 26);
+      doc.text("Date: _______________", PW / 2 + 20, y + 40);
+      addFooter(4);
+
+      // ===== SAVE =====
+      const fn = `Chatman_Proposal_${cName.replace(/[^a-zA-Z0-9]/g, "_")}_${new Date().toISOString().slice(0, 10)}.pdf`;
       doc.save(fn);
 
-      // Save to history
-      const pr = pricing[`t${tier}`] || pricing.t3;
-      const newProposal = { id: uid(), client_id: clientId, client_name: cName, tier, status: "draft", total_low: pr[0], total_high: pr[1], created_at: new Date().toISOString(), filename: fn };
+      const newProposal = { id: uid(), client_id: clientId, client_name: cName, proposal_type: proposalType, total, status: "draft", created_at: new Date().toISOString(), filename: fn };
       setProposals(prev => [...prev, newProposal]);
       fetch("/api/proposal-agent/proposals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newProposal) }).catch(console.error);
-      setMessages(prev => [...prev, { role: "assistant", content: `✅ Proposal generated and downloaded as ${fn}. It includes your real inventory pricing (${inventory.length} items) and all ${procedures.length} SOPs. Saved to proposal history as draft.` }]);
+      setMessages(prev => [...prev, { role: "assistant", content: `✅ Proposal generated: ${fn}\nTotal: $${total.toLocaleString()} | Deposit: $${deposit.toLocaleString()}\nType: ${isVE ? "Voice Evac + Fire Alarm" : "Standard Fire Alarm"}\nSaved to history.` }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: "assistant", content: `Error: ${err.message}` }]);
     }
     setGenerating(false);
   }
 
-  const ucf = (k, v) => setClientForm(p => ({ ...p, [k]: v }));
-
   return (
-    <div style={{ display: "flex", height: "calc(100vh)" }}>
-      {/* Left - Config */}
-      <div style={{ width: 360, minWidth: 360, background: D2, borderRight: `1px solid ${D4}`, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div style={{ padding: "18px 20px", borderBottom: `1px solid ${D4}` }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Proposal Setup</h2>
-        </div>
-        <div style={{ flex: 1, overflow: "auto", padding: "16px 20px" }}>
+    <div style={{ display: "flex", height: "calc(100vh - 200px)", border: "1px solid #E5E7EB", borderRadius: 12, overflow: "hidden", background: "#FFF" }}>
+      {/* LEFT: Proposal Form */}
+      <div style={{ width: 400, minWidth: 400, borderRight: "1px solid #E5E7EB", display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid #E5E7EB", fontWeight: 600, fontSize: 15 }}>Proposal Details</div>
+        <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
+
+          {/* Proposal Type */}
+          <label style={labelS}>Proposal Type</label>
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            {[["standard", "Standard Fire Alarm", "FACP, smokes, horn/strobes, pulls"], ["voice_evac", "Voice Evac + Fire Alarm", "+ VA panel, speakers, duct smokes"]].map(([val, title, desc]) => (
+              <div key={val} onClick={() => setProposalType(val)} style={{ flex: 1, padding: 12, borderRadius: 8, cursor: "pointer", textAlign: "center", background: proposalType === val ? `${O}12` : "#FFF", border: `2px solid ${proposalType === val ? O : "#E5E7EB"}` }}>
+                <div style={{ fontWeight: 600, fontSize: 12, color: proposalType === val ? O : W }}>{title}</div>
+                <div style={{ fontSize: 10, color: G, marginTop: 2 }}>{desc}</div>
+              </div>
+            ))}
+          </div>
+
           {/* Client Selection */}
           <label style={labelS}>Client</label>
-          {!newClient ? (
-            <div style={{ marginBottom: 14 }}>
-              <select style={{ ...inputS, cursor: "pointer", marginBottom: 8 }} value={selectedClient} onChange={e => setSelectedClient(e.target.value)}>
-                <option value="">— Select existing client —</option>
-                {clients.map(c => <option key={c.id} value={c.id}>{c.name} ({c.num_facilities || "?"} facilities)</option>)}
-              </select>
-              <button style={{ ...btnS(false), width: "100%", fontSize: 12 }} onClick={() => setNewClient(true)}>+ New Client</button>
-            </div>
-          ) : (
-            <div style={{ marginBottom: 14, padding: 14, background: D3, borderRadius: 10, border: `1px solid ${D4}` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: O }}>New Client</span>
-                <button style={{ background: "none", border: "none", color: G, cursor: "pointer", fontSize: 11 }} onClick={() => setNewClient(false)}>Cancel</button>
+          <div style={{ marginBottom: 16 }}>
+            <select style={inputS} value={selectedClient} onChange={e => { setSelectedClient(e.target.value); setNewClient(e.target.value === "__new"); }}>
+              <option value="">Select client...</option>
+              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              <option value="__new">+ New Client</option>
+            </select>
+            {newClient && (
+              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+                <input style={inputS} placeholder="Company/Org name *" value={clientForm.name} onChange={e => setClientForm(p => ({...p, name: e.target.value}))} />
+                <input style={inputS} placeholder="Contact name" value={clientForm.contact_name} onChange={e => setClientForm(p => ({...p, contact_name: e.target.value}))} />
+                <input style={inputS} placeholder="Contact title" value={clientForm.contact_title} onChange={e => setClientForm(p => ({...p, contact_title: e.target.value}))} />
+                <input style={inputS} placeholder="Email" value={clientForm.contact_email} onChange={e => setClientForm(p => ({...p, contact_email: e.target.value}))} />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <input style={inputS} placeholder="Organization name" value={clientForm.name} onChange={e => ucf("name", e.target.value)} />
-                <input style={inputS} placeholder="Contact name" value={clientForm.contact_name} onChange={e => ucf("contact_name", e.target.value)} />
-                <input style={inputS} placeholder="Contact title" value={clientForm.contact_title} onChange={e => ucf("contact_title", e.target.value)} />
-                <input style={inputS} placeholder="# of facilities" type="number" value={clientForm.num_facilities} onChange={e => ucf("num_facilities", e.target.value)} />
-              </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* Tier */}
-          <label style={{ ...labelS, marginTop: 8 }}>Service Tier</label>
-          {tierOpts.map(t => (
-            <div key={t.v} onClick={() => setTier(t.v)} style={{ padding: "10px 12px", marginBottom: 6, borderRadius: 8, cursor: "pointer", background: tier === t.v ? `${O}18` : D4, border: `1.5px solid ${tier === t.v ? O : "rgba(255,255,255,0.06)"}` }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: tier === t.v ? O : W }}>{t.l}</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: W, marginTop: 2 }}>{fmt(t.r[0])} – {fmt(t.r[1])}{t.v === "3" ? "+" : ""}</div>
+          {/* Facility Info */}
+          <label style={labelS}>Facility Details</label>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
+            <input style={inputS} placeholder="Address" value={facilityInfo.address} onChange={e => setFacilityInfo(p => ({...p, address: e.target.value}))} />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+              <input style={inputS} placeholder="Square footage" type="number" value={facilityInfo.sqft} onChange={e => setFacilityInfo(p => ({...p, sqft: e.target.value}))} />
+              <select style={inputS} value={facilityInfo.occupancy} onChange={e => setFacilityInfo(p => ({...p, occupancy: e.target.value}))}>
+                {["Business (B)", "Educational (E)", "Assembly (A)", "Mercantile (M)", "Industrial (F)", "Storage (S)", "Healthcare (I)", "Residential (R)"].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <input style={inputS} placeholder="AHJ (Authority Having Jurisdiction)" value={facilityInfo.ahj} onChange={e => setFacilityInfo(p => ({...p, ahj: e.target.value}))} />
+            <select style={inputS} value={facilityInfo.sprinkler} onChange={e => setFacilityInfo(p => ({...p, sprinkler: e.target.value}))}>
+              <option value="none">No Sprinkler System</option>
+              <option value="partial">Partial Sprinkler Coverage</option>
+              <option value="full">Fully Sprinklered</option>
+            </select>
+          </div>
+
+          {/* Device List */}
+          <label style={labelS}>Devices</label>
+          <div style={{ marginBottom: 16 }}>
+            {devices.map((dev, i) => (
+              <div key={dev.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 12, color: W }}>{dev.label}</span>
+                <input type="number" min="0" style={{ ...inputS, width: 70, textAlign: "center" }} value={dev.qty} onChange={e => setDevices(prev => prev.map((d, j) => j === i ? {...d, qty: parseInt(e.target.value) || 0} : d))} />
+              </div>
+            ))}
+            <div style={{ fontSize: 11, color: G, marginTop: 4 }}>Total: {devices.reduce((s, d) => s + d.qty, 0)} devices</div>
+          </div>
+
+          {/* Pricing */}
+          <label style={labelS}>Total Project Price</label>
+          <div style={{ position: "relative", marginBottom: 6 }}>
+            <span style={{ position: "absolute", left: 12, top: 10, color: G, fontSize: 14, fontWeight: 600 }}>$</span>
+            <input type="number" style={{ ...inputS, paddingLeft: 24, fontSize: 16, fontWeight: 600 }} value={totalPrice} onChange={e => setTotalPrice(e.target.value)} placeholder="Enter total price" />
+          </div>
+          {totalPrice && <div style={{ fontSize: 11, color: G, marginBottom: 12 }}>30% Deposit: ${Math.round(parseFloat(totalPrice) * 0.3).toLocaleString()}</div>}
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <label style={{ ...labelS, marginBottom: 0 }}>Category Breakdown</label>
+            <label style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 4, cursor: "pointer", color: G }}>
+              <input type="checkbox" checked={autoDistribute} onChange={e => setAutoDistribute(e.target.checked)} /> Auto
+            </label>
+          </div>
+          {[["Equipment", "equipment"], ["Wiring", "wiring"], ["Labor", "labor"], ["Programming", "programming"], ["Permit/Inspection", "permit"]].map(([label, key]) => (
+            <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <span style={{ fontSize: 11, color: G }}>{label}</span>
+              <div style={{ position: "relative" }}>
+                <span style={{ position: "absolute", left: 8, top: 7, color: G, fontSize: 11 }}>$</span>
+                <input type="number" style={{ ...inputS, width: 100, paddingLeft: 20, fontSize: 11 }} value={categoryBreakdown[key]} disabled={autoDistribute} onChange={e => setCategoryBreakdown(p => ({...p, [key]: parseInt(e.target.value) || 0}))} />
+              </div>
             </div>
           ))}
+          {!autoDistribute && (() => { const sum = Object.values(categoryBreakdown).reduce((a,b) => a+b, 0); const t = parseFloat(totalPrice) || 0; return sum !== t ? <div style={{ fontSize: 10, color: "#EF4444", marginTop: 4 }}>Categories: ${sum.toLocaleString()} ≠ Total: ${t.toLocaleString()}</div> : null; })()}
 
-          <div style={{ background: `${O}12`, borderRadius: 10, padding: 12, border: `1px solid ${O}30`, marginTop: 12 }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: O, textTransform: "uppercase" }}>Fee Offset Reminder</div>
-            <div style={{ fontSize: 12, color: G, marginTop: 4 }}>Consulting fees credited toward remediation work</div>
-          </div>
+          {/* Floor Plan */}
+          <label style={{ ...labelS, marginTop: 16 }}>Floor Plan (optional)</label>
+          {floorPlanImage ? (
+            <div style={{ position: "relative", marginBottom: 16 }}>
+              <img src={floorPlanImage} alt="Floor plan" style={{ width: "100%", borderRadius: 8, border: "1px solid #E5E7EB" }} />
+              <button onClick={() => setFloorPlanImage(null)} style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,0.5)", color: "#FFF", border: "none", borderRadius: "50%", width: 24, height: 24, cursor: "pointer", fontSize: 12 }}>×</button>
+            </div>
+          ) : (
+            <label style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 20, border: "2px dashed #E5E7EB", borderRadius: 8, cursor: "pointer", marginBottom: 16 }}>
+              <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => setFloorPlanImage(ev.target.result); r.readAsDataURL(f); }} style={{ display: "none" }} />
+              <span style={{ fontSize: 12, color: G }}>Click to upload floor plan image</span>
+            </label>
+          )}
         </div>
-        <div style={{ padding: "14px 20px", borderTop: `1px solid ${D4}` }}>
-          <button onClick={handleGenerate} disabled={generating} style={{ ...btnS(!generating), width: "100%", padding: "13px 0", boxShadow: generating ? "none" : `0 4px 20px ${O}40`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            {generating ? "⟳ Generating..." : "📄 Generate Proposal PDF"}
+
+        {/* Generate Button */}
+        <div style={{ padding: "12px 20px", borderTop: "1px solid #E5E7EB" }}>
+          <button onClick={handleGenerate} disabled={generating} style={{ ...btnS(true), width: "100%", padding: "12px", fontSize: 14 }}>
+            {generating ? "Generating PDF..." : "Generate Proposal PDF"}
           </button>
         </div>
       </div>
 
-      {/* Right - Chat */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div style={{ padding: "14px 24px", borderBottom: `1px solid ${D4}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>AI Assistant</h2>
-            <span style={{ fontSize: 11, color: G }}>Database-connected · {inventory.length} items · {procedures.length} SOPs</span>
-          </div>
-          {(client || clientForm.name) && <span style={{ padding: "4px 12px", background: `${O}18`, borderRadius: 20, fontSize: 11, color: O, fontWeight: 600 }}>{client?.name || clientForm.name}</span>}
-        </div>
+      {/* CENTER: Preview */}
+      <div style={{ flex: 1, overflow: "auto", padding: 20, background: "#F9FAFB" }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: W, marginBottom: 16 }}>Preview</div>
+
         {/* Analysis Results Banner */}
         {analysisResults && (
-          <div style={{ padding: "10px 24px", background: `${analysisResults.type === "document" ? O : BL}10`, borderBottom: `1px solid ${analysisResults.type === "document" ? O : BL}30`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ fontSize: 13, color: W }}>
-              <span style={{ fontWeight: 600 }}>{analysisResults.type === "document" ? "📝 Document Analysis" : "🏗️ Floor Plan Analysis"}</span>
-              <span style={{ color: G, marginLeft: 8 }}>
-                {analysisResults.type === "document"
-                  ? `${analysisResults.findings?.length || 0} findings · ${analysisResults.summary?.deficient || 0} deficiencies · Est. $${analysisResults.costRange?.[0]?.toLocaleString()} – $${analysisResults.costRange?.[1]?.toLocaleString()}`
-                  : `${analysisResults.summary?.totalDevices || 0} devices · ${analysisResults.devices?.length || 0} types · Est. $${analysisResults.costRange?.[0]?.toLocaleString()} – $${analysisResults.costRange?.[1]?.toLocaleString()}`
-                }
-              </span>
+          <div style={{ ...cardS, marginBottom: 12, borderLeft: `4px solid ${O}`, padding: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: O }}>
+              {analysisResults.type === "document" ? "Document Analysis Loaded" : "Floor Plan Analysis Loaded"}
             </div>
-            <button onClick={() => setAnalysisResults(null)} style={{ background: "none", border: "none", color: G, cursor: "pointer", fontSize: 16, padding: "2px 6px" }} title="Dismiss">×</button>
+            <div style={{ fontSize: 11, color: G, marginTop: 4 }}>
+              {analysisResults.type === "document"
+                ? `${analysisResults.findings?.length || 0} findings · ${analysisResults.summary?.deficient || 0} deficiencies`
+                : `${analysisResults.summary?.totalDevices || 0} devices identified`}
+            </div>
           </div>
         )}
-        <div style={{ flex: 1, overflow: "auto", padding: "16px 24px" }}>
-          {messages.map((msg, i) => (
-            <div key={i} style={{ marginBottom: 14, display: "flex", gap: 10, justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
-              {msg.role === "assistant" && <img src={LOGO_URI} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: "cover", flexShrink: 0, marginTop: 2 }} />}
-              <div style={{ maxWidth: "75%", padding: "10px 14px", borderRadius: 12, background: msg.role === "user" ? O : D3, color: "#111827", fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", borderTopLeftRadius: msg.role === "assistant" ? 3 : 12, borderTopRightRadius: msg.role === "user" ? 3 : 12 }}>
-                {msg.content}
-              </div>
-            </div>
-          ))}
-          {loading && <div style={{ display: "flex", gap: 10, marginBottom: 14 }}><img src={LOGO_URI} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: "cover" }} /><div style={{ padding: "10px 14px", background: D3, borderRadius: "3px 12px 12px 12px", fontSize: 13, color: G }}>Thinking...</div></div>}
-          <div ref={chatEndRef} />
-        </div>
-        <div style={{ padding: "14px 24px", borderTop: `1px solid ${D4}` }}>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendMessage()} placeholder="Ask about pricing, scope, inventory, procedures..." style={{ ...inputS, flex: 1 }} />
-            <button onClick={sendMessage} disabled={loading || !input.trim()} style={btnS(!!input.trim())}>Send</button>
+
+        {[
+          ["Page 1: Cover", `${proposalType === "voice_evac" ? "Voice Evacuation & Fire Alarm" : "Fire Alarm"} System Proposal\nPrepared for: ${(clients.find(c => c.id === selectedClient)?.name || clientForm.name) || "—"}\n${facilityInfo.address || "Address TBD"}\nAHJ: ${facilityInfo.ahj}`],
+          ["Page 2: Scope & Pricing", Object.entries(categoryBreakdown).map(([k,v]) => `${k}: $${v.toLocaleString()}`).join("\n") + `\n\nTotal: $${(parseFloat(totalPrice) || 0).toLocaleString()}\nDeposit: $${Math.round((parseFloat(totalPrice) || 0) * 0.3).toLocaleString()}`],
+          ["Page 3: Device Placement", (floorPlanImage ? "Floor plan attached\n" : "No floor plan\n") + devices.filter(d => d.qty > 0).map(d => `${d.label}: ${d.qty}`).join("\n")],
+          ["Page 4: Timeline & Terms", `${proposalType === "voice_evac" ? "6" : "5"} construction phases\n5 terms & conditions\nDual signature lines`],
+        ].map(([title, content]) => (
+          <div key={title} style={{ ...cardS, marginBottom: 12, padding: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: O, marginBottom: 6 }}>{title}</div>
+            <pre style={{ fontSize: 11, color: W, margin: 0, whiteSpace: "pre-wrap", fontFamily: "inherit" }}>{content || "—"}</pre>
           </div>
-          <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-            {["What equipment for this client?", "Draft executive summary", "Estimate remediation cost", "Which tier do you recommend?"].map((q, i) => (
-              <button key={i} onClick={() => { setInput(q); inputRef.current?.focus(); }} style={{ padding: "4px 10px", background: D4, border: `1px solid rgba(255,255,255,0.06)`, borderRadius: 16, color: G, fontSize: 11, cursor: "pointer" }}>{q}</button>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
+
+      {/* RIGHT: Chat (collapsible) */}
+      {!showChat ? (
+        <div onClick={() => setShowChat(true)} style={{ width: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderLeft: "1px solid #E5E7EB", background: "#F9FAFB" }}>
+          <span style={{ writingMode: "vertical-rl", fontSize: 11, color: G }}>AI Assistant</span>
+        </div>
+      ) : (
+        <div style={{ width: 340, minWidth: 340, borderLeft: "1px solid #E5E7EB", display: "flex", flexDirection: "column" }}>
+          <div style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontWeight: 600, fontSize: 13 }}>AI Assistant</span>
+            <button onClick={() => setShowChat(false)} style={{ background: "none", border: "none", cursor: "pointer", color: G, fontSize: 16 }}>×</button>
+          </div>
+          <div style={{ flex: 1, overflow: "auto", padding: 12 }}>
+            {messages.map((msg, i) => (
+              <div key={i} style={{ display: "flex", gap: 8, marginBottom: 12, flexDirection: msg.role === "user" ? "row-reverse" : "row" }}>
+                {msg.role === "assistant" && <img src={LOGO_URI} alt="" style={{ width: 24, height: 24, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />}
+                <div style={{ padding: "8px 12px", borderRadius: 12, maxWidth: "85%", fontSize: 12, lineHeight: 1.5, background: msg.role === "user" ? `${O}15` : "#F3F4F6", color: W, whiteSpace: "pre-wrap" }}>{msg.content}</div>
+              </div>
+            ))}
+            {loading && <div style={{ textAlign: "center", color: G, fontSize: 11 }}>Thinking...</div>}
+            <div ref={chatEndRef} />
+          </div>
+          <div style={{ padding: "8px 12px", borderTop: "1px solid #E5E7EB" }}>
+            <div style={{ display: "flex", gap: 6 }}>
+              <input ref={inputRef} style={{ ...inputS, fontSize: 12 }} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()} placeholder="Ask about proposals..." />
+              <button onClick={sendMessage} disabled={loading || !input.trim()} style={{ ...btnS(true), padding: "8px 12px", fontSize: 12 }}>Send</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2199,17 +2369,22 @@ function HistoryPage({ proposals, setProposals, clients }) {
           <div style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${D4}` }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr style={{ background: D3 }}>
-                {["Client", "Tier", "Range", "Date", "Status", ""].map((h, i) => <th key={i} style={tableHeaderS}>{h}</th>)}
+                {["Client", "Type", "Total", "Date", "Status", ""].map((h, i) => <th key={i} style={tableHeaderS}>{h}</th>)}
               </tr></thead>
               <tbody>
                 {[...proposals].reverse().map(p => {
                   const cl = clients.find(c => c.id === p.client_id);
                   const statusColors = { draft: G, sent: BL, won: GR, lost: RD };
+                  const typeLabel = p.proposal_type === "voice_evac" ? "Voice Evac" : p.tier ? `Tier ${p.tier}` : "Standard";
+                  const typeBg = p.proposal_type === "voice_evac" ? `${BL}15` : `${O}15`;
+                  const typeColor = p.proposal_type === "voice_evac" ? BL : O;
                   return (
                     <tr key={p.id} style={{ background: D2 }} onMouseEnter={e => e.currentTarget.style.background = D3} onMouseLeave={e => e.currentTarget.style.background = D2}>
-                      <td style={tableCellS}><div style={{ fontWeight: 600 }}>{cl?.name || p.client_name || "Unknown"}</div></td>
-                      <td style={tableCellS}>Tier {p.tier}</td>
-                      <td style={{ ...tableCellS, fontWeight: 600 }}>${(p.total_low || 0).toLocaleString()} – ${(p.total_high || 0).toLocaleString()}</td>
+                      <td style={tableCellS}>
+                        <div style={{ fontWeight: 600 }}>{cl?.name || p.client_name || "Unknown"}</div>
+                      </td>
+                      <td style={tableCellS}><span style={{ padding: "2px 8px", borderRadius: 12, fontSize: 11, fontWeight: 500, background: typeBg, color: typeColor }}>{typeLabel}</span></td>
+                      <td style={{ ...tableCellS, fontWeight: 600 }}>{p.total ? `$${p.total.toLocaleString()}` : (p.total_low ? `$${(p.total_low || 0).toLocaleString()} – $${(p.total_high || 0).toLocaleString()}` : "—")}</td>
                       <td style={{ ...tableCellS, color: G }}>{new Date(p.created_at).toLocaleDateString()}</td>
                       <td style={tableCellS}><span style={badgeS(statusColors[p.status] || G)}>{p.status}</span></td>
                       <td style={{ ...tableCellS, textAlign: "right" }}>
