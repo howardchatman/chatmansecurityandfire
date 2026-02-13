@@ -1967,8 +1967,13 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
         doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(0, PH - 44, PW, PH - 44);
         doc.setFillColor(...BG); doc.rect(0, PH - 42, PW, 42, "F");
         doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...LG);
-        doc.text("Chatman Security & Fire | Houston, TX | chatmansecurityandfire.com", M, PH - 18);
+        doc.text("Chatman Security & Fire  |  Houston, TX  |  chatmansecurityandfire.com", M, PH - 18);
         doc.text("Page " + pg, PW - M - 30, PH - 18);
+      }
+      function addCoverFooter() {
+        doc.setFillColor(...GY); doc.rect(0, 0, PW, 60, "F");
+        doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(255,255,255);
+        doc.text("Chatman Security & Fire  |  Houston, TX  |  chatmansecurityandfire.com", M, 28);
       }
 
       // ===== PAGE 1: COVER =====
@@ -2006,9 +2011,10 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
         doc.setFont("helvetica","bold"); doc.setTextColor(...DK); doc.text(val, M + 120, ty);
         ty += 18;
       });
-      addFooter(1);
+      addCoverFooter();
 
-      // ===== PAGE 2: SCOPE & PRICING =====
+      if (isVE) {
+      // ===== VOICE EVAC PAGE 2: SCOPE & PRICING =====
       doc.addPage(); let y = M;
       doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("2. Scope & Pricing", M, y);
       y += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, y, PW - M, y); y += 22;
@@ -2053,12 +2059,13 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
       doc.text(`30% Deposit: $${deposit.toLocaleString()}`, M + 16, y + 38);
       y += 66;
 
-      doc.setFillColor(...ORL); doc.roundedRect(M, y - 4, CW, 40, 6, 6, "F");
-      doc.setDrawColor(...OR); doc.setLineWidth(1); doc.roundedRect(M, y - 4, CW, 40, 6, 6, "S");
-      doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(...OR); doc.text("Consulting Fee Offset", M + 12, y + 10);
-      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...DK);
-      doc.text("Your assessment/consulting fee will be credited toward the total project cost,", M + 12, y + 24);
-      addFooter(2);
+      doc.setFillColor(...ORL); doc.roundedRect(M, y - 4, CW, 48, 6, 6, "F");
+      doc.setDrawColor(...OR); doc.setLineWidth(1.5); doc.roundedRect(M, y - 4, CW, 48, 6, 6, "S");
+      doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...OR); doc.text("Consulting Fee Offset", M + 14, y + 12);
+      doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...DK);
+      doc.text("Your assessment/consulting fee will be credited toward the total project cost,", M + 14, y + 26);
+      doc.text("making Chatman Security & Fire the most cost-effective choice for the full project.", M + 14, y + 39);
+      addFooter(1);
 
       // ===== PAGE 3: DEVICE PLACEMENT =====
       doc.addPage(); y = M;
@@ -2095,9 +2102,9 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
       if (activeDevs.length % 2 === 1) y += 16; y += 20;
       doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...OR);
       doc.text("Total Devices: " + devices.reduce((s, d) => s + d.qty, 0), M, y);
-      addFooter(3);
+      addFooter(2);
 
-      // ===== PAGE 4: TIMELINE + TERMS + SIGNATURES =====
+      // ===== VOICE EVAC PAGE 4: TIMELINE + TERMS + SIGNATURES =====
       doc.addPage(); y = M;
       doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("4. Project Timeline", M, y);
       y += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, y, PW - M, y); y += 22;
@@ -2152,7 +2159,306 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
       doc.text("Howard Chatman", PW / 2 + 20, y + 14);
       doc.text("Chatman Security & Fire", PW / 2 + 20, y + 26);
       doc.text("Date: _______________", PW / 2 + 20, y + 40);
-      addFooter(4);
+      addFooter(3);
+
+      } else {
+      // ===== STANDARD FIRE ALARM FORMAT (6 pages) =====
+      let pgNum = 0;
+
+      // ===== STD PAGE 2: EXECUTIVE SUMMARY =====
+      doc.addPage(); let sy = M; pgNum++;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("1. Executive Summary", M, sy);
+      sy += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, sy, PW - M, sy); sy += 24;
+
+      doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor(...DK);
+      const execText = `Chatman Security & Fire is pleased to present this proposal for a complete fire alarm system installation at ${facilityInfo.address || cAddress}. This ${facilityInfo.sqft ? parseInt(facilityInfo.sqft).toLocaleString() : "TBD"} square foot ${facilityInfo.occupancy || "commercial"} facility requires a new addressable fire alarm system designed and installed in full compliance with NFPA 72 (National Fire Alarm and Signaling Code), IFC Chapter 9, and the applicable codes as adopted by ${facilityInfo.ahj || "the local AHJ"}.`;
+      doc.splitTextToSize(execText, CW).forEach(l => { doc.text(l, M, sy); sy += 16; });
+      sy += 8;
+
+      doc.text("Key project parameters:", M, sy); sy += 20;
+
+      const activeDevs = devices.filter(d => d.qty > 0);
+      const totalDevCount = devices.reduce((s, d) => s + d.qty, 0);
+      const execBullets = [
+        `New addressable fire alarm control panel (FACP) serving the facility`,
+        `${devices.find(d => d.id === "smoke")?.qty || 0} photoelectric smoke detectors at 30ft spacing (15ft radius coverage)`,
+        `${devices.find(d => d.id === "horn_strobe")?.qty || 0} horn/strobe notification appliances per NFPA 72 §18.4`,
+        `${devices.find(d => d.id === "pull")?.qty || 0} manual pull stations at all exit points per NFPA 72 §17.14`,
+        "UL-listed central station monitoring with 24/7 fire alarm supervision",
+        `Full Fire Marshal coordination through plan review, permit, and final inspection`,
+      ];
+      execBullets.forEach(b => {
+        doc.setFillColor(...OR); doc.setTextColor(...OR); doc.text("\u2022", M + 8, sy);
+        doc.setTextColor(...DK); doc.setFont("helvetica","normal"); doc.setFontSize(11);
+        doc.splitTextToSize(b, CW - 30).forEach(l => { doc.text(l, M + 22, sy); sy += 16; });
+        sy += 4;
+      });
+
+      // Consulting fee offset callout
+      sy += 10;
+      doc.setFillColor(...ORL); doc.roundedRect(M, sy - 4, CW, 48, 6, 6, "F");
+      doc.setDrawColor(...OR); doc.setLineWidth(1.5); doc.roundedRect(M, sy - 4, CW, 48, 6, 6, "S");
+      doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(...OR);
+      doc.text("Consulting Fee Offset", M + 14, sy + 14);
+      doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...DK);
+      doc.text("Your assessment/consulting fee will be credited toward the fire alarm installation cost,", M + 14, sy + 28);
+      doc.text("making Chatman Security & Fire the most cost-effective choice for the full project.", M + 14, sy + 40);
+      addFooter(pgNum);
+
+      // ===== STD PAGE 3: DEVICE SCHEDULE + INSTALLATION + TOTAL =====
+      doc.addPage(); sy = M; pgNum++;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("2. Fire Alarm Device Schedule", M, sy);
+      sy += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, sy, PW - M, sy); sy += 24;
+
+      doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor(...DK);
+      doc.text("The following devices are specified for this project per NFPA 72 and IFC Chapter 9:", M, sy); sy += 24;
+
+      // Device cost mapping
+      const devCostMap = {
+        facp: { name: "Addressable Fire Alarm Panel", tagPrefix: "FACP", baseCost: 4500, code: "NFPA 72 §10.4" },
+        smoke: { name: "Smoke Detector (Photoelectric)", tagPrefix: "SD", baseCost: 85, code: "NFPA 72 §17.7.3" },
+        horn_strobe: { name: "Horn/Strobe Combo (Wall)", tagPrefix: "HS", baseCost: 150, code: "NFPA 72 §18.4" },
+        pull: { name: "Manual Pull Station", tagPrefix: "PS", baseCost: 120, code: "NFPA 72 §17.14" },
+      };
+      const eolQty = Math.max(2, Math.ceil(totalDevCount / 5));
+      const monCost = 600;
+
+      // Build device rows
+      let rawEquipTotal = 0;
+      const devRows = [];
+      activeDevs.forEach(d => {
+        const info = devCostMap[d.id];
+        if (info) {
+          const ext = d.qty * info.baseCost;
+          rawEquipTotal += ext;
+          const tag = d.qty === 1 ? info.tagPrefix : `${info.tagPrefix}-1 to ${info.tagPrefix}-${d.qty}`;
+          devRows.push([info.name, tag, String(d.qty), "$" + info.baseCost.toLocaleString(), "$" + ext.toLocaleString(), info.code]);
+        }
+      });
+      rawEquipTotal += eolQty * 8 + monCost;
+      devRows.push(["End-of-Line Resistors", "EOL", String(eolQty), "$8", "$" + (eolQty * 8).toLocaleString(), "NFPA 72 §12.6"]);
+      devRows.push(["Central Station Monitoring (1yr)", "\u2014", "1", "$600", "$600", "NFPA 72 §26.3"]);
+
+      // Scale to match equipment category if needed
+      const equipCat = categoryBreakdown.equipment || rawEquipTotal;
+      const scale = equipCat / (rawEquipTotal || 1);
+      if (Math.abs(scale - 1) > 0.01) {
+        devRows.forEach(row => {
+          const unitStr = row[3].replace(/[$,]/g, "");
+          const qtyNum = parseInt(row[2]);
+          const scaledUnit = Math.round(parseFloat(unitStr) * scale);
+          row[3] = "$" + scaledUnit.toLocaleString();
+          row[4] = "$" + (scaledUnit * qtyNum).toLocaleString();
+        });
+        rawEquipTotal = equipCat;
+      }
+
+      // Draw device table header
+      const colW = [165, 82, 28, 62, 62, 100];
+      const headers = ["Device", "Tag", "Qty", "Unit Cost", "Ext. Cost", "Code Reference"];
+      const rowH = 18;
+      doc.setFillColor(...DK); doc.rect(M, sy - 12, CW, rowH, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(255,255,255);
+      let tx = M;
+      headers.forEach((h, i) => { doc.text(h, tx + 4, sy - 1); tx += colW[i]; });
+      sy += rowH - 10;
+
+      // Draw device rows
+      devRows.forEach((row, ri) => {
+        const bg = ri % 2 === 0 ? BG : [255,255,255];
+        doc.setFillColor(...bg); doc.rect(M, sy - 12, CW, rowH, "F");
+        doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...DK);
+        tx = M;
+        row.forEach((val, ci) => { doc.text(val, tx + 4, sy - 1); tx += colW[ci]; });
+        sy += rowH;
+      });
+
+      // Equipment subtotal row
+      doc.setFillColor(...ORL); doc.rect(M, sy - 12, CW, rowH + 2, "F");
+      doc.setDrawColor(...OR); doc.setLineWidth(0.5); doc.rect(M, sy - 12, CW, rowH + 2, "S");
+      doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...OR);
+      doc.text("EQUIPMENT SUBTOTAL", M + 4, sy);
+      doc.text("$" + (rawEquipTotal).toLocaleString(), M + colW[0] + colW[1] + colW[2] + colW[3] + 4, sy);
+      sy += rowH + 14;
+
+      // Installation & Labor section
+      doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...DK);
+      doc.text("Installation & Labor", M, sy); sy += 20;
+
+      const permitFee = Math.round((categoryBreakdown.permit || 0) * 0.40);
+      const fmInspect = Math.round((categoryBreakdown.permit || 0) * 0.30);
+      const asBuilt = (categoryBreakdown.permit || 0) - permitFee - fmInspect;
+      const laborItems = [
+        ["Wire & Conduit (Fire-rated, plenum where req'd)", categoryBreakdown.wiring || 0],
+        [`Installation Labor (2-man crew, est. ${Math.max(3, Math.ceil(totalDevCount / 7))} days)`, categoryBreakdown.labor || 0],
+        ["Programming & Testing", categoryBreakdown.programming || 0],
+        [`Permit & Plan Review Fee (${facilityInfo.ahj || "AHJ"})`, permitFee],
+        ["Fire Marshal Inspection Coordination", fmInspect],
+        ["As-Built Documentation & O&M Manuals", asBuilt],
+      ];
+      const installSubtotal = laborItems.reduce((s, i) => s + i[1], 0);
+
+      laborItems.forEach(([label, amt]) => {
+        doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...DK);
+        doc.text(label, M + 10, sy);
+        doc.text("$" + amt.toLocaleString(), PW - M, sy, { align: "right" });
+        sy += 16;
+      });
+
+      sy += 6;
+      doc.setDrawColor(...DK); doc.setLineWidth(0.5); doc.line(M, sy, PW - M, sy); sy += 16;
+      doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(...GY);
+      doc.text("Installation Subtotal", M + 10, sy);
+      doc.text("$" + installSubtotal.toLocaleString(), PW - M, sy, { align: "right" });
+      sy += 28;
+
+      // Grand total box
+      doc.setFillColor(...OR); doc.roundedRect(M, sy - 8, CW, 52, 6, 6, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(255,255,255);
+      doc.text("TOTAL PROJECT INVESTMENT", M + 16, sy + 8);
+      doc.setFontSize(22); doc.text("$" + total.toLocaleString(), PW - M - 16, sy + 6, { align: "right" });
+      doc.setFont("helvetica","normal"); doc.setFontSize(10);
+      doc.text("Equipment + Installation + Permit + Monitoring (Year 1)", M + 16, sy + 28);
+      addFooter(pgNum);
+
+      // ===== STD PAGE 4: FLOOR PLAN =====
+      doc.addPage(); sy = M; pgNum++;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("3. Device Placement Plan", M, sy);
+      sy += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, sy, PW - M, sy); sy += 20;
+
+      doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...DK);
+      doc.text("The following floor plan shows proposed device locations per NFPA 72 and IFC Chapter 9.", M, sy);
+      doc.text("Smoke detectors placed at 30ft spacing (15ft radius). Horn/strobes along rear and front walls.", M, sy + 14);
+      sy += 36;
+
+      if (floorPlanImage) {
+        try {
+          const imgProps = doc.getImageProperties(floorPlanImage);
+          const maxW = CW, maxH = 320;
+          const ratio = Math.min(maxW / imgProps.width, maxH / imgProps.height);
+          const imgW = imgProps.width * ratio, imgH = imgProps.height * ratio;
+          doc.addImage(floorPlanImage, "AUTO", M + (CW - imgW) / 2, sy, imgW, imgH);
+          sy += imgH + 18;
+        } catch { doc.setFont("helvetica","italic"); doc.setFontSize(10); doc.setTextColor(...LG); doc.text("[Floor plan markup — see attached]", M, sy); sy += 30; }
+      } else {
+        doc.setFillColor(...BG); doc.roundedRect(M, sy, CW, 80, 6, 6, "F");
+        doc.setFont("helvetica","italic"); doc.setFontSize(11); doc.setTextColor(...LG);
+        doc.text("Floor plan to be provided during site survey.", M + CW / 2, sy + 40, { align: "center" }); sy += 100;
+      }
+
+      doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...DK); doc.text("Device Placement Notes:", M, sy); sy += 18;
+      const placementNotes = [
+        `Smoke detectors (SD): 15ft radius / 30ft spacing on smooth ceiling per NFPA 72 §17.7.3.1`,
+        `Horn/Strobes (HS): Wall placement, 84" AFF, ADA compliant per NFPA 72 §18.4`,
+        `Pull Stations (PS): Within 5ft of each exit door, 42-48" AFF per NFPA 72 §17.14`,
+        `FACP: Located in main electrical room, accessible per NFPA 72 §10.4`,
+        `All devices addressable — individual device identification at FACP for faster FM response`,
+      ];
+      placementNotes.forEach(note => {
+        doc.setFont("helvetica","normal"); doc.setFontSize(9);
+        doc.setTextColor(...OR); doc.text("\u2022", M + 4, sy);
+        doc.setTextColor(...GY); doc.text(note, M + 16, sy);
+        sy += 14;
+      });
+      addFooter(pgNum);
+
+      // ===== STD PAGE 5: SCOPE & TIMELINE =====
+      doc.addPage(); sy = M; pgNum++;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("4. Scope of Services & Timeline", M, sy);
+      sy += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, sy, PW - M, sy); sy += 26;
+
+      const stdPhases = [
+        ["Phase 1: Plan Review & Permitting", "Week 1-2", [
+          `Submit fire alarm shop drawings to ${facilityInfo.ahj || "AHJ"} for plan review`,
+          "Coordinate with architect on electrical coordination",
+          "Obtain fire alarm installation permit",
+        ]],
+        ["Phase 2: Rough-In & Wiring", "Week 3-4", [
+          `Install fire-rated wire and conduit throughout facility`,
+          "Install back-boxes for all devices",
+          "Coordinate with general contractor on ceiling/wall closures",
+        ]],
+        ["Phase 3: Device Installation", "Week 5", [
+          "Mount and connect FACP, annunciator, and monitoring module",
+          `Install all ${devices.find(d => d.id === "smoke")?.qty || 0} smoke detectors per placement plan`,
+          `Install ${devices.find(d => d.id === "horn_strobe")?.qty || 0} horn/strobes and ${devices.find(d => d.id === "pull")?.qty || 0} pull stations`,
+        ]],
+        ["Phase 4: Programming & Testing", "Week 6", [
+          "Program all addressable devices on FACP",
+          "Set up zone mapping for all areas",
+          "Full system functional test — all initiating and notification devices",
+          "Sensitivity testing on all smoke detectors per NFPA 72 §14.4.5",
+        ]],
+        ["Phase 5: Fire Marshal Inspection", "Week 7", [
+          `Schedule final inspection with ${facilityInfo.ahj || "AHJ"}`,
+          "Attend inspection as client representative",
+          "Provide all test documentation, as-builts, and O&M manuals",
+          "Address any punch list items same-day if possible",
+        ]],
+        ["Phase 6: Monitoring & Closeout", "Week 7-8", [
+          "Activate UL-listed central station fire alarm monitoring",
+          "Deliver O&M manuals to building owner",
+          "Provide fire alarm orientation/training",
+          "Final project closeout documentation",
+        ]],
+      ];
+
+      stdPhases.forEach(([phaseName, timeline, items]) => {
+        if (sy > PH - 140) { addFooter(pgNum); doc.addPage(); sy = M; pgNum++; }
+        doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(...DK); doc.text(phaseName, M, sy);
+        doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(...OR); doc.text(timeline, PW - M, sy, { align: "right" });
+        sy += 16;
+        items.forEach(item => {
+          doc.setFont("helvetica","normal"); doc.setFontSize(10);
+          doc.setTextColor(...OR); doc.text("\u2022", M + 10, sy);
+          doc.setTextColor(...GY); doc.text(item, M + 22, sy);
+          sy += 14;
+        });
+        sy += 10;
+      });
+      addFooter(pgNum);
+
+      // ===== STD PAGE 6: TERMS & SIGNATURES =====
+      doc.addPage(); sy = M; pgNum++;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...OR); doc.text("5. Terms & Conditions", M, sy);
+      sy += 6; doc.setDrawColor(...OR); doc.setLineWidth(2); doc.line(M, sy, PW - M, sy); sy += 24;
+
+      const stdTerms = [
+        "This proposal is valid for 60 days from the date of issue.",
+        `A 30% deposit ($${deposit.toLocaleString()}) is required to initiate plan review and material ordering.`,
+        `Balance due upon completion and successful ${facilityInfo.ahj || "Fire Marshal"} inspection.`,
+        "Payment terms: Net 30 from date of invoice.",
+        "Chatman Security & Fire maintains full liability insurance and bonding.",
+        "All work performed by licensed fire alarm technicians (NICET certified).",
+        "One-year warranty on all equipment and labor from date of final inspection.",
+        "Annual inspection and monitoring renewal available at contracted rate.",
+        "Consulting fee offset applies if additional Chatman services are contracted within 12 months.",
+        "Any changes to scope requested after permit submission may result in additional fees.",
+      ];
+      stdTerms.forEach(term => {
+        doc.setFont("helvetica","normal"); doc.setFontSize(10);
+        doc.setTextColor(...OR); doc.text("\u2022", M + 4, sy);
+        doc.setTextColor(...DK);
+        doc.splitTextToSize(term, CW - 20).forEach(l => { doc.text(l, M + 18, sy); sy += 14; });
+        sy += 6;
+      });
+
+      // Signatures
+      sy += 24;
+      doc.setDrawColor(...GY); doc.setLineWidth(0.5); doc.line(M, sy, PW - M, sy); sy += 20;
+      doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(...DK); doc.text("AUTHORIZATION", M, sy); sy += 36;
+
+      doc.setDrawColor(...DK); doc.setLineWidth(0.5);
+      doc.line(M, sy, M + 210, sy);
+      doc.line(PW / 2 + 30, sy, PW - M, sy);
+      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...GY);
+      doc.text(cContact ? `${cName} — ${cContact}` : `${cName} — Authorized Representative`, M, sy + 14);
+      doc.text("Date: _________________", M, sy + 28);
+      doc.text("Howard Chatman, Chatman Security & Fire", PW / 2 + 30, sy + 14);
+      doc.text("Date: _________________", PW / 2 + 30, sy + 28);
+      addFooter(pgNum);
+
+      } // end if/else isVE
 
       // ===== SAVE =====
       const fn = `Chatman_Proposal_${cName.replace(/[^a-zA-Z0-9]/g, "_")}_${new Date().toISOString().slice(0, 10)}.pdf`;
