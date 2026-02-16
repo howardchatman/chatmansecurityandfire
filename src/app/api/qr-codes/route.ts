@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { data, error } = await supabaseAdmin
-    .from("proposal_history")
+    .from("qr_codes")
     .select("*")
     .order("created_at", { ascending: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -21,18 +21,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const body = await request.json();
+
+  if (!body.slug || !/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(body.slug)) {
+    return NextResponse.json({ error: "Invalid slug. Use lowercase letters, numbers, and hyphens." }, { status: 400 });
+  }
+  if (!body.destination_url || !body.label) {
+    return NextResponse.json({ error: "Missing required fields: destination_url, label" }, { status: 400 });
+  }
+
   const { data, error } = await supabaseAdmin
-    .from("proposal_history")
+    .from("qr_codes")
     .insert([{
-      client_id: body.client_id || null, client_name: body.client_name, tier: body.tier,
-      status: body.status || "draft", total_low: body.total_low, total_high: body.total_high,
-      total: body.total, proposal_type: body.proposal_type,
-      filename: body.filename, share_token: body.share_token || null,
-      proposal_data: body.proposal_data || null,
+      slug: body.slug,
+      destination_url: body.destination_url,
+      label: body.label,
+      qr_type: body.qr_type || "custom",
+      proposal_id: body.proposal_id || null,
     }])
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (error) {
+    if (error.code === "23505") {
+      return NextResponse.json({ error: "A QR code with this slug already exists" }, { status: 409 });
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json({ data }, { status: 201 });
 }
 
@@ -43,20 +57,20 @@ export async function PATCH(request: NextRequest) {
   }
   const body = await request.json();
   if (!body.id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
-  const updates: Record<string, unknown> = {};
-  if (body.status !== undefined) updates.status = body.status;
-  if (body.client_name !== undefined) updates.client_name = body.client_name;
-  if (body.tier !== undefined) updates.tier = body.tier;
-  if (body.total_low !== undefined) updates.total_low = body.total_low;
-  if (body.total_high !== undefined) updates.total_high = body.total_high;
-  if (body.filename !== undefined) updates.filename = body.filename;
 
   const { data, error } = await supabaseAdmin
-    .from("proposal_history")
-    .update(updates)
+    .from("qr_codes")
+    .update({
+      destination_url: body.destination_url,
+      label: body.label,
+      qr_type: body.qr_type,
+      is_active: body.is_active,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", body.id)
     .select()
     .single();
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
 }
@@ -69,7 +83,7 @@ export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
-  const { error } = await supabaseAdmin.from("proposal_history").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("qr_codes").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }

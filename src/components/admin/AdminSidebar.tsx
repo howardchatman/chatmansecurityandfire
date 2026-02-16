@@ -26,6 +26,7 @@ import {
   BarChart3,
   Briefcase,
   UsersRound,
+  QrCode,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -59,6 +60,7 @@ const navigation = [
       { name: "Estimates", href: "/admin/estimates", icon: Calculator },
       { name: "Inventory", href: "/admin/inventory", icon: Package },
       { name: "Proposal Agent", href: "/admin/proposals", icon: FileText },
+      { name: "QR Codes", href: "/admin/qr-codes", icon: QrCode },
     ],
   },
   {
