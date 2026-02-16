@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, use } from "react";
+import { useState, useEffect, useRef, useCallback, use } from "react";
+import { RetellWebClient } from "retell-client-js-sdk";
 
 const O = "#EA580C";
 const OL = "#FFF7ED";
@@ -25,6 +26,8 @@ interface Message {
   content: string;
 }
 
+type CallStatus = "idle" | "connecting" | "connected" | "error";
+
 export default function ProposalViewer({ params }: { params: Promise<{ id: string }> }) {
   const { id: token } = use(params);
   const [proposal, setProposal] = useState<ProposalData | null>(null);
@@ -34,8 +37,10 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
   const [input, setInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [showChat, setShowChat] = useState(false);
-  const [showRetell, setShowRetell] = useState(false);
+  const [callStatus, setCallStatus] = useState<CallStatus>("idle");
+  const [isTalking, setIsTalking] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const retellClientRef = useRef<RetellWebClient | null>(null);
 
   useEffect(() => {
     fetch(`/api/proposal-chat?token=${token}`)
@@ -74,13 +79,60 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
     setChatLoading(false);
   }
 
+  // Retell voice call handlers
+  const setupRetellEvents = useCallback((client: RetellWebClient) => {
+    client.on("call_started", () => setCallStatus("connected"));
+    client.on("call_ended", () => {
+      setCallStatus("idle");
+      setIsTalking(false);
+      retellClientRef.current = null;
+    });
+    client.on("agent_start_talking", () => setIsTalking(true));
+    client.on("agent_stop_talking", () => setIsTalking(false));
+    client.on("error", () => {
+      setCallStatus("error");
+      retellClientRef.current = null;
+      setTimeout(() => setCallStatus("idle"), 3000);
+    });
+  }, []);
+
+  async function startChadCall() {
+    setCallStatus("connecting");
+    try {
+      const res = await fetch("/api/retell/web-call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!data.success || !data.data?.access_token) throw new Error("No token");
+      const client = new RetellWebClient();
+      retellClientRef.current = client;
+      setupRetellEvents(client);
+      await client.startCall({ accessToken: data.data.access_token });
+    } catch {
+      setCallStatus("idle");
+    }
+  }
+
+  function endChadCall() {
+    retellClientRef.current?.stopCall();
+    setCallStatus("idle");
+    setIsTalking(false);
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => { retellClientRef.current?.stopCall(); };
+  }, []);
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F9FAFB" }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ width: 40, height: 40, border: `3px solid ${OL}`, borderTopColor: O, borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 16px" }} />
           <p style={{ color: "#6B7280", fontSize: 14 }}>Loading your proposal...</p>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
         </div>
       </div>
     );
@@ -262,14 +314,68 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
             </a>
 
             <button
-              onClick={() => setShowRetell(!showRetell)}
-              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "14px 12px", background: "#EFF6FF", borderRadius: 10, border: "1px solid #3B82F620", cursor: "pointer" }}
+              onClick={() => callStatus === "connected" || callStatus === "connecting" ? endChadCall() : startChadCall()}
+              style={{
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "14px 12px",
+                background: callStatus === "connected" ? "#DCFCE7" : callStatus === "connecting" ? "#FEF3C7" : "#EFF6FF",
+                borderRadius: 10,
+                border: `1px solid ${callStatus === "connected" ? "#22C55E40" : callStatus === "connecting" ? "#F59E0B40" : "#3B82F620"}`,
+                cursor: callStatus === "connecting" ? "wait" : "pointer",
+              }}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke="#3B82F6" strokeWidth="2"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/></svg>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#3B82F6" }}>Chat with Chad</span>
-              <span style={{ fontSize: 11, color: "#6B7280" }}>AI scheduling</span>
+              {callStatus === "connected" ? (
+                <>
+                  <div style={{ position: "relative" }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke="#22C55E" strokeWidth="2"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke="#22C55E" strokeWidth="2" strokeLinecap="round"/></svg>
+                    <div style={{ position: "absolute", top: -2, right: -2, width: 10, height: 10, borderRadius: "50%", background: "#22C55E", animation: isTalking ? "pulse 1s infinite" : "none" }} />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#22C55E" }}>{isTalking ? "Chad Speaking" : "Listening..."}</span>
+                  <span style={{ fontSize: 11, color: "#6B7280" }}>Tap to end</span>
+                </>
+              ) : callStatus === "connecting" ? (
+                <>
+                  <div style={{ width: 24, height: 24, border: "3px solid #FEF3C7", borderTopColor: "#F59E0B", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#F59E0B" }}>Connecting...</span>
+                  <span style={{ fontSize: 11, color: "#6B7280" }}>Please wait</span>
+                </>
+              ) : (
+                <>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke="#3B82F6" strokeWidth="2"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/></svg>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#3B82F6" }}>Talk to Chad</span>
+                  <span style={{ fontSize: 11, color: "#6B7280" }}>AI voice assistant</span>
+                </>
+              )}
             </button>
           </div>
+
+          {/* Active Call Banner */}
+          {callStatus === "connected" && (
+            <div style={{
+              background: "#F0FDF4", border: "1px solid #22C55E40", borderRadius: 10, padding: "12px 16px",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 12,
+            }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22C55E", animation: "pulse 1.5s infinite" }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#166534" }}>
+                {isTalking ? "Chad is speaking..." : "On call with Chad — listening..."}
+              </span>
+              <button
+                onClick={endChadCall}
+                style={{ marginLeft: 8, background: "#EF4444", color: "#fff", border: "none", borderRadius: 6, padding: "4px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+              >
+                End
+              </button>
+            </div>
+          )}
+
+          {callStatus === "error" && (
+            <div style={{
+              background: "#FEF2F2", border: "1px solid #EF444440", borderRadius: 10, padding: "12px 16px",
+              textAlign: "center", marginBottom: 12,
+            }}>
+              <span style={{ fontSize: 13, color: "#991B1B" }}>Couldn&apos;t connect. </span>
+              <a href="tel:+18324301826" style={{ fontSize: 13, color: O, fontWeight: 600, textDecoration: "none" }}>Call (832) 430-1826</a>
+            </div>
+          )}
 
           <a
             href="tel:+18324301826"
@@ -281,20 +387,6 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
             Call to confirm and get started — deposit secures your spot
           </p>
         </div>
-
-        {/* Retell Chat Widget */}
-        {showRetell && (
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E5E7EB", padding: 20, marginBottom: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "#111827", marginBottom: 8 }}>Schedule with Chad (AI Assistant)</div>
-            <p style={{ fontSize: 12, color: "#6B7280", marginBottom: 12 }}>Chad can help you schedule a meeting with Howard or answer general questions.</p>
-            <a
-              href="tel:+18324301826"
-              style={{ display: "block", background: "#3B82F6", color: "#fff", textAlign: "center", padding: "12px 20px", borderRadius: 8, fontWeight: 600, fontSize: 14, textDecoration: "none" }}
-            >
-              Call Chad at (832) 430-1826
-            </a>
-          </div>
-        )}
 
         {/* Footer */}
         <div style={{ textAlign: "center", padding: "20px 0 40px", color: "#9CA3AF", fontSize: 11 }}>
