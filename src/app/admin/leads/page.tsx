@@ -33,6 +33,7 @@ const sourceFilters = [
   { label: "Inspection Analyzer", value: "inspection_analyzer" },
   { label: "Service Recommender", value: "service_recommender" },
   { label: "Access Requests", value: "account_request" },
+  { label: "General Contractor", value: "general_contractor" },
   { label: "Website", value: "website" },
   { label: "Chat", value: "chat" },
   { label: "Voice", value: "retell" },
@@ -119,6 +120,11 @@ export default function LeadsPage() {
                 Access Request
               </span>
             )}
+            {lead.source === "general_contractor" && (
+              <span className="px-1.5 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded font-medium">
+                GC Bid
+              </span>
+            )}
           </div>
           <p className="text-xs text-gray-500">{lead.email}</p>
         </div>
@@ -136,8 +142,14 @@ export default function LeadsPage() {
       label: "Source",
       sortable: true,
       render: (lead: Lead) => (
-        <span className={`text-sm ${lead.source === "account_request" ? "text-purple-600 font-medium" : "text-gray-600"}`}>
-          {lead.source === "account_request" ? "Account Request" : lead.source}
+        <span className={`text-sm ${
+          lead.source === "account_request" ? "text-purple-600 font-medium" :
+          lead.source === "general_contractor" ? "text-yellow-700 font-medium" :
+          "text-gray-600"
+        }`}>
+          {lead.source === "account_request" ? "Account Request" :
+           lead.source === "general_contractor" ? "General Contractor" :
+           lead.source}
         </span>
       ),
     },
