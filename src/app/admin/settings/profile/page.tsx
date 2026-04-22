@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef } from "react";
 import Link from "next/link";
@@ -14,7 +14,7 @@ export default function ProfileSettingsPage() {
     firstName: "Howard",
     lastName: "Chatman",
     email: "howardchatman@icloud.com",
-    phone: "(832) 430-1826",
+    phone: "(832) 859-7009",
     company: "Chatman Security & Fire",
     role: "Admin",
   });

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect } from "react";
 import {
@@ -98,7 +98,7 @@ export default function PortalAIAssistant() {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content:
-          "I'm having trouble connecting right now. Please try again in a moment, or call our support line at (832) 430-1826 for immediate assistance.",
+          "I'm having trouble connecting right now. Please try again in a moment, or call our support line at (832) 859-7009 for immediate assistance.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);

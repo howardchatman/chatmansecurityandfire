@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -161,7 +161,7 @@ export default function ChadChat() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: "assistant",
-        text: "Connection issue on my end. For urgent matters, call (832) 430-1826 directly — I'll be there too.",
+        text: "Connection issue on my end. For urgent matters, call (832) 859-7009 directly — I'll be there too.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -214,7 +214,7 @@ export default function ChadChat() {
       const errorMessage: Message = {
         id: Date.now().toString(),
         sender: "assistant",
-        text: "Connection issue. Try again or call (832) 430-1826 directly.",
+        text: "Connection issue. Try again or call (832) 859-7009 directly.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -263,7 +263,7 @@ export default function ChadChat() {
       const errorMessage: Message = {
         id: Date.now().toString(),
         sender: "assistant",
-        text: "Couldn't connect right now. For immediate help, call (832) 430-1826 — I answer there too.",
+        text: "Couldn't connect right now. For immediate help, call (832) 859-7009 — I answer there too.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);

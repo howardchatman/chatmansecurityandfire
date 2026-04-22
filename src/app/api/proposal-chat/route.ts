@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 // Simple in-memory rate limiting
@@ -117,7 +117,7 @@ INSTRUCTIONS:
 - Answer technical questions with authority (you know NFPA 72, IFC, and fire alarm systems)
 - When asked about pricing, ALWAYS lead with VALUE first — the warranty, the service, the expertise
 - For complex or unusual questions, encourage them to speak with Howard directly
-- Always mention they can call Howard at (832) 430-1826 or schedule through our AI assistant Chad
+- Always mention they can call Howard at (832) 859-7009 or schedule through our AI assistant Chad
 - Push toward approval — ask "Are you ready to get started?" or "Want me to have Howard call you?"
 - Keep responses concise (2-4 sentences unless a detailed technical answer is needed)
 - Never make up information not in the proposal data
@@ -142,9 +142,9 @@ INSTRUCTIONS:
     });
 
     const data = await resp.json();
-    const reply = data.content?.map((b: { type: string; text?: string }) => b.type === "text" ? b.text : "").filter(Boolean).join("\n") || "I'm having trouble connecting. Please call Howard at (832) 430-1826.";
+    const reply = data.content?.map((b: { type: string; text?: string }) => b.type === "text" ? b.text : "").filter(Boolean).join("\n") || "I'm having trouble connecting. Please call Howard at (832) 859-7009.";
     return NextResponse.json({ reply });
   } catch {
-    return NextResponse.json({ reply: "I'm having trouble connecting right now. Please call Howard directly at (832) 430-1826 — he'd love to discuss your proposal!" });
+    return NextResponse.json({ reply: "I'm having trouble connecting right now. Please call Howard directly at (832) 859-7009 — he'd love to discuss your proposal!" });
   }
 }

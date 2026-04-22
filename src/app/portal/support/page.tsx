@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -87,10 +87,10 @@ export default function SupportPage() {
           </div>
           <p className="text-sm text-gray-500 mb-3">24/7 emergency support line</p>
           <a
-            href="tel:+18324301826"
+            href="tel:+18328597009"
             className="text-orange-600 hover:text-orange-700 font-medium"
           >
-            (832) 430-1826
+            (832) 859-7009
           </a>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">

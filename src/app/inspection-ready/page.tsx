@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -88,11 +88,11 @@ export default function InspectionReadyPage() {
               </p>
 
               <a
-                href="tel:+18324301826"
+                href="tel:+18328597009"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
               >
                 <Phone className="w-5 h-5" />
-                Call (832) 430-1826
+                Call (832) 859-7009
               </a>
 
               <p className="text-sm text-gray-500 mt-4">
@@ -200,11 +200,11 @@ export default function InspectionReadyPage() {
                     we'll help you prepare the right way.
                   </p>
                   <a
-                    href="tel:+18324301826"
+                    href="tel:+18328597009"
                     className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                   >
                     <Phone className="w-5 h-5" />
-                    Call (832) 430-1826
+                    Call (832) 859-7009
                   </a>
                 </div>
               </motion.div>

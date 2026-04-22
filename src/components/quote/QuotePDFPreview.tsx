@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { forwardRef } from "react";
 import { calculateLineItemTotal, type LineItem, type QuoteTotals } from "@/lib/quote-templates";
@@ -106,7 +106,7 @@ const QuotePDFPreview = forwardRef<HTMLDivElement, QuotePDFPreviewProps>(
             />
             <div className="text-xs text-gray-600">
               <p>Houston, TX</p>
-              <p>(832) 430-1826</p>
+              <p>(832) 859-7009</p>
               <p>info@chatmansecurityandfire.com</p>
             </div>
           </div>
@@ -371,7 +371,7 @@ const QuotePDFPreview = forwardRef<HTMLDivElement, QuotePDFPreviewProps>(
         {/* Footer */}
         <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
           <p>
-            Chatman Security and Fire | Houston, TX | (832) 430-1826 |
+            Chatman Security and Fire | Houston, TX | (832) 859-7009 |
             chatmansecurityandfire.com
           </p>
           <p className="mt-1">

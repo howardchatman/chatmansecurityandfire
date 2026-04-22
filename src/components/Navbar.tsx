@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -21,6 +21,7 @@ import {
   FileSearch,
   Building2,
   Sparkles,
+  Lock,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SignInModal from "./SignInModal";
@@ -61,6 +62,12 @@ const services = [
     description: "Striping & repainting",
     href: "/services/fire-lane-marking",
     icon: PaintBucket,
+  },
+  {
+    name: "Security Alarm",
+    description: "Brinks authorized dealer",
+    href: "/services/security-alarm",
+    icon: Lock,
   },
 ];
 
@@ -259,13 +266,13 @@ export default function Navbar() {
             {/* Desktop CTA */}
             <div className="hidden lg:flex items-center gap-4">
               <a
-                href="tel:+18324301826"
+                href="tel:+18328597009"
                 className="flex items-center gap-2 text-gray-700 hover:text-orange-600 transition-colors"
               >
                 <div className="p-2 bg-orange-50 rounded-full">
                   <Phone className="w-4 h-4 text-orange-600" />
                 </div>
-                <span className="text-sm font-semibold">(832) 430-1826</span>
+                <span className="text-sm font-semibold">(832) 859-7009</span>
               </a>
 
               {/* User Menu or Sign In Button */}
@@ -338,7 +345,7 @@ export default function Navbar() {
                     Sign In
                   </button>
                   <a
-                    href="tel:+18324301826"
+                    href="tel:+18328597009"
                     className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                   >
                     <Phone className="w-4 h-4" />
@@ -463,11 +470,11 @@ export default function Navbar() {
 
                   <div className="pt-4 px-4 space-y-3 border-t border-gray-100 mt-4">
                     <a
-                      href="tel:+18324301826"
+                      href="tel:+18328597009"
                       className="flex items-center gap-2 text-gray-700 hover:text-orange-600 transition-colors"
                     >
                       <Phone className="w-4 h-4" />
-                      <span className="font-semibold">(832) 430-1826</span>
+                      <span className="font-semibold">(832) 859-7009</span>
                     </a>
 
                     {user ? (
@@ -520,7 +527,7 @@ export default function Navbar() {
                           Sign In
                         </button>
                         <a
-                          href="tel:+18324301826"
+                          href="tel:+18328597009"
                           onClick={() => setIsMobileMenuOpen(false)}
                           className="block w-full text-center px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                         >

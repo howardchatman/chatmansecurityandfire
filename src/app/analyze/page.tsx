@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
@@ -470,11 +470,11 @@ export default function AnalyzePage() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <a
-                    href="tel:+18324301826"
+                    href="tel:+18328597009"
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <Phone className="w-5 h-5" />
-                    (832) 430-1826
+                    (832) 859-7009
                   </a>
                   <Link
                     href="/start"
@@ -510,7 +510,7 @@ export default function AnalyzePage() {
       <footer className="bg-gray-50 border-t border-gray-200 py-8 mt-12">
         <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
           <p>&copy; {new Date().getFullYear()} Chatman Security & Fire. All rights reserved.</p>
-          <p className="mt-2">Houston, TX | (832) 430-1826</p>
+          <p className="mt-2">Houston, TX | (832) 859-7009</p>
         </div>
       </footer>
     </div>

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Retell Transfer API Route
  *
  * Receives transfer requests to hand off calls to a human operator.
@@ -7,7 +7,7 @@
  * Test with curl:
  * curl -X POST http://localhost:3000/api/retell/transfer \
  *   -H "Content-Type: application/json" \
- *   -d '{"call_id":"uuid-here","target_phone":"+18324301826","reason":"caller_requested"}'
+ *   -d '{"call_id":"uuid-here","target_phone":"+18328597009","reason":"caller_requested"}'
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -28,7 +28,7 @@ interface TransferRequest {
 }
 
 // Default transfer number (Howard's direct line)
-const DEFAULT_TRANSFER_NUMBER = process.env.TRANSFER_PHONE_NUMBER || "+18324301826";
+const DEFAULT_TRANSFER_NUMBER = process.env.TRANSFER_PHONE_NUMBER || "+18328597009";
 
 // ============================================
 // POST HANDLER

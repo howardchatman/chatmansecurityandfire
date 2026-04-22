@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import {
@@ -18,6 +18,7 @@ const footerLinks = {
     { name: "Fire Extinguishers", href: "/services/fire-extinguishers" },
     { name: "Emergency Lighting", href: "/services/emergency-lighting" },
     { name: "Fire Lane Markings", href: "/services/fire-lane-marking" },
+    { name: "Security Alarm", href: "/services/security-alarm" },
   ],
   company: [
     { name: "About Us", href: "/about" },
@@ -27,7 +28,7 @@ const footerLinks = {
   support: [
     { name: "Contact Us", href: "/contact" },
     { name: "Request Service", href: "/contact" },
-    { name: "24/7 Dispatch", href: "tel:+18324301826" },
+    { name: "24/7 Dispatch", href: "tel:+18328597009" },
   ],
   legal: [
     { name: "Privacy Policy", href: "/privacy" },
@@ -75,7 +76,7 @@ export default function Footer() {
 
             <div className="space-y-3">
               <a
-                href="tel:+18324301826"
+                href="tel:+18328597009"
                 className="flex items-center gap-3 text-neutral-400 hover:text-white transition-colors"
               >
                 <Phone className="w-5 h-5 text-orange-500" />

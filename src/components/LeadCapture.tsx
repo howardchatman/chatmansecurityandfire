@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -175,6 +175,7 @@ export default function LeadCapture() {
                         <option value="Fire Lane Marking">Fire Lane Marking</option>
                         <option value="Fire Marshal Compliance">Fire Marshal Compliance</option>
                         <option value="Consulting">Consulting</option>
+                        <option value="Security Alarm (Brinks)">Security Alarm (Brinks)</option>
                         <option value="Other">Other</option>
                       </select>
                     </div>
@@ -205,7 +206,7 @@ export default function LeadCapture() {
                   <div className="flex items-center justify-center gap-6 text-xs text-gray-400">
                     <span className="flex items-center gap-1">
                       <Phone className="w-3 h-3" />
-                      (832) 430-1826
+                      (832) 859-7009
                     </span>
                     <span className="flex items-center gap-1">
                       <Mail className="w-3 h-3" />

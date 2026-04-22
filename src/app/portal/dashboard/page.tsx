@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -263,11 +263,11 @@ export default function PortalDashboard() {
               For emergencies, call our monitoring center immediately.
             </p>
             <a
-              href="tel:+18324301826"
+              href="tel:+18328597009"
               className="inline-flex items-center gap-2 mt-3 text-orange-600 hover:text-orange-700 font-semibold"
             >
               <Phone className="w-4 h-4" />
-              (832) 430-1826
+              (832) 859-7009
             </a>
           </div>
         </div>

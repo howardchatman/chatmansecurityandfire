@@ -47,6 +47,12 @@ const services = [
     href: "/services/consulting",
     image: "/consulting.png",
   },
+  {
+    title: "Security Alarm",
+    description: "Authorized Brinks dealer — home & business security.",
+    href: "/services/security-alarm",
+    image: "/brinks_logo_blue.png",
+  },
 ];
 
 export default function Services() {

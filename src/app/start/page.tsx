@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
@@ -205,11 +205,11 @@ export default function StartPage() {
             </p>
             <div className="space-y-3">
               <a
-                href="tel:+18324301826"
+                href="tel:+18328597009"
                 className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-colors"
               >
                 <Phone className="w-5 h-5" />
-                Call (832) 430-1826
+                Call (832) 859-7009
               </a>
               <Link
                 href="/"
@@ -279,11 +279,11 @@ export default function StartPage() {
             {/* Dual CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <a
-                href="tel:+18324301826"
+                href="tel:+18328597009"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full transition-all text-lg"
               >
                 <Phone className="w-5 h-5" />
-                CALL (832) 430-1826
+                CALL (832) 859-7009
               </a>
               <button
                 onClick={scrollToForm}
@@ -568,11 +568,11 @@ export default function StartPage() {
                 Prefer to talk? Call us directly.
               </p>
               <a
-                href="tel:+18324301826"
+                href="tel:+18328597009"
                 className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold text-lg"
               >
                 <Phone className="w-5 h-5" />
-                (832) 430-1826
+                (832) 859-7009
               </a>
             </div>
           </motion.div>

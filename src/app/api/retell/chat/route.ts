@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { sendChatMessage, type RetellChatMessage } from "@/lib/retell";
 
 // Fallback responses when Retell is not configured
@@ -30,7 +30,7 @@ What system do you need work on?`,
 
   emergency: `If this is a life-threatening emergency, please call **911** immediately.
 
-For urgent fire safety system service, call us directly at **(832) 430-1826** — available 24/7.
+For urgent fire safety system service, call us directly at **(832) 859-7009** — available 24/7.
 
 What system is the issue with?`,
 

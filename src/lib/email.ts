@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+﻿import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -163,12 +163,12 @@ export const emailTemplates = {
             </a>
           </div>
           <p style="color: #6b7280; font-size: 14px; margin-top: 30px; text-align: center;">
-            This quote is valid for 30 days. Questions? Reply to this email or call (832) 430-1826.
+            This quote is valid for 30 days. Questions? Reply to this email or call (832) 859-7009.
           </p>
         </div>
         <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
           Chatman Security & Fire | Houston, TX<br>
-          (832) 430-1826 | info@chatmansecurityandfire.com
+          (832) 859-7009 | info@chatmansecurityandfire.com
         </div>
       </div>
     `,
@@ -224,12 +224,12 @@ export const emailTemplates = {
             </a>
           </div>
           <p style="color: #6b7280; font-size: 14px; margin-top: 30px; text-align: center;">
-            Questions about this invoice? Reply to this email or call (832) 430-1826.
+            Questions about this invoice? Reply to this email or call (832) 859-7009.
           </p>
         </div>
         <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
           Chatman Security & Fire | Houston, TX<br>
-          (832) 430-1826 | info@chatmansecurityandfire.com
+          (832) 859-7009 | info@chatmansecurityandfire.com
         </div>
       </div>
     `,
@@ -254,7 +254,7 @@ export const emailTemplates = {
           <div style="background-color: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;">
             <p style="color: #374151; font-size: 14px; margin: 0 0 10px 0;"><strong>Need immediate help?</strong></p>
             <p style="color: #374151; font-size: 14px; margin: 0;">
-              Call us directly at <a href="tel:+18324301826" style="color: #ea580c; font-weight: bold;">(832) 430-1826</a>
+              Call us directly at <a href="tel:+18328597009" style="color: #ea580c; font-weight: bold;">(832) 859-7009</a>
             </p>
             <p style="color: #6b7280; font-size: 13px; margin: 10px 0 0 0;">
               We offer 24/7 emergency service for urgent fire safety needs.
@@ -269,7 +269,7 @@ export const emailTemplates = {
         </div>
         <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
           Chatman Security & Fire | Houston, TX<br>
-          (832) 430-1826 | info@chatmansecurityandfire.com
+          (832) 859-7009 | info@chatmansecurityandfire.com
         </div>
       </div>
     `,
@@ -310,12 +310,12 @@ export const emailTemplates = {
             </p>
           </div>
           <p style="color: #6b7280; font-size: 14px; margin-top: 30px; text-align: center;">
-            Questions? Reply to this email or call (832) 430-1826.
+            Questions? Reply to this email or call (832) 859-7009.
           </p>
         </div>
         <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
           Chatman Security & Fire | Houston, TX<br>
-          (832) 430-1826 | info@chatmansecurityandfire.com
+          (832) 859-7009 | info@chatmansecurityandfire.com
         </div>
       </div>
     `,

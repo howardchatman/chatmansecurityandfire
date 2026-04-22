@@ -74,7 +74,7 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
       const data = await res.json();
       setMessages(prev => [...prev, { role: "assistant", content: data.reply || "Sorry, I couldn't process that." }]);
     } catch {
-      setMessages(prev => [...prev, { role: "assistant", content: "Connection issue. Please call Howard at (832) 430-1826." }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "Connection issue. Please call Howard at (832) 859-7009." }]);
     }
     setChatLoading(false);
   }
@@ -144,8 +144,8 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
         <div style={{ textAlign: "center", maxWidth: 400, padding: 24 }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: "#111827", marginBottom: 8 }}>Proposal Not Found</h2>
           <p style={{ color: "#6B7280", marginBottom: 24 }}>This link may have expired or is invalid.</p>
-          <a href="tel:+18324301826" style={{ display: "inline-block", background: O, color: "#fff", padding: "12px 24px", borderRadius: 8, fontWeight: 600, textDecoration: "none" }}>
-            Call (832) 430-1826
+          <a href="tel:+18328597009" style={{ display: "inline-block", background: O, color: "#fff", padding: "12px 24px", borderRadius: 8, fontWeight: 600, textDecoration: "none" }}>
+            Call (832) 859-7009
           </a>
         </div>
       </div>
@@ -305,7 +305,7 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
             <a
-              href="tel:+18324301826"
+              href="tel:+18328597009"
               style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "14px 12px", background: OL, borderRadius: 10, textDecoration: "none", border: `1px solid ${O}30` }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke={O} strokeWidth="2"/></svg>
@@ -373,12 +373,12 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
               textAlign: "center", marginBottom: 12,
             }}>
               <span style={{ fontSize: 13, color: "#991B1B" }}>Couldn&apos;t connect. </span>
-              <a href="tel:+18324301826" style={{ fontSize: 13, color: O, fontWeight: 600, textDecoration: "none" }}>Call (832) 430-1826</a>
+              <a href="tel:+18328597009" style={{ fontSize: 13, color: O, fontWeight: 600, textDecoration: "none" }}>Call (832) 859-7009</a>
             </div>
           )}
 
           <a
-            href="tel:+18324301826"
+            href="tel:+18328597009"
             style={{ display: "block", background: "#22C55E", color: "#fff", textAlign: "center", padding: "14px 20px", borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none" }}
           >
             Approve This Proposal
@@ -394,7 +394,7 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
           <p style={{ marginTop: 4 }}>
             <a href="https://chatmansecurityandfire.com" style={{ color: O, textDecoration: "none" }}>chatmansecurityandfire.com</a>
             {" | "}
-            <a href="tel:+18324301826" style={{ color: O, textDecoration: "none" }}>(832) 430-1826</a>
+            <a href="tel:+18328597009" style={{ color: O, textDecoration: "none" }}>(832) 859-7009</a>
           </p>
         </div>
       </div>

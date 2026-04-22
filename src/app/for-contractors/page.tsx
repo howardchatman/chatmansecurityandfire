@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -201,11 +201,11 @@ export default function ForContractorsPage() {
                   Request a Bid
                 </a>
                 <a
-                  href="tel:+18324301826"
+                  href="tel:+18328597009"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-full border border-white/20 transition-colors"
                 >
                   <Phone className="w-5 h-5" />
-                  (832) 430-1826
+                  (832) 859-7009
                 </a>
               </div>
             </motion.div>
@@ -371,11 +371,11 @@ export default function ForContractorsPage() {
                     Howard will review your project and follow up within 24–48 hours with a complete bid.
                   </p>
                   <a
-                    href="tel:+18324301826"
+                    href="tel:+18328597009"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                   >
                     <Phone className="w-4 h-4" />
-                    Need it faster? Call (832) 430-1826
+                    Need it faster? Call (832) 859-7009
                   </a>
                 </motion.div>
               ) : (
@@ -547,7 +547,7 @@ export default function ForContractorsPage() {
 
                   <p className="text-center text-xs text-gray-400">
                     Or call Howard directly at{" "}
-                    <a href="tel:+18324301826" className="text-orange-600 font-medium">(832) 430-1826</a>
+                    <a href="tel:+18328597009" className="text-orange-600 font-medium">(832) 859-7009</a>
                   </p>
                 </motion.form>
               )}
@@ -571,11 +571,11 @@ export default function ForContractorsPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href="tel:+18324301826"
+                  href="tel:+18328597009"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                 >
                   <Phone className="w-5 h-5" />
-                  Call (832) 430-1826
+                  Call (832) 859-7009
                 </a>
                 <a
                   href="#bid-form"
