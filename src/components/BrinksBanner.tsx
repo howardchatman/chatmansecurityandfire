@@ -10,7 +10,7 @@ export default function BrinksBanner() {
     <section
       className="py-16 overflow-hidden relative"
       style={{
-        backgroundImage: "url('/security_alarm_wide.jpg')",
+        backgroundImage: "url('/security_keypad_touch.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
