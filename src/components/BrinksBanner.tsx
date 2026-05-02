@@ -7,10 +7,15 @@ import { Shield, Phone, ArrowRight, Star } from "lucide-react";
 
 export default function BrinksBanner() {
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-900 to-gray-800 overflow-hidden relative">
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full blur-3xl" />
-      </div>
+    <section
+      className="py-16 overflow-hidden relative"
+      style={{
+        backgroundImage: "url('/security_alarm_wide.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 bg-gray-900/80" />
 
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-10 items-center">
