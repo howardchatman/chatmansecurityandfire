@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FileSearch, Building2, ArrowRight, Sparkles } from "lucide-react";
+import { FileSearch, Building2, ArrowRight } from "lucide-react";
 
 const tools = [
   {
@@ -34,10 +34,6 @@ export default function FreeTools() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
-            <Sparkles className="w-4 h-4" />
-            Free AI-Powered Tools
-          </div>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Not Sure Where to Start?
           </h2>
@@ -64,11 +60,6 @@ export default function FreeTools() {
                   <div className="p-3 bg-orange-100 rounded-xl group-hover:bg-orange-200 transition-colors">
                     <tool.icon className="w-8 h-8 text-orange-600" />
                   </div>
-                  {tool.badge && (
-                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                      {tool.badge}
-                    </span>
-                  )}
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors">
                   {tool.name}

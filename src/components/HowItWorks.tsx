@@ -32,7 +32,6 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <p className="text-orange-600 font-medium mb-4">How It Works</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
             Three simple steps
           </h2>

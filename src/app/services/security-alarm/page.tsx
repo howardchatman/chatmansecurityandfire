@@ -168,7 +168,6 @@ export default function SecurityAlarmPage() {
               viewport={{ once: true }}
               className="text-center max-w-2xl mx-auto mb-16"
             >
-              <p className="text-orange-600 font-medium mb-4">Complete Protection</p>
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
                 Everything you need to stay safe
               </h2>
@@ -204,7 +203,6 @@ export default function SecurityAlarmPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
               >
-                <p className="text-orange-600 font-medium mb-4">Brinks Equipment</p>
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">
                   Professional-grade gear, expertly installed
                 </h2>
