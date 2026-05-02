@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Shield, Phone, ArrowRight, Star } from "lucide-react";
+import { Shield, Phone, ArrowRight } from "lucide-react";
 
 export default function BrinksBanner() {
   return (
@@ -26,11 +26,6 @@ export default function BrinksBanner() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/30 rounded-full px-4 py-1.5 mb-6">
-              <Star className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
-              <span className="text-orange-300 text-sm font-semibold">Authorized Brinks Security Dealer</span>
-            </div>
-
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Secure your Home,{" "}
               <span className="text-orange-400">Secure your Peace!</span>

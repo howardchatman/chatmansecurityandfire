@@ -21,16 +21,6 @@ export default function Hero() {
             transition={{ duration: 0.6 }}
             className="text-center lg:text-left"
           >
-            {/* Simple Badge */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-orange-600 font-medium mb-6"
-            >
-              Commercial Fire & Life-Safety — Houston
-            </motion.p>
-
             {/* Clean Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-8">
               Failed inspection?
