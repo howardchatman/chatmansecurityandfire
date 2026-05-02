@@ -16,8 +16,8 @@ export default function Home() {
         <Navbar />
         <main className="flex-grow">
           <Hero />
-          <Services />
           <BrinksBanner />
+          <Services />
           <FreeTools />
           <HowItWorks />
           <CTA />
