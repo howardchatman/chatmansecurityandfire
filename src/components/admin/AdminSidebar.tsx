@@ -27,6 +27,7 @@ import {
   Briefcase,
   UsersRound,
   QrCode,
+  Upload,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -92,6 +93,12 @@ const navigation = [
       { name: "Team Management", href: "/admin/team", icon: UsersRound },
       { name: "Employees", href: "/admin/employees", icon: UserCog },
       { name: "Time Tracking", href: "/admin/time", icon: Clock },
+    ],
+  },
+  {
+    section: "Data",
+    items: [
+      { name: "Import Data", href: "/admin/import", icon: Upload },
     ],
   },
 ];

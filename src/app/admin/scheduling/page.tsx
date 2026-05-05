@@ -1,297 +1,269 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  Clock,
-  MapPin,
-  User,
-  Wrench,
+  ChevronLeft, ChevronRight, Plus, Clock, MapPin, User, RefreshCw, Phone,
 } from "lucide-react";
+import Link from "next/link";
 import StatusBadge from "@/components/admin/StatusBadge";
 
-interface Appointment {
+interface Job {
   id: string;
-  title: string;
-  customer: string;
-  address: string;
-  technician: string;
-  time: string;
-  duration: string;
-  type: string;
+  job_number?: string;
+  customer_name: string;
+  customer_phone?: string;
+  site_address?: string;
+  site_city?: string;
+  site_state?: string;
+  job_type?: string;
   status: string;
+  scheduled_date?: string;
+  scheduled_time?: string;
+  estimated_duration?: number;
+  assignments?: { profile?: { full_name?: string } }[];
 }
 
-interface Technician {
+interface Profile {
   id: string;
-  name: string;
-  avatar: string;
-  jobsToday: number;
-  status: "available" | "busy" | "off";
+  full_name: string;
+  role: string;
 }
-
-// Mock data
-const mockAppointments: Appointment[] = [
-  {
-    id: "1",
-    title: "Fire alarm panel replacement",
-    customer: "ABC Corporation",
-    address: "123 Business Park Dr, Austin",
-    technician: "Mike Thompson",
-    time: "9:00 AM",
-    duration: "2 hours",
-    type: "service",
-    status: "in_progress",
-  },
-  {
-    id: "2",
-    title: "Motion sensor installation",
-    customer: "Smith Residence",
-    address: "456 Oak Lane, Dallas",
-    technician: "Sarah Chen",
-    time: "10:30 AM",
-    duration: "1.5 hours",
-    type: "installation",
-    status: "scheduled",
-  },
-  {
-    id: "3",
-    title: "Annual system inspection",
-    customer: "Tech Solutions Inc",
-    address: "789 Tech Blvd, Houston",
-    technician: "David Rodriguez",
-    time: "1:00 PM",
-    duration: "1 hour",
-    type: "inspection",
-    status: "scheduled",
-  },
-  {
-    id: "4",
-    title: "Camera system upgrade",
-    customer: "Medical Center West",
-    address: "321 Health Way, Fort Worth",
-    technician: "Mike Thompson",
-    time: "3:00 PM",
-    duration: "3 hours",
-    type: "installation",
-    status: "scheduled",
-  },
-];
-
-const mockTechnicians: Technician[] = [
-  { id: "1", name: "Mike Thompson", avatar: "MT", jobsToday: 2, status: "busy" },
-  { id: "2", name: "Sarah Chen", avatar: "SC", jobsToday: 1, status: "busy" },
-  { id: "3", name: "David Rodriguez", avatar: "DR", jobsToday: 1, status: "available" },
-  { id: "4", name: "James Wilson", avatar: "JW", jobsToday: 0, status: "available" },
-  { id: "5", name: "Emily Davis", avatar: "ED", jobsToday: 0, status: "off" },
-];
 
 const typeColors: Record<string, string> = {
   service: "border-l-amber-500",
   installation: "border-l-blue-500",
   inspection: "border-l-green-500",
-};
-
-const statusColors: Record<string, string> = {
-  available: "bg-green-100 text-green-700",
-  busy: "bg-amber-100 text-amber-700",
-  off: "bg-gray-100 text-gray-500",
+  repair: "border-l-red-400",
+  default: "border-l-gray-400",
 };
 
 export default function SchedulingPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const dateStr = (d: Date) => d.toISOString().split("T")[0];
+
+  const fetchData = useCallback(async (date: Date) => {
+    setLoading(true);
+    try {
+      const [jobsRes, profilesRes] = await Promise.all([
+        fetch(`/api/jobs?scheduled_date=${dateStr(date)}`).then((r) => r.json()).catch(() => ({ data: [] })),
+        fetch("/api/admin/teams").then((r) => r.json()).catch(() => ({ data: [] })),
+      ]);
+      setJobs(jobsRes.data || []);
+      setProfiles(profilesRes.data || []);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData(currentDate);
+  }, [currentDate, fetchData]);
+
+  const navigate = (delta: number) => {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() + delta);
+    setCurrentDate(d);
   };
 
-  const goToPreviousDay = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() - 1);
-    setCurrentDate(newDate);
-  };
+  const formatDateLabel = (d: Date) =>
+    d.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
-  const goToNextDay = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + 1);
-    setCurrentDate(newDate);
-  };
+  const isToday = dateStr(currentDate) === dateStr(new Date());
 
-  const goToToday = () => {
-    setCurrentDate(new Date());
-  };
+  const getTechJobCount = (name: string) =>
+    jobs.filter((j) =>
+      j.assignments?.some((a) => a.profile?.full_name === name)
+    ).length;
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Scheduling</h1>
-          <p className="text-gray-500 mt-1">
-            Manage appointments and technician schedules
-          </p>
+          <p className="text-gray-500 mt-1">Jobs scheduled for this day</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
-          <Plus className="w-4 h-4" />
-          New Appointment
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => fetchData(currentDate)}
+            className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-sm text-gray-600 transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <Link
+            href="/admin/jobs"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            New Job
+          </Link>
+        </div>
       </div>
 
       {/* Date Navigation */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <button
-                onClick={goToPreviousDay}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={goToNextDay}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              {formatDate(currentDate)}
-            </h2>
-          </div>
+      <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button onClick={() => navigate(1)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          <h2 className="text-base font-semibold text-gray-900 ml-2">{formatDateLabel(currentDate)}</h2>
+        </div>
+        {!isToday && (
           <button
-            onClick={goToToday}
+            onClick={() => setCurrentDate(new Date())}
             className="px-3 py-1.5 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
           >
             Today
           </button>
-        </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Appointments List */}
-        <div className="lg:col-span-2 space-y-4">
+        {/* Jobs */}
+        <div className="lg:col-span-2 space-y-3">
           <h3 className="font-semibold text-gray-900">
-            Today&apos;s Appointments ({mockAppointments.length})
+            {loading ? "Loading..." : `${jobs.length} Job${jobs.length !== 1 ? "s" : ""} Scheduled`}
           </h3>
 
-          <div className="space-y-3">
-            {mockAppointments.map((appointment) => (
-              <div
-                key={appointment.id}
-                className={`bg-white rounded-xl border border-gray-200 p-4 border-l-4 ${
-                  typeColors[appointment.type]
-                } hover:shadow-md transition-shadow cursor-pointer`}
+          {loading ? (
+            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-sm">
+              Loading jobs...
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+              <p className="text-gray-500 mb-3">No jobs scheduled for this day</p>
+              <Link
+                href="/admin/jobs"
+                className="inline-flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 font-medium"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-gray-900">
-                        {appointment.title}
-                      </h4>
-                      <StatusBadge status={appointment.status} size="sm" />
+                <Plus className="w-4 h-4" /> Schedule a job
+              </Link>
+            </div>
+          ) : (
+            jobs.map((job) => {
+              const colorClass = typeColors[job.job_type || ""] || typeColors.default;
+              const tech = job.assignments?.[0]?.profile?.full_name;
+              return (
+                <Link
+                  key={job.id}
+                  href={`/admin/jobs/${job.id}`}
+                  className={`block bg-white rounded-xl border border-gray-200 border-l-4 ${colorClass} p-4 hover:shadow-md transition-shadow`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-gray-900">{job.customer_name}</h4>
+                        <StatusBadge status={job.status} size="sm" />
+                      </div>
+                      {job.job_number && (
+                        <p className="text-xs text-gray-400">#{job.job_number}</p>
+                      )}
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {appointment.customer}
-                    </p>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {appointment.time} ({appointment.duration})
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {appointment.address}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        {appointment.technician}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
                     <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded capitalize">
-                      {appointment.type}
+                      {job.job_type || "service"}
                     </span>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
 
-          {mockAppointments.length === 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-              <p className="text-gray-500">No appointments scheduled for this day</p>
-            </div>
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                    {job.scheduled_time && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {job.scheduled_time}
+                        {job.estimated_duration ? ` (${job.estimated_duration}h)` : ""}
+                      </div>
+                    )}
+                    {job.site_address && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        {job.site_address}{job.site_city ? `, ${job.site_city}` : ""}
+                      </div>
+                    )}
+                    {tech && (
+                      <div className="flex items-center gap-1">
+                        <User className="w-4 h-4" />
+                        {tech}
+                      </div>
+                    )}
+                    {job.customer_phone && (
+                      <div className="flex items-center gap-1">
+                        <Phone className="w-4 h-4" />
+                        {job.customer_phone}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              );
+            })
           )}
         </div>
 
-        {/* Technicians Sidebar */}
+        {/* Sidebar */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900">Technicians</h3>
-
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div className="divide-y divide-gray-100">
-              {mockTechnicians.map((tech) => (
-                <div
-                  key={tech.id}
-                  className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-semibold text-orange-600">
-                        {tech.avatar}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{tech.name}</p>
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[tech.status]}`}>
-                          {tech.status === "off" ? "Day Off" : tech.status.charAt(0).toUpperCase() + tech.status.slice(1)}
-                        </span>
-                        {tech.status !== "off" && (
-                          <span className="text-gray-500">
-                            {tech.jobsToday} jobs today
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <Wrench className="w-4 h-4 text-gray-400" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Stats */}
+          {/* Today's Summary */}
           <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Today&apos;s Summary</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Total Appointments</span>
-                <span className="font-medium text-gray-900">{mockAppointments.length}</span>
+            <h4 className="font-semibold text-gray-900 mb-3">Day Summary</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Total Jobs</span>
+                <span className="font-medium text-gray-900">{jobs.length}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between">
                 <span className="text-gray-500">In Progress</span>
                 <span className="font-medium text-amber-600">
-                  {mockAppointments.filter((a) => a.status === "in_progress").length}
+                  {jobs.filter((j) => j.status === "in_progress").length}
                 </span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Available Techs</span>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Completed</span>
                 <span className="font-medium text-green-600">
-                  {mockTechnicians.filter((t) => t.status === "available").length}
+                  {jobs.filter((j) => j.status === "completed").length}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Scheduled</span>
+                <span className="font-medium text-blue-600">
+                  {jobs.filter((j) => j.status === "scheduled").length}
                 </span>
               </div>
             </div>
           </div>
+
+          {/* Team */}
+          {profiles.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100">
+                <h4 className="font-semibold text-gray-900 text-sm">Team</h4>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {profiles.slice(0, 8).map((p) => {
+                  const jobCount = getTechJobCount(p.full_name);
+                  return (
+                    <div key={p.id} className="p-3 flex items-center gap-3">
+                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-bold text-orange-600">
+                          {p.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{p.full_name}</p>
+                        <p className="text-xs text-gray-400 capitalize">{p.role}</p>
+                      </div>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${jobCount > 0 ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-500"}`}>
+                        {jobCount} jobs
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
