@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import * as XLSX from "xlsx";
 import {
   Upload, FileText, Users, Briefcase, CheckCircle,
   AlertCircle, Download, X, ChevronDown, ChevronUp,
@@ -51,6 +52,17 @@ function parseCSV(text: string): PreviewRow[] {
   });
 }
 
+function parseExcel(buffer: ArrayBuffer): PreviewRow[] {
+  const workbook = XLSX.read(buffer, { type: "array" });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json<PreviewRow>(sheet, { defval: "" });
+  return rows.map((row) => {
+    const clean: PreviewRow = {};
+    Object.keys(row).forEach((k) => { clean[k.trim()] = String(row[k] ?? ""); });
+    return clean;
+  });
+}
+
 export default function ImportPage() {
   const [importType, setImportType] = useState<ImportType>("customers");
   const [preview, setPreview] = useState<PreviewRow[]>([]);
@@ -63,13 +75,19 @@ export default function ImportPage() {
   const handleFile = (file: File) => {
     setFileName(file.name);
     setResult(null);
+    const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
     const reader = new FileReader();
     reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const rows = parseCSV(text);
-      setPreview(rows);
+      if (isExcel) {
+        const rows = parseExcel(e.target?.result as ArrayBuffer);
+        setPreview(rows);
+      } else {
+        const rows = parseCSV(e.target?.result as string);
+        setPreview(rows);
+      }
     };
-    reader.readAsText(file);
+    if (isExcel) reader.readAsArrayBuffer(file);
+    else reader.readAsText(file);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -171,13 +189,13 @@ export default function ImportPage() {
         <input
           ref={fileRef}
           type="file"
-          accept=".csv"
+          accept=".csv,.xlsx,.xls"
           className="hidden"
           onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
         />
         <Upload className="w-10 h-10 text-gray-300 mx-auto mb-3" />
         <p className="text-gray-700 font-medium">Drop your CSV here or click to browse</p>
-        <p className="text-sm text-gray-400 mt-1">Only .csv files supported</p>
+        <p className="text-sm text-gray-400 mt-1">Supports .xlsx, .xls, and .csv</p>
         {fileName && (
           <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
             <FileText className="w-4 h-4" />
