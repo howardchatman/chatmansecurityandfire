@@ -504,6 +504,28 @@ export default function ContactPage() {
                   </div>
                 </div>
 
+                {/* Office Address */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Our Office
+                    </h3>
+                  </div>
+                  <p className="text-gray-800 font-medium">849 Mansfield St., Unit F</p>
+                  <p className="text-gray-600">Houston, TX 77091</p>
+                  <a
+                    href="https://maps.google.com/?q=849+Mansfield+St+Unit+F+Houston+TX+77091"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-3 text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                  >
+                    Get Directions <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+
                 {/* Service Areas */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                   <div className="flex items-center gap-3 mb-4">

@@ -92,9 +92,9 @@ export default function Footer() {
               <div className="flex items-start gap-3 text-neutral-400">
                 <MapPin className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                 <span>
-                  Houston, TX
+                  849 Mansfield St., Unit F
                   <br />
-                  & Surrounding Areas
+                  Houston, TX 77091
                 </span>
               </div>
             </div>
