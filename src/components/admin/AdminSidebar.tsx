@@ -25,6 +25,7 @@ import {
   Bell,
   BarChart3,
   Briefcase,
+  FolderOpen,
   UsersRound,
   QrCode,
   Upload,
@@ -67,6 +68,7 @@ const navigation = [
   {
     section: "Operations",
     items: [
+      { name: "Projects", href: "/admin/projects", icon: FolderOpen },
       { name: "Jobs", href: "/admin/jobs", icon: Briefcase },
       { name: "Inspections", href: "/admin/inspections", icon: ClipboardList },
       { name: "Work Orders", href: "/admin/work-orders", icon: FileCheck },
