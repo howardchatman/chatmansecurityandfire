@@ -90,6 +90,7 @@ const navigation = [
   { name: "Home", href: "/" },
   { name: "Services", href: "#services", hasDropdown: true },
   { name: "Free Tools", href: "#tools", hasToolsDropdown: true },
+  { name: "Service Areas", href: "/service-areas" },
   { name: "For Contractors", href: "/for-contractors" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
