@@ -2,13 +2,23 @@ import type { Metadata } from "next";
 import FireAlarmContent from "./_content";
 
 export const metadata: Metadata = {
-  title: "Commercial Fire Alarm Systems — Service & Inspection in Houston, TX",
+  title: "Commercial Fire Alarm Systems Houston TX | Installation, Repair & Inspection Corrections",
   description:
-    "NFPA 72 fire alarm inspection, repairs, device replacement, and corrections for Houston commercial properties. Failed inspection? Chatman Security & Fire gets you reinspection-ready. Call (832) 859-7009.",
+    "Licensed commercial fire alarm contractor serving Houston and Greater Texas. New system installation, NFPA 72 inspection corrections, trouble diagnostics, and panel replacements. 24/7 emergency service. (832) 859-7009",
+  keywords: [
+    "commercial fire alarm Houston",
+    "fire alarm installation Texas",
+    "fire alarm repair Houston",
+    "NFPA 72 inspection",
+    "fire alarm system cost",
+    "fire marshal correction",
+    "fire alarm contractor Houston TX",
+  ],
   alternates: { canonical: "/services/fire-alarm" },
   openGraph: {
-    title: "Commercial Fire Alarm Systems — Service & Inspection in Houston, TX | Chatman Security & Fire",
-    description: "NFPA 72 fire alarm inspection, repairs, and device replacement for Houston commercial properties. Fast corrections for failed inspections. (832) 859-7009.",
+    title: "Commercial Fire Alarm Systems | Chatman Security & Fire",
+    description:
+      "Licensed fire alarm installation, repair, and inspection correction for commercial properties across Houston and Texas. Available 24/7.",
     url: "https://chatmansecurityandfire.com/services/fire-alarm",
   },
 };
