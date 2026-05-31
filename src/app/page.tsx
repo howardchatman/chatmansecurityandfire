@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import LocalBusinessSchema from "@/components/LocalBusinessSchema";
+import LeadMagnetBanner from "@/components/LeadMagnetBanner";
 import Services from "@/components/Services";
 import BrinksBanner from "@/components/BrinksBanner";
 import FreeTools from "@/components/FreeTools";
@@ -21,6 +22,7 @@ export default function Home() {
           <Services />
           <FreeTools />
           <HowItWorks />
+          <LeadMagnetBanner />
           <CTA />
         </main>
         <Footer />
