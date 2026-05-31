@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import LocalBusinessSchema from "@/components/LocalBusinessSchema";
 import Services from "@/components/Services";
 import BrinksBanner from "@/components/BrinksBanner";
 import FreeTools from "@/components/FreeTools";
@@ -26,6 +27,7 @@ export default function Home() {
       </div>
       <ChadChat />
       <LeadCapture />
+      <LocalBusinessSchema />
     </>
   );
 }

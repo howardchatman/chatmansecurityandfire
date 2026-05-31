@@ -1,128 +1,18 @@
-﻿"use client";
+import type { Metadata } from "next";
+import FireSprinklerContent from "./_content";
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { Droplets, Phone, CheckCircle, ArrowLeft } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import ChadChat from "@/components/ChadChat";
-
-const services = [
-  "Obstruction issues",
-  "Coverage corrections",
-  "Repairs required for reinspection",
-  "Coordination with other trades",
-];
+export const metadata: Metadata = {
+  title: "Fire Sprinkler Service & Inspection Support in Houston, TX",
+  description:
+    "Fire sprinkler obstruction corrections, modifications, and NFPA 13 compliance for Houston commercial and multi-family properties. Fast response for failed inspections. Call (832) 859-7009.",
+  alternates: { canonical: "/services/fire-sprinkler" },
+  openGraph: {
+    title: "Fire Sprinkler Service & Inspection Support in Houston, TX | Chatman Security & Fire",
+    description: "Sprinkler obstruction corrections and NFPA 13 compliance for Houston commercial properties. Reinspection-ready work. (832) 859-7009.",
+    url: "https://chatmansecurityandfire.com/services/fire-sprinkler",
+  },
+};
 
 export default function FireSprinklerPage() {
-  return (
-    <>
-      <Navbar />
-      <main className="pt-20">
-        {/* Hero with Background Image */}
-        <section
-          className="relative py-16 lg:py-24"
-          style={{
-            backgroundImage: "url('/fire_sprinkler_wide.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundColor: "#1a1a1a"
-          }}
-        >
-          {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-black/50" />
-
-          <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-white/80 hover:text-orange-400 mb-8 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Link>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-4xl"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-orange-600 rounded-xl">
-                  <Droplets className="w-8 h-8 text-white" />
-                </div>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-                Fire Sprinkler Service & Inspection Support
-              </h1>
-
-              <p className="text-xl text-white/90 mb-8">
-                Sprinkler issues are one of the most common causes of failed inspections during tenant finish-outs and remodels.
-              </p>
-
-              <a
-                href="tel:+18328597009"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
-              >
-                <Phone className="w-5 h-5" />
-                Call (832) 859-7009
-              </a>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Body */}
-        <section className="py-16">
-          <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-              >
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  We Handle
-                </h2>
-
-                <ul className="space-y-4 mb-12">
-                  {services.map((service) => (
-                    <li key={service} className="flex items-start gap-3">
-                      <CheckCircle className="w-6 h-6 text-orange-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700 text-lg">{service}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Pricing */}
-                <div className="bg-gray-50 rounded-2xl p-8 mb-12">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Typical Project Range
-                  </h3>
-                  <p className="text-3xl font-bold text-orange-600">
-                    Quoted per project
-                  </p>
-                </div>
-
-                {/* CTA */}
-                <div className="bg-gray-900 rounded-2xl p-8 text-center">
-                  <h3 className="text-2xl font-bold text-white mb-4">
-                    Need sprinkler service?
-                  </h3>
-                  <a
-                    href="tel:+18328597009"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
-                  >
-                    <Phone className="w-5 h-5" />
-                    Call (832) 859-7009
-                  </a>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
-      <ChadChat />
-    </>
-  );
+  return <FireSprinklerContent />;
 }

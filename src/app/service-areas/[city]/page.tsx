@@ -56,8 +56,19 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const city = cities.find((c) => c.slug === citySlug);
   if (!city) notFound();
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: city.faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <Navbar />
       <main className="pt-20">
         {/* Hero */}

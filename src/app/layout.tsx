@@ -9,18 +9,30 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Chatman Security & Fire | Professional Security & Fire Alarm Solutions",
+  title: {
+    default: "Chatman Security & Fire | Houston Commercial Fire Protection & Compliance",
+    template: "%s | Chatman Security & Fire",
+  },
   description:
-    "Chatman Security and Fire provides comprehensive security and fire alarm solutions for residential and commercial properties. 24/7 monitoring, professional installation, and smart home integration.",
-  keywords: [
-    "Chatman Security",
-    "security systems",
-    "fire alarm",
-    "home security",
-    "business security",
-    "alarm monitoring",
-    "smart home",
-  ],
+    "Houston's trusted commercial fire protection company since 2009. Fire alarm systems, sprinklers, extinguishers, fire marshal compliance, and Brinks security. Licensed & insured. 24/7 dispatch. (832) 859-7009.",
+  metadataBase: new URL("https://chatmansecurityandfire.com"),
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://chatmansecurityandfire.com",
+    siteName: "Chatman Security & Fire",
+    title: "Chatman Security & Fire | Houston Commercial Fire Protection & Compliance",
+    description:
+      "Houston's trusted commercial fire protection company since 2009. Fire alarms, sprinklers, extinguishers, fire marshal compliance, and Brinks security. (832) 859-7009.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Chatman Security & Fire" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Chatman Security & Fire | Houston Commercial Fire Protection",
+    description: "Houston's trusted commercial fire protection company since 2009. (832) 859-7009.",
+    images: ["/og-image.png"],
+  },
   icons: {
     icon: [
       { url: "/logo_only.png", sizes: "any" },
