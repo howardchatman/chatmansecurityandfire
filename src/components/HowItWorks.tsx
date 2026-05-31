@@ -6,18 +6,18 @@ import { Phone, AlertTriangle } from "lucide-react";
 const steps = [
   {
     number: "1",
-    title: "Tell us what's wrong",
-    description: "Call or submit your inspection report.",
+    title: "You call or submit a request.",
+    description: "Tell me what's going on. Failed inspection, trouble on the panel, new buildout — whatever it is.",
   },
   {
     number: "2",
-    title: "We assess & quote",
-    description: "Clear scope. No surprises.",
+    title: "I come look at it.",
+    description: "Free on-site assessment. You get a written scope and price before I touch anything.",
   },
   {
     number: "3",
-    title: "We fix it",
-    description: "Done right. Reinspection-ready.",
+    title: "We fix it.",
+    description: "Permitted, installed, inspected. Done right.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function HowItWorks() {
           className="text-center max-w-2xl mx-auto mb-16"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
-            Three simple steps
+            Three Steps. That&apos;s It.
           </h2>
         </motion.div>
 

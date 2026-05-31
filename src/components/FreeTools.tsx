@@ -7,7 +7,7 @@ import { FileSearch, Building2, ArrowRight } from "lucide-react";
 const tools = [
   {
     name: "Inspection Report Analyzer",
-    description: "Upload your failed inspection report and get a plain-English breakdown of every deficiency, plus recommendations for getting back in compliance.",
+    description: "Upload your failed inspection report. I'll break down every deficiency in plain English and tell you what needs to happen next.",
     href: "/analyze",
     icon: FileSearch,
     cta: "Analyze My Report",
@@ -15,7 +15,7 @@ const tools = [
   },
   {
     name: "Service Recommender",
-    description: "Tell us about your building and get personalized recommendations for fire safety services based on your building type, size, and local codes.",
+    description: "Tell me about your building. I'll recommend the fire safety services your property actually requires based on occupancy type and local codes.",
     href: "/recommend",
     icon: Building2,
     cta: "Get Recommendations",
@@ -35,10 +35,10 @@ export default function FreeTools() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Not Sure Where to Start?
+            I Built These Free Tools to Help You
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Use our free tools to understand your fire safety needs - no obligation, no sales pitch.
+            No obligation, no sales pitch. Just answers.
           </p>
         </motion.div>
 

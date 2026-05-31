@@ -7,49 +7,49 @@ import { ArrowRight } from "lucide-react";
 const services = [
   {
     title: "Fire Marshal Compliance",
-    description: "Violation corrections and reinspection support.",
+    description: "Failed an inspection? I'll review the report, fix every deficiency, and get you reinspection-ready.",
     href: "/services/fire-marshal-compliance",
     image: "/fire_marshal.png",
   },
   {
     title: "Fire Alarm Systems",
-    description: "Installs, repairs, and troubleshooting.",
+    description: "New systems, panel replacements, trouble calls. I design it to code and permit it through the state.",
     href: "/services/fire-alarm",
     image: "/fire_alarm.png",
   },
   {
     title: "Fire Sprinkler Systems",
-    description: "Modifications, repairs, and inspections.",
+    description: "Sprinkler installs, modifications, and inspection corrections. NFPA 13 compliant.",
     href: "/services/fire-sprinkler",
     image: "/fire_sprinkler.png",
   },
   {
     title: "Fire Extinguishers",
-    description: "Sales, service, and tagging.",
+    description: "Sales, inspections, and annual tagging. I keep you current.",
     href: "/services/fire-extinguishers",
     image: "/fire_extinguisher.png",
   },
   {
     title: "Emergency Lighting",
-    description: "Exit signs and emergency lights.",
+    description: "Exit signs and emergency lights. These get cited on almost every inspection.",
     href: "/services/emergency-lighting",
     image: "/emergency_lights.png",
   },
   {
     title: "Fire Lane Markings",
-    description: "Striping and repainting.",
+    description: "Curb striping and repainting. Quick turnaround.",
     href: "/services/fire-lane-marking",
     image: "/fire_lane_marking.png",
   },
   {
     title: "Consulting",
-    description: "Expert fire & life-safety consulting.",
+    description: "Not sure what your building needs? I'll walk the property and tell you exactly what code requires.",
     href: "/services/consulting",
     image: "/consulting.png",
   },
   {
     title: "Security Alarm",
-    description: "Authorized Brinks dealer — home & business security.",
+    description: "Home and business security through Brinks. Professional install, 24/7 monitoring.",
     href: "/services/security-alarm",
     image: "/brinks_logo_blue.png",
   },
@@ -67,7 +67,7 @@ export default function Services() {
           className="text-center max-w-2xl mx-auto mb-16"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
-            Full-service fire & life-safety
+            What I Can Help You With
           </h2>
         </motion.div>
 
