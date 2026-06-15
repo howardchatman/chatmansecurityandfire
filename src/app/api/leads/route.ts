@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
+import { addContactToSystemeIo } from "@/lib/systeme-io";
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     if (body.description) messageParts.push(`Details: ${body.description}`);
     if (body.page) messageParts.push(`Page: ${body.page}`);
     if (body.message) messageParts.push(body.message);
-    const composedMessage = messageParts.length ? messageParts.join("\n") : null;
+    const composedMessage = messageParts.length ? messageParts.join("\n") : undefined;
 
     const lead: Lead = {
       name: body.name,
@@ -61,6 +62,15 @@ export async function POST(request: NextRequest) {
         customerName: lead.name,
         service: body.serviceNeed || undefined,
       }).catch((err) => console.error("Failed to send customer confirmation:", err));
+
+      // Enroll in Systeme.io automation
+      addContactToSystemeIo({
+        email: lead.email,
+        firstName: lead.name.split(" ")[0],
+        lastName: lead.name.split(" ").slice(1).join(" ") || undefined,
+        phone: lead.phone || undefined,
+        tags: [body.serviceNeed, body.buildingType, body.source].filter(Boolean),
+      }).catch((err) => console.error("Failed to add contact to Systeme.io:", err));
     }
 
     return NextResponse.json({
