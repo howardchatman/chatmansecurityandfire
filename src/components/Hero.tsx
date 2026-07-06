@@ -6,7 +6,7 @@ import { Phone, ArrowRight } from "lucide-react";
 
 const stats = [
   { value: "Since 2009", label: "Serving Houston" },
-  { value: "Commercial", label: "Specialists" },
+  { value: "New Construction", label: "& Retrofits" },
   { value: "24/7", label: "Dispatch" },
   { value: "Licensed", label: "& Insured" },
 ];
@@ -41,7 +41,7 @@ export default function Hero() {
               transition={{ duration: 0.8 }}
               className="text-orange-500 font-semibold tracking-[0.25em] uppercase text-sm mb-5"
             >
-              Houston Commercial Fire Protection
+              Houston Fire Protection Infrastructure
             </motion.p>
 
             <motion.h1
@@ -51,7 +51,7 @@ export default function Hero() {
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6"
             >
-              Failed inspection? <span className="text-orange-500">We fix it.</span>
+              From blueprint to <span className="text-orange-500">certificate of occupancy.</span>
             </motion.h1>
 
             <motion.p
@@ -61,7 +61,8 @@ export default function Hero() {
               transition={{ duration: 0.7, delay: 0.15 }}
               className="text-xl text-gray-300 mb-9 max-w-xl"
             >
-              Fast corrections. Clear communication. Reinspection-ready.
+              Design, permitting, installation, and inspection — one fire
+              protection partner for your entire build.
             </motion.p>
 
             <motion.div
@@ -75,7 +76,7 @@ export default function Hero() {
                 href="/start"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-full transition-all shadow-lg shadow-orange-600/30"
               >
-                Start Service Request
+                Request a Bid
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <a
