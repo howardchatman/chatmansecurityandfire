@@ -1,427 +1,248 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Plus, MoreHorizontal, Package, AlertTriangle, Search } from "lucide-react";
-import DataTable from "@/components/admin/DataTable";
-import StatusBadge from "@/components/admin/StatusBadge";
+import { useState, useEffect, useCallback } from "react";
+import { Plus, Package, AlertTriangle, X, Loader2, Pencil, Trash2 } from "lucide-react";
 
 interface InventoryItem {
   id: string;
-  sku: string;
+  sku?: string;
   name: string;
+  description?: string;
   category: string;
-  manufacturer: string;
-  unitCost: number;
-  unitPrice: number;
-  stock: number;
-  minStock: number;
+  manufacturer?: string;
+  unit_cost: number;
+  unit_price: number;
+  stock_qty: number;
+  min_stock: number;
+  location?: string;
   status: string;
 }
 
-// Mock inventory data
-const mockInventory: InventoryItem[] = [
-  {
-    id: "1",
-    sku: "PNL-DSC-001",
-    name: "DSC PowerSeries Neo Panel",
-    category: "Panels",
-    manufacturer: "DSC",
-    unitCost: 185.00,
-    unitPrice: 299.00,
-    stock: 12,
-    minStock: 5,
-    status: "active",
-  },
-  {
-    id: "2",
-    sku: "PNL-HON-001",
-    name: "Honeywell Vista 21ip",
-    category: "Panels",
-    manufacturer: "Honeywell",
-    unitCost: 210.00,
-    unitPrice: 349.00,
-    stock: 8,
-    minStock: 5,
-    status: "active",
-  },
-  {
-    id: "3",
-    sku: "SEN-MOT-001",
-    name: "PIR Motion Sensor",
-    category: "Sensors",
-    manufacturer: "DSC",
-    unitCost: 18.00,
-    unitPrice: 45.00,
-    stock: 45,
-    minStock: 20,
-    status: "active",
-  },
-  {
-    id: "4",
-    sku: "SEN-DOO-001",
-    name: "Door/Window Contact Sensor",
-    category: "Sensors",
-    manufacturer: "Honeywell",
-    unitCost: 8.00,
-    unitPrice: 25.00,
-    stock: 78,
-    minStock: 30,
-    status: "active",
-  },
-  {
-    id: "5",
-    sku: "SEN-GLB-001",
-    name: "Glass Break Detector",
-    category: "Sensors",
-    manufacturer: "DSC",
-    unitCost: 32.00,
-    unitPrice: 65.00,
-    stock: 15,
-    minStock: 10,
-    status: "active",
-  },
-  {
-    id: "6",
-    sku: "CAM-OUT-001",
-    name: "4K Outdoor Bullet Camera",
-    category: "Cameras",
-    manufacturer: "Hikvision",
-    unitCost: 89.00,
-    unitPrice: 199.00,
-    stock: 22,
-    minStock: 10,
-    status: "active",
-  },
-  {
-    id: "7",
-    sku: "CAM-DOM-001",
-    name: "Indoor Dome Camera",
-    category: "Cameras",
-    manufacturer: "Hikvision",
-    unitCost: 65.00,
-    unitPrice: 149.00,
-    stock: 18,
-    minStock: 10,
-    status: "active",
-  },
-  {
-    id: "8",
-    sku: "CAM-NVR-001",
-    name: "8-Channel NVR",
-    category: "Cameras",
-    manufacturer: "Hikvision",
-    unitCost: 195.00,
-    unitPrice: 399.00,
-    stock: 6,
-    minStock: 5,
-    status: "active",
-  },
-  {
-    id: "9",
-    sku: "FIR-SMK-001",
-    name: "Photoelectric Smoke Detector",
-    category: "Fire",
-    manufacturer: "System Sensor",
-    unitCost: 24.00,
-    unitPrice: 55.00,
-    stock: 35,
-    minStock: 15,
-    status: "active",
-  },
-  {
-    id: "10",
-    sku: "FIR-HEA-001",
-    name: "Heat Detector",
-    category: "Fire",
-    manufacturer: "System Sensor",
-    unitCost: 28.00,
-    unitPrice: 60.00,
-    stock: 20,
-    minStock: 10,
-    status: "active",
-  },
-  {
-    id: "11",
-    sku: "FIR-COD-001",
-    name: "CO Detector",
-    category: "Fire",
-    manufacturer: "System Sensor",
-    unitCost: 35.00,
-    unitPrice: 75.00,
-    stock: 8,
-    minStock: 10,
-    status: "active",
-  },
-  {
-    id: "12",
-    sku: "KEY-STD-001",
-    name: "Standard Keypad",
-    category: "Keypads",
-    manufacturer: "DSC",
-    unitCost: 45.00,
-    unitPrice: 89.00,
-    stock: 14,
-    minStock: 8,
-    status: "active",
-  },
-  {
-    id: "13",
-    sku: "KEY-TCH-001",
-    name: "Touchscreen Keypad",
-    category: "Keypads",
-    manufacturer: "DSC",
-    unitCost: 125.00,
-    unitPrice: 249.00,
-    stock: 4,
-    minStock: 5,
-    status: "active",
-  },
-  {
-    id: "14",
-    sku: "SIR-OUT-001",
-    name: "Outdoor Siren",
-    category: "Sirens",
-    manufacturer: "Honeywell",
-    unitCost: 42.00,
-    unitPrice: 85.00,
-    stock: 12,
-    minStock: 8,
-    status: "active",
-  },
-  {
-    id: "15",
-    sku: "PWR-BAT-001",
-    name: "Backup Battery 12V 7Ah",
-    category: "Power",
-    manufacturer: "Generic",
-    unitCost: 18.00,
-    unitPrice: 35.00,
-    stock: 25,
-    minStock: 15,
-    status: "active",
-  },
-  {
-    id: "16",
-    sku: "PWR-TRN-001",
-    name: "16.5V Transformer",
-    category: "Power",
-    manufacturer: "Honeywell",
-    unitCost: 12.00,
-    unitPrice: 28.00,
-    stock: 30,
-    minStock: 15,
-    status: "active",
-  },
-  {
-    id: "17",
-    sku: "WIR-22G-001",
-    name: "22/4 Alarm Wire (500ft)",
-    category: "Wire & Cable",
-    manufacturer: "Generic",
-    unitCost: 45.00,
-    unitPrice: 89.00,
-    stock: 18,
-    minStock: 10,
-    status: "active",
-  },
-  {
-    id: "18",
-    sku: "WIR-CAT-001",
-    name: "CAT6 Cable (1000ft)",
-    category: "Wire & Cable",
-    manufacturer: "Generic",
-    unitCost: 85.00,
-    unitPrice: 165.00,
-    stock: 8,
-    minStock: 5,
-    status: "active",
-  },
-];
+const CATEGORIES = ["panels", "sensors", "devices", "wiring", "hardware", "extinguishers", "tools", "other"];
 
-const categoryFilters = [
-  { label: "All", value: "all" },
-  { label: "Panels", value: "Panels" },
-  { label: "Sensors", value: "Sensors" },
-  { label: "Cameras", value: "Cameras" },
-  { label: "Fire", value: "Fire" },
-  { label: "Keypads", value: "Keypads" },
-  { label: "Sirens", value: "Sirens" },
-  { label: "Power", value: "Power" },
-  { label: "Wire & Cable", value: "Wire & Cable" },
-];
+const blank = {
+  sku: "", name: "", description: "", category: "other", manufacturer: "",
+  unit_cost: "", unit_price: "", stock_qty: "0", min_stock: "0", location: "", status: "active",
+};
+
+const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
 export default function InventoryPage() {
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState<InventoryItem | null>(null);
+  const [form, setForm] = useState({ ...blank });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const filteredInventory =
-    categoryFilter === "all"
-      ? mockInventory
-      : mockInventory.filter((item) => item.category === categoryFilter);
+  const fetchItems = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/inventory?category=${categoryFilter}`);
+      const data = await res.json();
+      if (data.success) setItems(data.data || []);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, [categoryFilter]);
 
-  const lowStockItems = mockInventory.filter((item) => item.stock <= item.minStock);
-  const totalValue = mockInventory.reduce((sum, item) => sum + item.unitCost * item.stock, 0);
+  useEffect(() => { fetchItems(); }, [fetchItems]);
 
-  const columns = [
-    {
-      key: "sku",
-      label: "SKU",
-      sortable: true,
-      render: (item: InventoryItem) => (
-        <span className="font-mono text-sm text-gray-600">{item.sku}</span>
-      ),
-    },
-    {
-      key: "name",
-      label: "Product",
-      sortable: true,
-      render: (item: InventoryItem) => (
-        <div>
-          <p className="font-medium text-gray-900">{item.name}</p>
-          <p className="text-xs text-gray-500">{item.manufacturer}</p>
-        </div>
-      ),
-    },
-    {
-      key: "category",
-      label: "Category",
-      sortable: true,
-      render: (item: InventoryItem) => (
-        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">
-          {item.category}
-        </span>
-      ),
-    },
-    {
-      key: "unitCost",
-      label: "Cost",
-      sortable: true,
-      render: (item: InventoryItem) => (
-        <span className="text-gray-600">${item.unitCost.toFixed(2)}</span>
-      ),
-    },
-    {
-      key: "unitPrice",
-      label: "Price",
-      sortable: true,
-      render: (item: InventoryItem) => (
-        <span className="font-medium text-gray-900">${item.unitPrice.toFixed(2)}</span>
-      ),
-    },
-    {
-      key: "stock",
-      label: "Stock",
-      sortable: true,
-      render: (item: InventoryItem) => {
-        const isLow = item.stock <= item.minStock;
-        return (
-          <div className="flex items-center gap-2">
-            <span className={isLow ? "text-orange-600 font-medium" : "text-gray-900"}>
-              {item.stock}
-            </span>
-            {isLow && <AlertTriangle className="w-4 h-4 text-orange-500" />}
-          </div>
-        );
-      },
-    },
-    {
-      key: "status",
-      label: "Status",
-      render: (item: InventoryItem) => <StatusBadge status={item.status} />,
-    },
-  ];
+  const openCreate = () => { setEditing(null); setForm({ ...blank }); setError(""); setShowModal(true); };
+  const openEdit = (item: InventoryItem) => {
+    setEditing(item);
+    setForm({
+      sku: item.sku || "", name: item.name, description: item.description || "",
+      category: item.category, manufacturer: item.manufacturer || "",
+      unit_cost: String(item.unit_cost), unit_price: String(item.unit_price),
+      stock_qty: String(item.stock_qty), min_stock: String(item.min_stock),
+      location: item.location || "", status: item.status,
+    });
+    setError(""); setShowModal(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.name) { setError("Item name is required."); return; }
+    setSaving(true); setError("");
+    try {
+      const url = editing ? `/api/inventory/${editing.id}` : "/api/inventory";
+      const method = editing ? "PUT" : "POST";
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const data = await res.json();
+      if (!data.success) { setError(data.error || "Failed to save"); return; }
+      setShowModal(false); fetchItems();
+    } catch { setError("Failed to save item."); }
+    finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this item?")) return;
+    await fetch(`/api/inventory/${id}`, { method: "DELETE" });
+    fetchItems();
+  };
+
+  const f = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setForm(prev => ({ ...prev, [key]: e.target.value }));
+
+  const lowStock = items.filter(i => i.stock_qty <= i.min_stock && i.status === "active").length;
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-          <p className="text-gray-500 mt-1">
-            Manage parts catalog and stock levels
+          <p className="text-sm text-gray-500 mt-1">
+            {items.length} item{items.length !== 1 ? "s" : ""}
+            {lowStock > 0 && <span className="ml-2 text-orange-600 font-medium">· {lowStock} low stock</span>}
           </p>
         </div>
-        <Link
-          href="/admin/inventory/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Item
-        </Link>
+        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-medium transition-colors">
+          <Plus className="w-4 h-4" /> Add Item
+        </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Total Items</p>
-          <p className="text-2xl font-bold text-gray-900">{mockInventory.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Categories</p>
-          <p className="text-2xl font-bold text-blue-600">
-            {new Set(mockInventory.map((i) => i.category)).size}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Low Stock</p>
-          <p className="text-2xl font-bold text-orange-600">{lowStockItems.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Inventory Value</p>
-          <p className="text-2xl font-bold text-green-600">
-            ${totalValue.toLocaleString()}
-          </p>
-        </div>
-      </div>
-
-      {/* Low Stock Alert */}
-      {lowStockItems.length > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-orange-800">Low Stock Alert</h3>
-              <p className="text-sm text-orange-600 mt-1">
-                {lowStockItems.length} items are at or below minimum stock levels:{" "}
-                {lowStockItems.map((i) => i.name).join(", ")}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Category Filter */}
-      <div className="flex flex-wrap gap-2">
-        {categoryFilters.map((filter) => (
-          <button
-            key={filter.value}
-            onClick={() => setCategoryFilter(filter.value)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-              categoryFilter === filter.value
-                ? "bg-orange-600 text-white"
-                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            {filter.label}
+      {/* Category filters */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {["all", ...CATEGORIES].map(c => (
+          <button key={c} onClick={() => setCategoryFilter(c)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors ${categoryFilter === c ? "bg-orange-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+            {c}
           </button>
         ))}
       </div>
 
-      {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={filteredInventory}
-        searchPlaceholder="Search inventory..."
-        onRowClick={(item) => console.log("View item:", item.id)}
-        actions={(item) => (
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
-        )}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-orange-600" /></div>
+      ) : items.length === 0 ? (
+        <div className="text-center py-20 text-gray-500">
+          <Package className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+          <p>No items yet. <button onClick={openCreate} className="text-orange-600 font-medium hover:underline">Add one</button></p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                {["SKU", "Name", "Category", "Cost", "Price", "Stock", "Location", "Status", ""].map(h => (
+                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {items.map(item => (
+                <tr key={item.id} className={`hover:bg-gray-50 ${item.stock_qty <= item.min_stock && item.status === "active" ? "bg-orange-50/30" : ""}`}>
+                  <td className="px-4 py-3 font-mono text-xs text-gray-500">{item.sku || "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-gray-900">{item.name}</div>
+                    {item.manufacturer && <div className="text-xs text-gray-500">{item.manufacturer}</div>}
+                  </td>
+                  <td className="px-4 py-3 capitalize text-gray-600">{item.category}</td>
+                  <td className="px-4 py-3 text-gray-600">{fmt(item.unit_cost)}</td>
+                  <td className="px-4 py-3 text-gray-900 font-medium">{fmt(item.unit_price)}</td>
+                  <td className="px-4 py-3">
+                    <span className={`font-semibold ${item.stock_qty <= item.min_stock ? "text-orange-600" : "text-gray-900"}`}>{item.stock_qty}</span>
+                    <span className="text-xs text-gray-400 ml-1">/ min {item.min_stock}</span>
+                    {item.stock_qty <= item.min_stock && <AlertTriangle className="w-3 h-3 text-orange-500 inline ml-1" />}
+                  </td>
+                  <td className="px-4 py-3 text-gray-500">{item.location || "—"}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${item.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                      {item.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => openEdit(item)} className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => handleDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900">{editing ? "Edit Item" : "Add Inventory Item"}</h2>
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              {error && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <input value={form.name} onChange={f("name")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
+                  <input value={form.sku} onChange={f("sku")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <select value={form.category} onChange={f("category")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Manufacturer</label>
+                  <input value={form.manufacturer} onChange={f("manufacturer")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit Cost ($)</label>
+                  <input type="number" step="0.01" value={form.unit_cost} onChange={f("unit_cost")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit Price ($)</label>
+                  <input type="number" step="0.01" value={form.unit_price} onChange={f("unit_price")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock Qty</label>
+                  <input type="number" value={form.stock_qty} onChange={f("stock_qty")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Stock</label>
+                  <input type="number" value={form.min_stock} onChange={f("min_stock")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select value={form.status} onChange={f("status")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="discontinued">Discontinued</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location (truck, warehouse, etc.)</label>
+                <input value={form.location} onChange={f("location")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea value={form.description} onChange={f("description")} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none" />
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-100 flex gap-3 justify-end">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50">Cancel</button>
+              <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-6 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-xl text-sm font-medium transition-colors">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {editing ? "Save Changes" : "Add Item"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

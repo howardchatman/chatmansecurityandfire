@@ -175,8 +175,8 @@ export default function CustomerPortalPage() {
           <p className="text-gray-600 mb-6">{error}</p>
           <p className="text-sm text-gray-500">
             If you believe this is an error, please contact us at{" "}
-            <a href="tel:+12144516366" className="text-orange-600 hover:underline">
-              (214) 451-6366
+            <a href="tel:+18328597009" className="text-orange-600 hover:underline">
+              (832) 859-7009
             </a>
           </p>
         </div>
@@ -209,11 +209,11 @@ export default function CustomerPortalPage() {
             />
           </div>
           <a
-            href="tel:+12144516366"
+            href="tel:+18328597009"
             className="flex items-center gap-2 text-gray-600 hover:text-orange-600"
           >
             <Phone className="w-4 h-4" />
-            <span className="hidden sm:inline">(214) 451-6366</span>
+            <span className="hidden sm:inline">(832) 859-7009</span>
           </a>
         </div>
       </header>
@@ -437,11 +437,11 @@ export default function CustomerPortalPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <a
-              href="tel:+12144516366"
+              href="tel:+18328597009"
               className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-900 px-4 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
             >
               <Phone className="w-5 h-5" />
-              (214) 451-6366
+              (832) 859-7009
             </a>
             <a
               href="mailto:info@chatmansecurityandfire.com"

@@ -1,270 +1,243 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Plus, MoreHorizontal, Phone, Mail, MapPin } from "lucide-react";
-import DataTable from "@/components/admin/DataTable";
-import StatusBadge from "@/components/admin/StatusBadge";
+import { useState, useEffect, useCallback } from "react";
+import { Plus, User, Mail, Phone, Loader2, X, Pencil } from "lucide-react";
 
-interface Employee {
+interface Profile {
   id: string;
-  name: string;
+  full_name: string;
   email: string;
-  phone: string;
+  phone?: string;
   role: string;
-  department: string;
-  status: string;
-  hireDate: string;
-  jobsCompleted: number;
+  is_active: boolean;
+  created_at: string;
 }
 
-// Mock data
-const mockEmployees: Employee[] = [
-  {
-    id: "1",
-    name: "Mike Thompson",
-    email: "mike.t@securityplatform.com",
-    phone: "(555) 111-0001",
-    role: "Senior Technician",
-    department: "Field Services",
-    status: "active",
-    hireDate: "2020-03-15",
-    jobsCompleted: 456,
-  },
-  {
-    id: "2",
-    name: "Sarah Chen",
-    email: "sarah.c@securityplatform.com",
-    phone: "(555) 111-0002",
-    role: "Technician",
-    department: "Field Services",
-    status: "active",
-    hireDate: "2021-06-20",
-    jobsCompleted: 289,
-  },
-  {
-    id: "3",
-    name: "David Rodriguez",
-    email: "david.r@securityplatform.com",
-    phone: "(555) 111-0003",
-    role: "Technician",
-    department: "Field Services",
-    status: "active",
-    hireDate: "2022-01-10",
-    jobsCompleted: 167,
-  },
-  {
-    id: "4",
-    name: "James Wilson",
-    email: "james.w@securityplatform.com",
-    phone: "(555) 111-0004",
-    role: "Junior Technician",
-    department: "Field Services",
-    status: "active",
-    hireDate: "2023-08-01",
-    jobsCompleted: 45,
-  },
-  {
-    id: "5",
-    name: "Emily Davis",
-    email: "emily.d@securityplatform.com",
-    phone: "(555) 111-0005",
-    role: "Dispatcher",
-    department: "Operations",
-    status: "active",
-    hireDate: "2021-02-14",
-    jobsCompleted: 0,
-  },
-  {
-    id: "6",
-    name: "Jennifer Martinez",
-    email: "jen.m@securityplatform.com",
-    phone: "(555) 111-0006",
-    role: "Sales Representative",
-    department: "Sales",
-    status: "active",
-    hireDate: "2022-04-01",
-    jobsCompleted: 0,
-  },
-  {
-    id: "7",
-    name: "Robert Brown",
-    email: "robert.b@securityplatform.com",
-    phone: "(555) 111-0007",
-    role: "Account Manager",
-    department: "Sales",
-    status: "inactive",
-    hireDate: "2019-11-01",
-    jobsCompleted: 0,
-  },
-];
+const ROLES = ["admin", "manager", "technician", "inspector", "dispatcher"];
 
-const departmentFilters = [
-  { label: "All", value: "all" },
-  { label: "Field Services", value: "Field Services" },
-  { label: "Operations", value: "Operations" },
-  { label: "Sales", value: "Sales" },
-];
+const roleColor: Record<string, string> = {
+  admin: "bg-purple-100 text-purple-700",
+  manager: "bg-blue-100 text-blue-700",
+  technician: "bg-orange-100 text-orange-700",
+  inspector: "bg-green-100 text-green-700",
+  dispatcher: "bg-gray-100 text-gray-600",
+};
+
+const blank = { full_name: "", email: "", phone: "", role: "technician" };
 
 export default function EmployeesPage() {
-  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [showInvite, setShowInvite] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editing, setEditing] = useState<Profile | null>(null);
+  const [form, setForm] = useState({ ...blank });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [inviteSent, setInviteSent] = useState(false);
 
-  const filteredEmployees =
-    departmentFilter === "all"
-      ? mockEmployees
-      : mockEmployees.filter((e) => e.department === departmentFilter);
+  const fetchProfiles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/teams");
+      const data = await res.json();
+      // teams API returns teams with members; flatten to unique profiles
+      if (data.success) {
+        const seen = new Set<string>();
+        const all: Profile[] = [];
+        for (const team of data.data || []) {
+          for (const m of team.members || []) {
+            if (!seen.has(m.user_id)) {
+              seen.add(m.user_id);
+              all.push({
+                id: m.user_id,
+                full_name: m.user?.full_name || "—",
+                email: m.user?.email || "—",
+                phone: m.user?.phone || "",
+                role: m.user?.role || "technician",
+                is_active: m.user?.is_active !== false,
+                created_at: m.user?.created_at || "",
+              });
+            }
+          }
+        }
+        setProfiles(all);
+      }
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, []);
 
-  const columns = [
-    {
-      key: "name",
-      label: "Employee",
-      sortable: true,
-      render: (employee: Employee) => (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-            <span className="text-sm font-semibold text-orange-600">
-              {employee.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </span>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">{employee.name}</p>
-            <p className="text-xs text-gray-500">{employee.role}</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: "department",
-      label: "Department",
-      sortable: true,
-      render: (employee: Employee) => (
-        <span className="text-gray-600">{employee.department}</span>
-      ),
-    },
-    {
-      key: "email",
-      label: "Contact",
-      render: (employee: Employee) => (
-        <div className="text-sm">
-          <div className="flex items-center gap-1 text-gray-600">
-            <Mail className="w-3 h-3" />
-            {employee.email}
-          </div>
-          <div className="flex items-center gap-1 text-gray-500">
-            <Phone className="w-3 h-3" />
-            {employee.phone}
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: "jobsCompleted",
-      label: "Jobs Completed",
-      sortable: true,
-      render: (employee: Employee) => (
-        <span className="font-medium text-gray-900">
-          {employee.jobsCompleted > 0 ? employee.jobsCompleted : "-"}
-        </span>
-      ),
-    },
-    {
-      key: "hireDate",
-      label: "Hire Date",
-      sortable: true,
-      render: (employee: Employee) => (
-        <span className="text-gray-500">
-          {new Date(employee.hireDate).toLocaleDateString()}
-        </span>
-      ),
-    },
-    {
-      key: "status",
-      label: "Status",
-      sortable: true,
-      render: (employee: Employee) => <StatusBadge status={employee.status} />,
-    },
-  ];
+  useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
+
+  const filtered = roleFilter === "all" ? profiles : profiles.filter(p => p.role === roleFilter);
+
+  const handleInvite = async () => {
+    if (!form.email || !form.full_name) { setError("Name and email are required."); return; }
+    setSaving(true); setError("");
+    try {
+      const res = await fetch("/api/admin/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, name: form.full_name, role: form.role }),
+      });
+      const data = await res.json();
+      if (!data.success) { setError(data.error || "Failed to send invite"); return; }
+      setInviteSent(true);
+      setTimeout(() => { setShowInvite(false); setInviteSent(false); setForm({ ...blank }); fetchProfiles(); }, 2000);
+    } catch { setError("Failed to send invite."); }
+    finally { setSaving(false); }
+  };
+
+  const f = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setForm(prev => ({ ...prev, [key]: e.target.value }));
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Employees</h1>
-          <p className="text-gray-500 mt-1">
-            Manage your team and view performance
-          </p>
+          <p className="text-sm text-gray-500 mt-1">{filtered.length} team member{filtered.length !== 1 ? "s" : ""}</p>
         </div>
-        <Link
-          href="/admin/employees/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Employee
-        </Link>
+        <button onClick={() => { setForm({ ...blank }); setError(""); setInviteSent(false); setShowInvite(true); }}
+          className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-medium transition-colors">
+          <Plus className="w-4 h-4" /> Invite Employee
+        </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Total Employees</p>
-          <p className="text-2xl font-bold text-gray-900">{mockEmployees.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Active</p>
-          <p className="text-2xl font-bold text-green-600">
-            {mockEmployees.filter((e) => e.status === "active").length}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Field Technicians</p>
-          <p className="text-2xl font-bold text-blue-600">
-            {mockEmployees.filter((e) => e.department === "Field Services").length}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Total Jobs Completed</p>
-          <p className="text-2xl font-bold text-orange-600">
-            {mockEmployees.reduce((sum, e) => sum + e.jobsCompleted, 0)}
-          </p>
-        </div>
-      </div>
-
-      {/* Department Filter */}
-      <div className="flex flex-wrap gap-2">
-        {departmentFilters.map((filter) => (
-          <button
-            key={filter.value}
-            onClick={() => setDepartmentFilter(filter.value)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-              departmentFilter === filter.value
-                ? "bg-orange-600 text-white"
-                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            {filter.label}
+      {/* Role filters */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {["all", ...ROLES].map(r => (
+          <button key={r} onClick={() => setRoleFilter(r)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors ${roleFilter === r ? "bg-orange-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+            {r}
           </button>
         ))}
       </div>
 
-      {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={filteredEmployees}
-        searchPlaceholder="Search employees..."
-        onRowClick={(employee) => console.log("View employee:", employee.id)}
-        actions={(employee) => (
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
-        )}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-orange-600" /></div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-20 text-gray-500">
+          <User className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+          <p>No employees yet. <button onClick={() => setShowInvite(true)} className="text-orange-600 font-medium hover:underline">Invite one</button></p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                {["Name", "Email", "Phone", "Role", "Status", ""].map(h => (
+                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filtered.map(p => (
+                <tr key={p.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                        <span className="text-orange-600 font-semibold text-sm">{p.full_name?.[0]?.toUpperCase() || "?"}</span>
+                      </div>
+                      <span className="font-medium text-gray-900">{p.full_name}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">
+                    <a href={`mailto:${p.email}`} className="flex items-center gap-1.5 hover:text-orange-600">
+                      <Mail className="w-3.5 h-3.5" />{p.email}
+                    </a>
+                  </td>
+                  <td className="px-4 py-3 text-gray-500">
+                    {p.phone ? <a href={`tel:${p.phone}`} className="flex items-center gap-1.5 hover:text-orange-600"><Phone className="w-3.5 h-3.5" />{p.phone}</a> : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${roleColor[p.role] || "bg-gray-100 text-gray-600"}`}>{p.role}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                      {p.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => { setEditing(p); setForm({ full_name: p.full_name, email: p.email, phone: p.phone || "", role: p.role }); setError(""); setShowEdit(true); }}
+                      className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Invite Modal */}
+      {showInvite && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900">Invite Employee</h2>
+              <button onClick={() => setShowInvite(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              {error && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
+              {inviteSent && <div className="p-3 bg-green-50 text-green-700 rounded-xl text-sm font-medium">Invite sent!</div>}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                <input value={form.full_name} onChange={f("full_name")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input type="email" value={form.email} onChange={f("email")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input value={form.phone} onChange={f("phone")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select value={form.role} onChange={f("role")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                  {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-100 flex gap-3 justify-end">
+              <button onClick={() => setShowInvite(false)} className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50">Cancel</button>
+              <button onClick={handleInvite} disabled={saving || inviteSent} className="flex items-center gap-2 px-6 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-xl text-sm font-medium">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                Send Invite
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit role modal */}
+      {showEdit && editing && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900">Edit {editing.full_name}</h2>
+              <button onClick={() => setShowEdit(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              {error && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select value={form.role} onChange={f("role")} className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                  {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <p className="text-xs text-gray-500">To change name or email, use the Team Management page.</p>
+            </div>
+            <div className="p-6 border-t border-gray-100 flex gap-3 justify-end">
+              <button onClick={() => setShowEdit(false)} className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50">Cancel</button>
+              <button onClick={() => setShowEdit(false)} className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-sm font-medium">Done</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

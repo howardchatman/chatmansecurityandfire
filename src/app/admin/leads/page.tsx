@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Plus, MoreHorizontal, Mail, Phone, RefreshCw, UserPlus, Loader2, X, CheckCircle, Building2 } from "lucide-react";
+import { Plus, MoreHorizontal, Mail, Phone, RefreshCw, UserPlus, Loader2, X, CheckCircle, Building2, FileText } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 
@@ -460,20 +460,25 @@ export default function LeadsPage() {
                   </a>
                 )}
               </div>
-              {selectedLead.source === "account_request" && selectedLead.status !== "won" && !grantSuccess && (
-                <button
-                  onClick={() => handleGrantAccess(selectedLead)}
-                  disabled={isGranting}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/admin/quote?name=${encodeURIComponent(selectedLead.name || "")}&phone=${encodeURIComponent(selectedLead.phone || "")}&email=${encodeURIComponent(selectedLead.email || "")}&lead_id=${selectedLead.id}`}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
                 >
-                  {isGranting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <CheckCircle className="w-4 h-4" />
-                  )}
-                  {isGranting ? "Granting..." : "Grant Access"}
-                </button>
-              )}
+                  <FileText className="w-4 h-4" />
+                  Create Quote
+                </a>
+                {selectedLead.source === "account_request" && selectedLead.status !== "won" && !grantSuccess && (
+                  <button
+                    onClick={() => handleGrantAccess(selectedLead)}
+                    disabled={isGranting}
+                    className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {isGranting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                    {isGranting ? "Granting..." : "Grant Access"}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -142,6 +143,11 @@ const STEPS = [
 // ============================================
 
 export default function QuoteBuilderPage() {
+  const searchParams = useSearchParams();
+  const prefillName = searchParams.get("name") || "";
+  const prefillPhone = searchParams.get("phone") || "";
+  const prefillEmail = searchParams.get("email") || "";
+  const prefillLeadId = searchParams.get("lead_id") || "";
   const [currentStep, setCurrentStep] = useState(0);
   const [showRTUModal, setShowRTUModal] = useState(false);
   const [showPDFPreview, setShowPDFPreview] = useState(false);
@@ -165,10 +171,10 @@ export default function QuoteBuilderPage() {
     quoteType: null,
     template: null,
     customer: {
-      name: "",
+      name: prefillName,
       company: "",
-      email: "",
-      phone: "",
+      email: prefillEmail,
+      phone: prefillPhone,
       address: "",
       city: "",
       state: "TX",
@@ -455,6 +461,7 @@ export default function QuoteBuilderPage() {
           line_items: quote.lineItems,
           totals: quote.totals,
           terms: quote.terms,
+          ...(prefillLeadId ? { lead_id: prefillLeadId } : {}),
         }),
       });
 

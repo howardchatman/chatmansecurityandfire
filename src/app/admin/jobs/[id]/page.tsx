@@ -458,11 +458,27 @@ export default function JobDetailPage({
           )}
           {job.status === "completed" && (
             <button
-              onClick={() => handleStatusChange("invoiced")}
+              onClick={async () => {
+                if (!job) return;
+                setStatusSaving(true);
+                try {
+                  const res = await fetch(`/api/jobs/${job.id}/create-invoice`, { method: "POST" });
+                  const data = await res.json();
+                  if (data.success) {
+                    router.push(`/admin/invoices/${data.data.id}`);
+                  } else {
+                    alert(data.error || "Failed to create invoice");
+                    setStatusSaving(false);
+                  }
+                } catch {
+                  alert("Failed to create invoice");
+                  setStatusSaving(false);
+                }
+              }}
               disabled={statusSaving}
               className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50"
             >
-              <DollarSign className="w-4 h-4" />
+              {statusSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <DollarSign className="w-4 h-4" />}
               Create Invoice
             </button>
           )}

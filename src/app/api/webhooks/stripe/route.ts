@@ -57,6 +57,12 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case "invoice.paid": {
+        const invoice = event.data.object as Stripe.Invoice;
+        await handleInvoicePaid(invoice);
+        break;
+      }
+
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
         await handleRefund(charge);
@@ -74,6 +80,50 @@ export async function POST(request: NextRequest) {
       { error: "Webhook handler failed" },
       { status: 500 }
     );
+  }
+}
+
+async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
+  console.log("Invoice paid:", stripeInvoice.id);
+
+  const amountPaid = (stripeInvoice.amount_paid || 0) / 100;
+
+  const { data: invoice } = await supabase
+    .from("invoices")
+    .select("id, total")
+    .eq("stripe_invoice_id", stripeInvoice.id)
+    .single();
+
+  if (!invoice) {
+    console.error("No invoice found for stripe_invoice_id:", stripeInvoice.id);
+    return;
+  }
+
+  const isFullyPaid = amountPaid >= (invoice.total || 0);
+
+  await supabase
+    .from("invoices")
+    .update({
+      status: isFullyPaid ? "paid" : "partial",
+      amount_paid: amountPaid,
+      paid_at: isFullyPaid ? new Date().toISOString() : null,
+    })
+    .eq("id", invoice.id);
+
+  if (isFullyPaid) {
+    // Also update the job status to paid if linked
+    const { data: inv } = await supabase
+      .from("invoices")
+      .select("job_id")
+      .eq("id", invoice.id)
+      .single();
+
+    if (inv?.job_id) {
+      await supabase
+        .from("jobs")
+        .update({ status: "paid", paid_at: new Date().toISOString() })
+        .eq("id", inv.job_id);
+    }
   }
 }
 
