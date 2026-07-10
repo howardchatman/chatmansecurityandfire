@@ -31,7 +31,7 @@ export default function Hero() {
   return (
     <>
       {/* Full-bleed cinematic video — no text over the picture */}
-      <section className="relative h-[72vh] min-h-[440px] overflow-hidden bg-[#0D1B2A]">
+      <section className="relative h-screen overflow-hidden bg-[#0D1B2A]">
         <video
           ref={videoRef}
           autoPlay
