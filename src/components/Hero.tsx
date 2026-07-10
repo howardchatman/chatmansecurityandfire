@@ -1,8 +1,14 @@
 "use client";
 
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Phone, ArrowRight } from "lucide-react";
+
+// The activation (bulb burst) plays once, then the video loops the
+// full-spray section so it never jumps back to the dry sprinkler.
+const SPRAY_LOOP_START = 6.2;
+const SPRAY_LOOP_END = 9.85;
 
 const stats = [
   { value: "Since 2009", label: "Serving Houston" },
@@ -12,19 +18,31 @@ const stats = [
 ];
 
 export default function Hero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleTimeUpdate = () => {
+    const video = videoRef.current;
+    if (video && video.currentTime >= SPRAY_LOOP_END) {
+      video.currentTime = SPRAY_LOOP_START;
+      video.play().catch(() => {});
+    }
+  };
+
   return (
     <>
-      {/* Full-bleed cinematic video loop — no text over the picture */}
+      {/* Full-bleed cinematic video — no text over the picture */}
       <section className="relative h-[72vh] min-h-[440px] overflow-hidden bg-[#0D1B2A]">
         <video
+          ref={videoRef}
           autoPlay
           muted
           loop
           playsInline
-          poster="/hero-sprinkler-dark.png"
+          onTimeUpdate={handleTimeUpdate}
+          poster="/hero-activation-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/hero-loop.mp4" type="video/mp4" />
+          <source src="/hero-activation.mp4" type="video/mp4" />
         </video>
         {/* Blend the bottom of the video into the section below */}
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
