@@ -1,14 +1,9 @@
 "use client";
 
-import { useRef } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import { Phone, ArrowRight } from "lucide-react";
-
-// The activation (bulb burst) plays once, then the video loops the
-// full-spray section so it never jumps back to the dry sprinkler.
-const SPRAY_LOOP_START = 6.2;
-const SPRAY_LOOP_END = 9.85;
+import { ChevronDown, Phone, ArrowRight } from "lucide-react";
 
 const stats = [
   { value: "Since 2009", label: "Serving Houston" },
@@ -18,35 +13,65 @@ const stats = [
 ];
 
 export default function Hero() {
+  const pinRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [duration, setDuration] = useState(0);
 
-  const handleTimeUpdate = () => {
+  // Scroll progress across the tall pin container (0 at top, 1 once fully scrolled past)
+  const { scrollYProgress } = useScroll({
+    target: pinRef,
+    offset: ["start start", "end end"],
+  });
+  const scrollHintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+
+  useEffect(() => {
     const video = videoRef.current;
-    if (video && video.currentTime >= SPRAY_LOOP_END) {
-      video.currentTime = SPRAY_LOOP_START;
-      video.play().catch(() => {});
-    }
-  };
+    if (!video) return;
+    const onLoaded = () => setDuration(video.duration || 0);
+    if (video.readyState >= 1) onLoaded();
+    video.addEventListener("loadedmetadata", onLoaded);
+    return () => video.removeEventListener("loadedmetadata", onLoaded);
+  }, []);
+
+  useEffect(() => {
+    if (!duration) return;
+    return scrollYProgress.on("change", (progress) => {
+      const video = videoRef.current;
+      if (!video) return;
+      const targetTime = Math.min(duration - 0.05, Math.max(0, progress * duration));
+      if (Math.abs(video.currentTime - targetTime) > 0.02) {
+        video.currentTime = targetTime;
+      }
+    });
+  }, [duration, scrollYProgress]);
 
   return (
     <>
-      {/* Full-bleed cinematic video — no text over the picture */}
-      <section className="relative h-screen overflow-hidden bg-[#0D1B2A]">
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          onTimeUpdate={handleTimeUpdate}
-          poster="/hero-activation-poster.jpg"
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/hero-activation.mp4" type="video/mp4" />
-        </video>
-        {/* Blend the bottom of the video into the section below */}
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
-      </section>
+      {/* Pinned scroll-scrubbed video: scrolling drives the sprinkler activation */}
+      <div ref={pinRef} className="relative h-[220vh]">
+        <div className="sticky top-0 h-screen overflow-hidden bg-[#0D1B2A]">
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            preload="auto"
+            poster="/hero-activation-poster.jpg"
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/hero-scrub.mp4" type="video/mp4" />
+          </video>
+          {/* Blend the bottom of the video into the section below */}
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
+
+          <motion.div
+            style={{ opacity: scrollHintOpacity }}
+            className="absolute bottom-10 inset-x-0 flex flex-col items-center gap-1.5 text-white/70"
+          >
+            <span className="text-xs uppercase tracking-[0.2em]">Scroll</span>
+            <ChevronDown className="w-5 h-5 animate-bounce" />
+          </motion.div>
+        </div>
+      </div>
 
       {/* Message below the picture */}
       <section className="relative bg-[#0D1B2A]">
