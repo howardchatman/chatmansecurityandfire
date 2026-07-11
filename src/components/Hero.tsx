@@ -84,7 +84,7 @@ export default function Hero() {
               transition={{ duration: 0.8 }}
               className="text-orange-500 font-semibold tracking-[0.25em] uppercase text-sm mb-5"
             >
-              Houston Fire Protection Infrastructure
+              Houston Life Safety &amp; Connectivity Infrastructure
             </motion.p>
 
             <motion.h1
@@ -94,7 +94,7 @@ export default function Hero() {
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6"
             >
-              From blueprint to <span className="text-orange-500">certificate of occupancy.</span>
+              Working hard to be the <span className="text-orange-500">Best in Fire &amp; Life Safety.</span>
             </motion.h1>
 
             <motion.p
@@ -104,8 +104,9 @@ export default function Hero() {
               transition={{ duration: 0.7, delay: 0.15 }}
               className="text-xl text-gray-300 mb-9 max-w-xl"
             >
-              Design, permitting, installation, and inspection — one fire
-              protection partner for your entire build.
+              Fire alarm, sprinkler, security, fiber optics, and wireless —
+              one low-voltage partner for life safety and connectivity across
+              your entire building.
             </motion.p>
 
             <motion.div
