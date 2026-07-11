@@ -94,7 +94,7 @@ export default function Hero() {
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6"
             >
-              Working hard to be the <span className="text-orange-500">Best in Fire &amp; Life Safety.</span>
+              Working hard to be the <span className="text-orange-500">Best in Infrastructure &amp; Life Safety.</span>
             </motion.h1>
 
             <motion.p
