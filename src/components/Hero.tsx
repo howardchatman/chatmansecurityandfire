@@ -16,6 +16,9 @@ export default function Hero() {
   const pinRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [duration, setDuration] = useState(0);
+  // Scroll-scrub is a desktop-only effect. On mobile, touch browsers can't
+  // smoothly seek video.currentTime, so we autoplay a normal loop instead.
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Scroll progress across the tall pin container (0 at top, 1 once fully scrolled past)
   const { scrollYProgress } = useScroll({
@@ -23,6 +26,14 @@ export default function Hero() {
     offset: ["start start", "end end"],
   });
   const scrollHintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -33,8 +44,21 @@ export default function Hero() {
     return () => video.removeEventListener("loadedmetadata", onLoaded);
   }, []);
 
+  // Mobile: autoplay + loop. Desktop: paused, scrubbed by scroll.
   useEffect(() => {
-    if (!duration) return;
+    const video = videoRef.current;
+    if (!video) return;
+    if (isDesktop) {
+      video.loop = false;
+      video.pause();
+    } else {
+      video.loop = true;
+      video.play().catch(() => {});
+    }
+  }, [isDesktop]);
+
+  useEffect(() => {
+    if (!duration || !isDesktop) return;
     return scrollYProgress.on("change", (progress) => {
       const video = videoRef.current;
       if (!video) return;
@@ -43,13 +67,14 @@ export default function Hero() {
         video.currentTime = targetTime;
       }
     });
-  }, [duration, scrollYProgress]);
+  }, [duration, isDesktop, scrollYProgress]);
 
   return (
     <>
-      {/* Pinned scroll-scrubbed video: scrolling drives the sprinkler activation */}
-      <div ref={pinRef} className="relative h-[220vh]">
-        <div className="sticky top-0 h-screen overflow-hidden bg-[#0D1B2A]">
+      {/* Video hero. Desktop: tall pin container drives scroll-scrub.
+          Mobile: short, normal-flow, autoplaying loop. */}
+      <div ref={pinRef} className="relative h-[60vh] lg:h-[220vh]">
+        <div className="relative lg:sticky top-0 h-[60vh] lg:h-screen overflow-hidden bg-[#0D1B2A]">
           <video
             ref={videoRef}
             muted
@@ -63,9 +88,10 @@ export default function Hero() {
           {/* Blend the bottom of the video into the section below */}
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
 
+          {/* Scroll hint — desktop only (mobile video autoplays) */}
           <motion.div
             style={{ opacity: scrollHintOpacity }}
-            className="absolute bottom-10 inset-x-0 flex flex-col items-center gap-1.5 text-white/70"
+            className="hidden lg:flex absolute bottom-10 inset-x-0 flex-col items-center gap-1.5 text-white/70"
           >
             <span className="text-xs uppercase tracking-[0.2em]">Scroll</span>
             <ChevronDown className="w-5 h-5 animate-bounce" />
@@ -75,7 +101,7 @@ export default function Hero() {
 
       {/* Message below the picture */}
       <section className="relative bg-[#0D1B2A]">
-        <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-16">
+        <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 pt-10 lg:pt-4 pb-16">
           <div className="max-w-3xl">
             <motion.p
               initial={{ opacity: 0 }}
@@ -92,7 +118,7 @@ export default function Hero() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6"
+              className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] lg:leading-[1.08] mb-6"
             >
               Working hard to be the <span className="text-orange-500">Best in Infrastructure &amp; Life Safety.</span>
             </motion.h1>
