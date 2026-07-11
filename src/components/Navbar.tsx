@@ -90,7 +90,6 @@ const navigation = [
   { name: "Home", href: "/" },
   { name: "Services", href: "#services", hasDropdown: true },
   { name: "Free Tools", href: "#tools", hasToolsDropdown: true },
-  { name: "Service Areas", href: "/service-areas" },
   { name: "For Contractors", href: "/for-contractors" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
@@ -142,7 +141,13 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center group">
-              <img src="/csf_wide_logo.png" alt="Chatman Security and Fire" className="h-14 w-auto" />
+              <img
+                src="/csf_wide_logo.png"
+                alt="Chatman Security and Fire"
+                width={300}
+                height={100}
+                className="h-14 w-auto"
+              />
             </Link>
 
             {/* Desktop Navigation */}
