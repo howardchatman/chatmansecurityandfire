@@ -22,6 +22,8 @@ import {
   Building2,
   Sparkles,
   Lock,
+  Network,
+  Wifi,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SignInModal from "./SignInModal";
@@ -68,6 +70,18 @@ const services = [
     description: "Brinks authorized dealer",
     href: "/services/security-alarm",
     icon: Lock,
+  },
+  {
+    name: "Fiber Optics & Cabling",
+    description: "Structured cabling & fiber",
+    href: "/services/fiber-optics",
+    icon: Network,
+  },
+  {
+    name: "Wireless & WiFi",
+    description: "Commercial wireless networks",
+    href: "/services/wireless-internet",
+    icon: Wifi,
   },
 ];
 

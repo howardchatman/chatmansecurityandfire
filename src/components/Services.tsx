@@ -53,6 +53,18 @@ const services = [
     href: "/services/security-alarm",
     image: "/brinks_logo_blue.png",
   },
+  {
+    title: "Fiber Optics & Cabling",
+    description: "Commercial fiber and structured cabling. Backbone, data drops, splicing, and certified testing.",
+    href: "/services/fiber-optics",
+    image: "/fiber_optic_wide.png",
+  },
+  {
+    title: "Wireless & WiFi",
+    description: "Business-grade wireless networks. Site surveys, access points, and coverage with no dead zones.",
+    href: "/services/wireless-internet",
+    image: "/wireless_wide.png",
+  },
 ];
 
 export default function Services() {

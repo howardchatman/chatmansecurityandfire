@@ -11,6 +11,9 @@ const serviceSlugs = [
   "emergency-lighting",
   "fire-lane-marking",
   "security-alarm",
+  "consulting",
+  "fiber-optics",
+  "wireless-internet",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
