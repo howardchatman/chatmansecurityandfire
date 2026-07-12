@@ -27,6 +27,15 @@ export default function Hero() {
   });
   const scrollHintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
+  // Mobile parallax: progress 0→1 as the short hero scrolls out the top.
+  // Drives a subtle zoom + upward drift (gap-proof; scale stays >1).
+  const { scrollYProgress: mobileProgress } = useScroll({
+    target: pinRef,
+    offset: ["start start", "end start"],
+  });
+  const mobileScale = useTransform(mobileProgress, [0, 1], [1.1, 1.22]);
+  const mobileY = useTransform(mobileProgress, [0, 1], ["0%", "-5%"]);
+
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     const update = () => setIsDesktop(mq.matches);
@@ -75,16 +84,21 @@ export default function Hero() {
           Mobile: short, normal-flow, autoplaying loop. */}
       <div ref={pinRef} className="relative h-[60vh] lg:h-[220vh]">
         <div className="relative lg:sticky top-0 h-[60vh] lg:h-screen overflow-hidden bg-[#0D1B2A]">
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            preload="auto"
-            poster="/hero-activation-poster.jpg"
-            className="absolute inset-0 w-full h-full object-cover"
+          <motion.div
+            className="absolute inset-0"
+            style={isDesktop ? undefined : { scale: mobileScale, y: mobileY }}
           >
-            <source src="/hero-scrub.mp4" type="video/mp4" />
-          </video>
+            <video
+              ref={videoRef}
+              muted
+              playsInline
+              preload="auto"
+              poster="/hero-activation-poster.jpg"
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src="/hero-scrub.mp4" type="video/mp4" />
+            </video>
+          </motion.div>
           {/* Blend the bottom of the video into the section below */}
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
 
