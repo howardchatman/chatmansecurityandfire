@@ -514,10 +514,10 @@ export default function ContactPage() {
                       Our Office
                     </h3>
                   </div>
-                  <p className="text-gray-800 font-medium">849 Mansfield St., Unit F</p>
-                  <p className="text-gray-600">Houston, TX 77091</p>
+                  <p className="text-gray-800 font-medium">3403 West TC Jester Blvd, #1112</p>
+                  <p className="text-gray-600">Houston, TX 77018</p>
                   <a
-                    href="https://maps.google.com/?q=849+Mansfield+St+Unit+F+Houston+TX+77091"
+                    href="https://maps.google.com/?q=3403+West+TC+Jester+Blvd+1112+Houston+TX+77018"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 mt-3 text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"

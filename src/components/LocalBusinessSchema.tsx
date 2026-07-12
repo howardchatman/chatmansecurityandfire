@@ -15,16 +15,16 @@ export default function LocalBusinessSchema() {
     logo: "https://chatmansecurityandfire.com/logo_only.png",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "849 Mansfield St., Unit F",
+      streetAddress: "3403 West TC Jester Blvd, #1112",
       addressLocality: "Houston",
       addressRegion: "TX",
-      postalCode: "77091",
+      postalCode: "77018",
       addressCountry: "US",
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 29.8173,
-      longitude: -95.4088,
+      latitude: 29.8043,
+      longitude: -95.4363,
     },
     areaServed: [
       { "@type": "City", name: "Houston", containedInPlace: { "@type": "State", name: "Texas" } },
