@@ -103,16 +103,6 @@ export default function Hero() {
       <section className="relative bg-[#0D1B2A]">
         <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 pt-10 lg:pt-4 pb-16">
           <div className="max-w-3xl">
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="text-orange-500 font-semibold tracking-[0.25em] uppercase text-sm mb-5"
-            >
-              Houston Life Safety &amp; Connectivity Infrastructure
-            </motion.p>
-
             <motion.h1
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
