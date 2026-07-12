@@ -17,8 +17,8 @@ export default function PersonalStory() {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[4/5]">
               <Image
-                src="/howard-field.jpg"
-                alt="Howard Chatman working on a fire alarm panel"
+                src="/story-panel.jpg"
+                alt="Chatman Security & Fire technician wiring a commercial fire alarm control panel"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 400px"
