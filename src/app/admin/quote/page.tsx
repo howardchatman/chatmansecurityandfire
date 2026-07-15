@@ -36,6 +36,8 @@ import {
 import {
   TEMPLATE_PRESETS,
   QUOTE_TYPE_OPTIONS,
+  SERVICE_CATEGORY_OPTIONS,
+  type ServiceCategory,
   generateItemId,
   calculateQuoteTotals,
   calculateLineItemTotal,
@@ -87,6 +89,7 @@ interface QuoteTerms {
 }
 
 interface QuoteState {
+  serviceCategory: ServiceCategory | null;
   quoteType: QuoteType | null;
   template: TemplateName | null;
   customer: CustomerInfo;
@@ -168,6 +171,7 @@ export default function QuoteBuilderPage() {
   const customerSearchRef = useRef<HTMLDivElement>(null);
 
   const [quote, setQuote] = useState<QuoteState>({
+    serviceCategory: null,
     quoteType: null,
     template: null,
     customer: {
@@ -237,6 +241,13 @@ export default function QuoteBuilderPage() {
     setQuote((prev) => ({
       ...prev,
       quoteType,
+    }));
+  }, []);
+
+  const handleServiceCategorySelect = useCallback((serviceCategory: ServiceCategory) => {
+    setQuote((prev) => ({
+      ...prev,
+      serviceCategory,
     }));
   }, []);
 
@@ -457,7 +468,7 @@ export default function QuoteBuilderPage() {
           template_name: quote.template,
           status: "draft",
           customer: quote.customer,
-          site: quote.site,
+          site: { ...quote.site, serviceCategory: quote.serviceCategory },
           line_items: quote.lineItems,
           totals: quote.totals,
           terms: quote.terms,
@@ -598,7 +609,7 @@ export default function QuoteBuilderPage() {
   const isStepComplete = (stepId: number) => {
     switch (stepId) {
       case 0:
-        return quote.quoteType !== null;
+        return quote.serviceCategory !== null && quote.quoteType !== null;
       case 1:
         return quote.customer.name && quote.customer.phone;
       case 2:
@@ -674,11 +685,47 @@ export default function QuoteBuilderPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
+              {/* Service Line */}
+              <div className="mb-8">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Service
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  What service is this quote for?
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {SERVICE_CATEGORY_OPTIONS.map((option) => {
+                    const isSelected = quote.serviceCategory === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => handleServiceCategorySelect(option.value)}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                          isSelected
+                            ? "border-orange-500 bg-orange-50"
+                            : "border-gray-200 hover:border-orange-300"
+                        }`}
+                      >
+                        <h3 className="font-semibold text-gray-900">
+                          {option.label}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {option.description}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Quick Templates */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
                   Quick Templates
                 </h2>
+                <p className="text-xs text-gray-400 mb-2 -mt-2">
+                  Prebuilt fire-alarm building presets — optional, mainly for fire alarm quotes.
+                </p>
                 <p className="text-gray-600 mb-4">
                   Select a template to auto-populate common line items and settings
                 </p>

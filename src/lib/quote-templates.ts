@@ -1448,12 +1448,39 @@ export function generateRTULineItems(units: RTUUnit[]): Omit<LineItem, "id">[] {
 // ============================================
 
 export const QUOTE_TYPE_OPTIONS: { value: QuoteType; label: string; description: string }[] = [
-  { value: "install", label: "New Installation", description: "Complete new fire alarm system installation" },
-  { value: "retrofit", label: "Retrofit/Upgrade", description: "Upgrade or replace existing system" },
+  { value: "install", label: "New Installation", description: "Complete new system installation" },
+  { value: "retrofit", label: "Retrofit/Upgrade", description: "Upgrade or replace an existing system" },
   { value: "service", label: "Service/Repair", description: "Repair or service existing equipment" },
-  { value: "inspection", label: "Inspection", description: "Annual inspection and testing" },
+  { value: "inspection", label: "Inspection", description: "Inspection, testing & certification" },
   { value: "monitoring", label: "Monitoring", description: "Central station monitoring service" },
   { value: "compliance", label: "Compliance", description: "Fire marshal deficiency corrections" },
+];
+
+// ============================================
+// SERVICE CATEGORY (which service line the quote is for)
+// ============================================
+
+export type ServiceCategory =
+  | "fire_alarm"
+  | "fire_sprinkler"
+  | "fire_extinguisher"
+  | "emergency_lighting"
+  | "fire_lane"
+  | "security_alarm"
+  | "fiber_optics"
+  | "wireless"
+  | "multi";
+
+export const SERVICE_CATEGORY_OPTIONS: { value: ServiceCategory; label: string; description: string }[] = [
+  { value: "fire_alarm", label: "Fire Alarm", description: "Fire alarm design, install & service" },
+  { value: "fire_sprinkler", label: "Fire Sprinkler", description: "Sprinkler install, mods & inspection" },
+  { value: "fire_extinguisher", label: "Fire Extinguishers", description: "Sales, service & annual tagging" },
+  { value: "emergency_lighting", label: "Emergency Lighting", description: "Exit signs & emergency lights" },
+  { value: "fire_lane", label: "Fire Lane Marking", description: "Striping & signage per AHJ" },
+  { value: "security_alarm", label: "Security Alarm", description: "Brinks security & monitoring" },
+  { value: "fiber_optics", label: "Fiber Optics & Cabling", description: "Structured cabling, fiber & data" },
+  { value: "wireless", label: "Wireless & WiFi", description: "Commercial wireless networks" },
+  { value: "multi", label: "Multi-Service / Other", description: "Combined scope or custom work" },
 ];
 
 // ============================================
