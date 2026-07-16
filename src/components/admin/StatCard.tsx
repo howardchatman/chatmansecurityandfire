@@ -15,31 +15,11 @@ interface StatCardProps {
 }
 
 const colorClasses = {
-  red: {
-    bg: "bg-orange-50",
-    icon: "text-orange-600",
-    border: "border-orange-100",
-  },
-  green: {
-    bg: "bg-green-50",
-    icon: "text-green-600",
-    border: "border-green-100",
-  },
-  blue: {
-    bg: "bg-blue-50",
-    icon: "text-blue-600",
-    border: "border-blue-100",
-  },
-  amber: {
-    bg: "bg-amber-50",
-    icon: "text-amber-600",
-    border: "border-amber-100",
-  },
-  neutral: {
-    bg: "bg-neutral-100",
-    icon: "text-neutral-600",
-    border: "border-neutral-200",
-  },
+  red: { bg: "bg-orange-50", icon: "text-orange-600", accent: "bg-orange-500" },
+  green: { bg: "bg-green-50", icon: "text-green-600", accent: "bg-green-500" },
+  blue: { bg: "bg-blue-50", icon: "text-blue-600", accent: "bg-blue-500" },
+  amber: { bg: "bg-amber-50", icon: "text-amber-600", accent: "bg-amber-500" },
+  neutral: { bg: "bg-neutral-100", icon: "text-neutral-600", accent: "bg-neutral-400" },
 };
 
 export default function StatCard({
@@ -53,38 +33,39 @@ export default function StatCard({
   const colors = colorClasses[color];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
+    <div className="relative bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all overflow-hidden">
+      {/* Accent bar */}
+      <div className={`absolute top-0 left-0 h-full w-1 ${colors.accent}`} />
 
-          {/* Change indicator or subtitle */}
+      <div className="flex items-start justify-between pl-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-500 truncate">{title}</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900 tracking-tight">{value}</p>
+
           <div className="mt-2 flex items-center gap-2">
             {change && (
               <span
-                className={`inline-flex items-center gap-1 text-sm font-medium ${
-                  change.trend === "up" ? "text-green-600" : "text-orange-600"
+                className={`inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded ${
+                  change.trend === "up"
+                    ? "text-green-700 bg-green-50"
+                    : "text-orange-700 bg-orange-50"
                 }`}
               >
                 {change.trend === "up" ? (
-                  <TrendingUp className="w-4 h-4" />
+                  <TrendingUp className="w-3.5 h-3.5" />
                 ) : (
-                  <TrendingDown className="w-4 h-4" />
+                  <TrendingDown className="w-3.5 h-3.5" />
                 )}
                 {change.value > 0 ? "+" : ""}
                 {change.value}%
               </span>
             )}
-            {subtitle && (
-              <span className="text-sm text-gray-500">{subtitle}</span>
-            )}
+            {subtitle && <span className="text-xs text-gray-400">{subtitle}</span>}
           </div>
         </div>
 
-        {/* Icon */}
-        <div className={`p-3 rounded-xl ${colors.bg} ${colors.border} border`}>
-          <Icon className={`w-6 h-6 ${colors.icon}`} />
+        <div className={`p-2.5 rounded-xl ${colors.bg} flex-shrink-0`}>
+          <Icon className={`w-5 h-5 ${colors.icon}`} />
         </div>
       </div>
     </div>

@@ -129,14 +129,40 @@ export default function DashboardPage() {
     return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 0 })}`;
   };
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 mt-1">
-          Welcome back, Howard.
-        </p>
+      {/* Welcome header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0D1B2A] to-[#1a2f45] p-6 sm:p-8">
+        <div className="absolute -right-8 -top-8 w-48 h-48 bg-orange-500/10 rounded-full blur-2xl" />
+        <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <p className="text-orange-400 text-sm font-medium">{today}</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">
+              {greeting}, Howard.
+            </h1>
+            <p className="text-gray-300 mt-2 text-sm">
+              {loading
+                ? "Loading your business at a glance…"
+                : `${stats.activeJobs} active job${stats.activeJobs !== 1 ? "s" : ""} · ${stats.newLeadsThisMonth} new lead${stats.newLeadsThisMonth !== 1 ? "s" : ""} this month · ${formatCurrency(stats.pendingInvoiceAmount)} outstanding`}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <a href="/admin/quote" className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap">
+              New Quote
+            </a>
+            <a href="/admin/leads" className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap">
+              View Leads
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Primary KPIs */}

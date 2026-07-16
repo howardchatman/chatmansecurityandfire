@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
     const email: string | undefined = body.email?.toLowerCase().trim();
     const name: string | undefined = body.full_name || body.name;
     const role: string | undefined = body.role;
+    const phone: string | undefined = body.phone?.trim() || undefined;
 
     if (!email || !name || !role) {
       return NextResponse.json(
@@ -76,22 +77,36 @@ export async function POST(request: NextRequest) {
     const tempPassword = generateTempPassword();
     const passwordHash = await hashPassword(tempPassword);
 
-    const { data, error } = await supabaseAdmin
+    const row: Record<string, unknown> = {
+      email,
+      name,
+      role,
+      is_active: true,
+      password_hash: passwordHash,
+    };
+    if (phone) row.phone = phone;
+
+    let { data, error } = await supabaseAdmin
       .from("admin_users")
-      .insert({
-        email,
-        name,
-        role,
-        is_active: true,
-        password_hash: passwordHash,
-      })
-      .select("id, email, name, role, is_active, created_at")
+      .insert(row)
+      .select("*")
       .single();
+
+    // If the phone column doesn't exist yet, retry without it
+    if (error && phone && /phone/i.test(error.message)) {
+      delete row.phone;
+      ({ data, error } = await supabaseAdmin
+        .from("admin_users")
+        .insert(row)
+        .select("*")
+        .single());
+    }
 
     if (error) {
       console.error("Error creating employee:", error);
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
+    if (data) delete data.password_hash;
 
     return NextResponse.json({
       success: true,
@@ -122,7 +137,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseAdmin
       .from("admin_users")
-      .select("id, email, name, role, is_active, last_login, created_at")
+      .select("*")
       .order("created_at", { ascending: true });
 
     if (role && role !== "all") {
@@ -133,7 +148,11 @@ export async function GET(request: NextRequest) {
     if (error) {
       return NextResponse.json({ success: false, error: "Failed to fetch employees" }, { status: 500 });
     }
-    return NextResponse.json({ success: true, data });
+    const safe = (data || []).map((u: Record<string, unknown>) => {
+      const { password_hash: _ph, ...rest } = u;
+      return rest;
+    });
+    return NextResponse.json({ success: true, data: safe });
   } catch (error) {
     console.error("Error fetching employees:", error);
     return NextResponse.json({ success: false, error: "Failed to fetch employees" }, { status: 500 });

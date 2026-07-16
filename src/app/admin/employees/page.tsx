@@ -45,11 +45,11 @@ export default function EmployeesPage() {
       const data = await res.json();
       if (data.success) {
         setEmployees(
-          (data.data || []).map((u: { id: string; name: string; email: string; role: string; is_active: boolean; created_at: string }) => ({
+          (data.data || []).map((u: { id: string; name: string; email: string; phone?: string; role: string; is_active: boolean; created_at: string }) => ({
             id: u.id,
             full_name: u.name || "—",
             email: u.email || "—",
-            phone: "",
+            phone: u.phone || "",
             role: u.role || "technician",
             is_active: u.is_active !== false,
             created_at: u.created_at || "",
