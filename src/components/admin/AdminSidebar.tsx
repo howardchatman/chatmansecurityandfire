@@ -29,6 +29,7 @@ import {
   UsersRound,
   QrCode,
   Upload,
+  Radar,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -50,6 +51,7 @@ const navigation = [
     section: "CRM",
     items: [
       { name: "Leads", href: "/admin/leads", icon: Users },
+      { name: "Bid Finder", href: "/admin/bids", icon: Radar },
       { name: "Pipeline", href: "/admin/pipeline", icon: Kanban },
       { name: "Customers", href: "/admin/customers", icon: Building2 },
     ],
