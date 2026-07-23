@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import RequestQuoteBanner from "@/components/RequestQuoteBanner";
 import LocalBusinessSchema from "@/components/LocalBusinessSchema";
 import LeadMagnetBanner from "@/components/LeadMagnetBanner";
 import Services from "@/components/Services";
@@ -20,6 +21,7 @@ export default function Home() {
         <Navbar />
         <main className="flex-grow">
           <Hero />
+          <RequestQuoteBanner />
           <BrinksBanner />
           <Services />
           <PersonalStory />
