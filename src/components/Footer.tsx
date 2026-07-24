@@ -31,8 +31,8 @@ const footerLinks = {
     { name: "24/7 Dispatch", href: "tel:+18328597009" },
   ],
   legal: [
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms of Service", href: "/terms" },
+    { name: "Privacy Policy", href: "/privacy-policy" },
+    { name: "Terms & Conditions", href: "/terms-and-conditions" },
   ],
   demo: [
     { name: "School District Dashboard", href: "/district-portal" },
@@ -83,11 +83,11 @@ export default function Footer() {
                 <span>24/7 Service Dispatch</span>
               </a>
               <a
-                href="mailto:info@chatmansecurity.com"
+                href="mailto:info@chatmansecurityandfire.com"
                 className="flex items-center gap-3 text-neutral-400 hover:text-white transition-colors"
               >
                 <Mail className="w-5 h-5 text-orange-500" />
-                <span>info@chatmansecurity.com</span>
+                <span>info@chatmansecurityandfire.com</span>
               </a>
               <div className="flex items-start gap-3 text-neutral-400">
                 <MapPin className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />

@@ -56,9 +56,12 @@ const blank = {
   details: "",
 };
 
+const initialConsent = false;
+
 export default function RequestQuoteContent() {
   const router = useRouter();
   const [form, setForm] = useState({ ...blank });
+  const [smsConsent, setSmsConsent] = useState(initialConsent);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -82,6 +85,7 @@ export default function RequestQuoteContent() {
       form.company && `Company: ${form.company}`,
       (form.address || form.city) && `Project location: ${[form.address, form.city].filter(Boolean).join(", ")}`,
       form.timeline && `Timeline: ${form.timeline}`,
+      `SMS consent: ${smsConsent ? "YES — opted in to text messages" : "No"}`,
       form.details && `\nProject details:\n${form.details}`,
     ].filter(Boolean);
 
@@ -229,6 +233,25 @@ export default function RequestQuoteContent() {
                 />
               </div>
 
+              {/* SMS opt-in (A2P / TCR compliance) */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={smsConsent}
+                  onChange={(e) => setSmsConsent(e.target.checked)}
+                  className="mt-1 w-4 h-4 accent-orange-600 flex-shrink-0"
+                />
+                <span className="text-xs text-gray-500 leading-relaxed">
+                  I agree to receive SMS text messages from Chatman Security &amp; Fire, Inc. about my
+                  request, appointments, and service updates. Message frequency varies; message &amp; data
+                  rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of
+                  purchase. See our{" "}
+                  <a href="/privacy-policy" target="_blank" className="text-orange-600 hover:underline">Privacy Policy</a>{" "}
+                  and{" "}
+                  <a href="/terms-and-conditions" target="_blank" className="text-orange-600 hover:underline">Terms &amp; Conditions</a>.
+                </span>
+              </label>
+
               <button
                 type="submit"
                 disabled={submitting}
@@ -239,7 +262,7 @@ export default function RequestQuoteContent() {
               </button>
 
               <p className="text-center text-xs text-gray-400">
-                By submitting, you agree to be contacted about your request. We never share your information.
+                By submitting, you agree to be contacted about your request. We never sell your information.
               </p>
             </motion.form>
 
