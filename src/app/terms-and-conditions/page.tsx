@@ -61,10 +61,12 @@ export default function TermsPage() {
         <li>Service alerts and updates</li>
         <li>Follow-up communications related to your inquiry or project</li>
       </ul>
-      <p className={p}>Message and data rates may apply. Message frequency varies based on your service activity.</p>
       <p className={p}>
-        To opt out at any time, reply <strong>STOP</strong> to any SMS message. To resume messages, reply{" "}
-        <strong>START</strong>. For assistance, reply <strong>HELP</strong> or call{" "}
+        Message frequency varies. Message and data rates may apply.
+      </p>
+      <p className={p}>
+        Reply STOP to unsubscribe at any time. Reply START to resume messages. Reply HELP for assistance,
+        or call{" "}
         <a href="tel:+18326391433" className="text-orange-600 font-medium hover:underline">(832) 639-1433</a>.
       </p>
 

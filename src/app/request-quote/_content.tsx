@@ -242,13 +242,13 @@ export default function RequestQuoteContent() {
                   className="mt-1 w-4 h-4 accent-orange-600 flex-shrink-0"
                 />
                 <span className="text-xs text-gray-500 leading-relaxed">
-                  I agree to receive SMS text messages from Chatman Security &amp; Fire, Inc. about my
-                  request, appointments, and service updates. Message frequency varies; message &amp; data
-                  rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of
-                  purchase. See our{" "}
+                  I agree to the{" "}
                   <a href="/privacy-policy" target="_blank" className="text-orange-600 hover:underline">Privacy Policy</a>{" "}
                   and{" "}
-                  <a href="/terms-and-conditions" target="_blank" className="text-orange-600 hover:underline">Terms &amp; Conditions</a>.
+                  <a href="/terms-and-conditions" target="_blank" className="text-orange-600 hover:underline">Terms &amp; Conditions</a>{" "}
+                  and consent to receive SMS text messages from Chatman Security &amp; Fire, Inc. about my
+                  request, appointments, and service updates. Message frequency varies. Message and data
+                  rates may apply. Reply STOP to unsubscribe. Consent is not a condition of purchase.
                 </span>
               </label>
 

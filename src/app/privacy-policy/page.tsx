@@ -53,10 +53,12 @@ export default function PrivacyPolicyPage() {
         <li>Service updates and alerts</li>
         <li>Follow-up communications related to your inquiry or project</li>
       </ul>
-      <p className={p}>Message frequency may vary. Standard message and data rates may apply.</p>
       <p className={p}>
-        To opt out of SMS communications at any time, reply <strong>STOP</strong> to any message. To opt
-        back in, reply <strong>START</strong>. For help, reply <strong>HELP</strong> or contact us at{" "}
+        Message frequency varies. Message and data rates may apply.
+      </p>
+      <p className={p}>
+        Reply STOP to unsubscribe at any time. Reply START to opt back in. Reply HELP for help, or
+        contact us at{" "}
         <a href="tel:+18326391433" className="text-orange-600 font-medium hover:underline">(832) 639-1433</a>.
       </p>
       <p className={p}>
