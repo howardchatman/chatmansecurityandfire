@@ -56,12 +56,9 @@ const blank = {
   details: "",
 };
 
-const initialConsent = false;
-
 export default function RequestQuoteContent() {
   const router = useRouter();
   const [form, setForm] = useState({ ...blank });
-  const [smsConsent, setSmsConsent] = useState(initialConsent);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -85,7 +82,6 @@ export default function RequestQuoteContent() {
       form.company && `Company: ${form.company}`,
       (form.address || form.city) && `Project location: ${[form.address, form.city].filter(Boolean).join(", ")}`,
       form.timeline && `Timeline: ${form.timeline}`,
-      `SMS consent: ${smsConsent ? "YES — opted in to text messages" : "No"}`,
       form.details && `\nProject details:\n${form.details}`,
     ].filter(Boolean);
 
@@ -232,25 +228,6 @@ export default function RequestQuoteContent() {
                   placeholder="Describe the scope — square footage, what needs to be done, any inspection deadlines, drawings available, etc."
                 />
               </div>
-
-              {/* SMS opt-in (A2P / TCR compliance) */}
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={smsConsent}
-                  onChange={(e) => setSmsConsent(e.target.checked)}
-                  className="mt-1 w-4 h-4 accent-orange-600 flex-shrink-0"
-                />
-                <span className="text-xs text-gray-500 leading-relaxed">
-                  I agree to the{" "}
-                  <a href="/privacy-policy" target="_blank" className="text-orange-600 hover:underline">Privacy Policy</a>{" "}
-                  and{" "}
-                  <a href="/terms-and-conditions" target="_blank" className="text-orange-600 hover:underline">Terms &amp; Conditions</a>{" "}
-                  and consent to receive SMS text messages from Chatman Security &amp; Fire, Inc. about my
-                  request, appointments, and service updates. Message frequency varies. Message and data
-                  rates may apply. Reply STOP to unsubscribe. Consent is not a condition of purchase.
-                </span>
-              </label>
 
               <button
                 type="submit"
