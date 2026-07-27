@@ -8,11 +8,8 @@ import BrinksBanner from "@/components/BrinksBanner";
 import FreeTools from "@/components/FreeTools";
 import HowItWorks from "@/components/HowItWorks";
 import PersonalStory from "@/components/PersonalStory";
-import LeadCaptureForm from "@/components/LeadCaptureForm";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
-import ChadChat from "@/components/ChadChat";
-import LeadCapture from "@/components/LeadCapture";
 
 export default function Home() {
   return (
@@ -28,17 +25,10 @@ export default function Home() {
           <FreeTools />
           <HowItWorks />
           <LeadMagnetBanner />
-          <LeadCaptureForm
-            variant="inline"
-            heading="Let's Talk About Your Building"
-            subtext="Tell me about your project. I'll get back to you within one business day."
-          />
           <CTA />
         </main>
         <Footer />
       </div>
-      <ChadChat />
-      <LeadCapture />
       <LocalBusinessSchema />
     </>
   );
