@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import GhlChatWidget from "@/components/GhlChatWidget";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -56,14 +56,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
         <AuthProvider>{children}</AuthProvider>
-        {/* GoHighLevel chat widget — SMS opt-in capture for A2P/TCR compliance */}
-        <Script
-          src="https://widgets.leadconnectorhq.com/loader.js"
-          data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js"
-          data-widget-id="6a663244b92307bb1e99671c"
-          data-source="WEB_USER"
-          strategy="afterInteractive"
-        />
+        {/* GoHighLevel chat widget — loads on all pages EXCEPT /request-quote,
+            which has its own embedded GHL form (one consent point per page). */}
+        <GhlChatWidget />
       </body>
     </html>
   );
