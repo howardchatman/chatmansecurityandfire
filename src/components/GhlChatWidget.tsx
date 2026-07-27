@@ -22,12 +22,12 @@ export default function GhlChatWidget() {
   // <Script> below isn't rendered.
   useEffect(() => {
     if (!excluded) return;
+    // Remove ONLY the chat widget (a <chat-widget> custom element the loader
+    // injects). Must NOT touch the embedded quote form, whose iframe src is
+    // api.leadconnectorhq.com/widget/form/... — matching a broad "widget"
+    // selector would delete the form too.
     const strip = () => {
-      document
-        .querySelectorAll(
-          'chat-widget, [id^="chat-widget"], iframe[src*="leadconnectorhq.com/widget"], iframe[src*="widgets.leadconnectorhq.com"]'
-        )
-        .forEach((el) => el.remove());
+      document.querySelectorAll("chat-widget").forEach((el) => el.remove());
     };
     strip();
     const interval = setInterval(strip, 400);
