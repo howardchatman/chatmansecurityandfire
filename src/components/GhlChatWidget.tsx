@@ -12,7 +12,8 @@ import { useEffect } from "react";
 // to load only on pages confirmed to have no forms. Allowlist (not blocklist)
 // so a future page can't accidentally show the widget next to a form.
 const ALLOWED_PREFIXES = [
-  "/about", // registered A2P opt-in page — has the widget, no forms
+  "/", // homepage — no lead forms, chat widget is the opt-in point
+  "/about",
   "/service-areas",
   "/privacy-policy",
   "/terms-and-conditions",
