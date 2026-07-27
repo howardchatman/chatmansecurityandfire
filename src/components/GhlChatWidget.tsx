@@ -4,43 +4,46 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
-// The GoHighLevel chat widget collects phone numbers for SMS opt-in.
-// For A2P/TCR compliance, a page must have only ONE consent-collecting
-// mechanism. The /request-quote page has its own embedded GHL form, so
-// the chat widget must NOT appear there. It loads on every other page.
-const EXCLUDED_PREFIXES = ["/request-quote"];
+// A2P / TCR compliance: any page where the chat widget is embedded must NOT
+// contain another phone- or SMS-opt-in form (carrier requirement — a single
+// consent point per page). This site's marketing pages (homepage, all
+// service pages, /contact, /start, /for-contractors, /analyze, /recommend,
+// /request-quote) all have lead-capture forms, so the widget is ALLOWLISTED
+// to load only on pages confirmed to have no forms. Allowlist (not blocklist)
+// so a future page can't accidentally show the widget next to a form.
+const ALLOWED_PREFIXES = [
+  "/about",
+  "/service-areas",
+  "/privacy-policy",
+  "/terms-and-conditions",
+];
 
 export default function GhlChatWidget() {
   const pathname = usePathname();
-  const excluded = EXCLUDED_PREFIXES.some(
+  const allowed = ALLOWED_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(p + "/")
   );
 
-  // On excluded routes, also strip any widget already injected during a
-  // prior client-side navigation (SPA nav doesn't reload the page, so the
-  // loader's DOM can persist). Direct loads never inject it because the
-  // <Script> below isn't rendered.
+  // On pages where the widget must NOT appear, strip any <chat-widget> left
+  // over from a prior client-side navigation (SPA nav doesn't reload the DOM).
+  // Only targets the chat widget custom element — never the embedded form.
   useEffect(() => {
-    if (!excluded) return;
-    // Remove ONLY the chat widget (a <chat-widget> custom element the loader
-    // injects). Must NOT touch the embedded quote form, whose iframe src is
-    // api.leadconnectorhq.com/widget/form/... — matching a broad "widget"
-    // selector would delete the form too.
+    if (allowed) return;
     const strip = () => {
       document.querySelectorAll("chat-widget").forEach((el) => el.remove());
     };
     strip();
     const interval = setInterval(strip, 400);
     return () => clearInterval(interval);
-  }, [excluded, pathname]);
+  }, [allowed, pathname]);
 
-  if (excluded) return null;
+  if (!allowed) return null;
 
   return (
     <Script
       src="https://widgets.leadconnectorhq.com/loader.js"
       data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js"
-      data-widget-id="6a663244b92307bb1e99671c"
+      data-widget-id="6a66fee8f1929b03b084f5da"
       data-source="WEB_USER"
       strategy="afterInteractive"
     />
