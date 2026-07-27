@@ -43,28 +43,46 @@ export default function PrivacyPolicyPage() {
         <li>Improve our website and services</li>
       </ul>
 
-      <h2 className={h2}>3. SMS Messaging</h2>
+      <h2 className={h2}>3. SMS &amp; Text Messaging</h2>
       <p className={p}>
-        By providing your mobile phone number and opting in, you consent to receive SMS text messages
-        from Chatman Security &amp; Fire, Inc. regarding:
+        Chatman Security &amp; Fire, Inc. offers SMS/text messaging to customers who opt in through our
+        service agreement form, our website chat widget, or other opt-in methods. By providing your mobile
+        phone number and opting in, you consent to receive SMS text messages from us regarding:
       </p>
       <ul className={ul}>
-        <li>Appointment confirmations and reminders</li>
-        <li>Service updates and alerts</li>
-        <li>Follow-up communications related to your inquiry or project</li>
+        <li>Appointment confirmations, reminders, and scheduling updates</li>
+        <li>Fire and life safety alerts related to your monitored systems</li>
+        <li>Customer care communications related to your account</li>
       </ul>
+      <p className={p}>
+        <strong>Data We Collect.</strong> When you opt in to receive SMS messages, we collect your mobile
+        phone number and the date and time of your consent. We may also collect information about your
+        message interactions (for example, whether you replied STOP or HELP).
+      </p>
+      <p className={p}>
+        <strong>How We Use Your Data.</strong> Your mobile phone number is used solely to send you the
+        appointment, safety, and customer-care messages described above.
+      </p>
       <p className={p}>
         Message frequency varies. Message and data rates may apply.
       </p>
       <p className={p}>
         Reply STOP to unsubscribe at any time. Reply START to opt back in. Reply HELP for help, or
         contact us at{" "}
-        <a href="tel:+18326391433" className="text-orange-600 font-medium hover:underline">(832) 639-1433</a>.
+        <a href="tel:+18326391433" className="text-orange-600 font-medium hover:underline">(832) 639-1433</a>{" "}
+        or{" "}
+        <a href="mailto:info@chatmansecurityandfire.com" className="text-orange-600 font-medium hover:underline">info@chatmansecurityandfire.com</a>.
       </p>
       <p className={p}>
-        We do not sell your phone number or personal information to third parties for marketing purposes.
-        No mobile information will be shared with third parties or affiliates for marketing or promotional
-        purposes. SMS opt-in consent is never shared with any third party.
+        <strong>Data Sharing.</strong> We do not sell, rent, share, or disclose your mobile phone number or
+        SMS consent data to third parties for their marketing or promotional purposes. Your information may
+        be shared with our SMS service provider solely to facilitate message delivery. No mobile information
+        will be shared with third parties or affiliates for marketing or promotional purposes, and SMS
+        opt-in consent is never shared with any third party.
+      </p>
+      <p className={p}>
+        <strong>Data Retention.</strong> We retain your SMS opt-in records as required by applicable law and
+        carrier compliance requirements.
       </p>
 
       <h2 className={h2}>4. How We Share Your Information</h2>

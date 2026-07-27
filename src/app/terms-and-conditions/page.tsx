@@ -51,23 +51,49 @@ export default function TermsPage() {
         will confirm final pricing before work begins.
       </p>
 
-      <h2 className={h2}>3. SMS Communications</h2>
+      <h2 className={h2}>3. SMS Messaging Terms</h2>
       <p className={p}>
-        By providing your mobile phone number and consenting to SMS communications, you agree to receive
-        text messages from Chatman Security &amp; Fire, Inc. including:
-      </p>
-      <ul className={ul}>
-        <li>Appointment confirmations and reminders</li>
-        <li>Service alerts and updates</li>
-        <li>Follow-up communications related to your inquiry or project</li>
-      </ul>
-      <p className={p}>
-        Message frequency varies. Message and data rates may apply.
+        <strong>Program Name:</strong> Chatman Security &amp; Fire Alerts
       </p>
       <p className={p}>
-        Reply STOP to unsubscribe at any time. Reply START to resume messages. Reply HELP for assistance,
-        or call{" "}
-        <a href="tel:+18326391433" className="text-orange-600 font-medium hover:underline">(832) 639-1433</a>.
+        By opting in to our SMS program, you agree to receive text messages from Chatman Security &amp;
+        Fire, Inc. Message types include appointment reminders, fire and life safety alerts, and customer
+        care communications related to your account with us.
+      </p>
+      <p className={p}>
+        <strong>How to Opt In.</strong> You may opt in by checking the SMS consent box on our service
+        agreement form or website chat widget and submitting your mobile number, or by texting START or
+        SUBSCRIBE to our SMS number.
+      </p>
+      <p className={p}>
+        <strong>How to Opt Out.</strong> Reply STOP to unsubscribe at any time. You will receive one
+        confirmation message and no further SMS messages will be sent. To re-subscribe, reply START.
+      </p>
+      <p className={p}>
+        <strong>Help.</strong> For assistance, reply HELP to any message, or contact us at{" "}
+        <a href="tel:+18326391433" className="text-orange-600 font-medium hover:underline">(832) 639-1433</a>{" "}
+        or{" "}
+        <a href="mailto:info@chatmansecurityandfire.com" className="text-orange-600 font-medium hover:underline">info@chatmansecurityandfire.com</a>.
+      </p>
+      <p className={p}>
+        <strong>Message Frequency.</strong> Message frequency varies based on your account activity and
+        service appointments. You may receive up to several messages per month.
+      </p>
+      <p className={p}>
+        <strong>Costs.</strong> Message and data rates may apply. Contact your mobile carrier for details.
+      </p>
+      <p className={p}>
+        <strong>Carrier Disclaimer.</strong> Carriers are not liable for delayed or undelivered messages.
+      </p>
+      <p className={p}>
+        <strong>Privacy.</strong> Your mobile number and opt-in data will not be shared with third parties
+        for marketing purposes. See our{" "}
+        <a href="/privacy-policy" className="text-orange-600 font-medium hover:underline">Privacy Policy</a>{" "}
+        for full details.
+      </p>
+      <p className={p}>
+        <strong>Supported Carriers.</strong> All major US carriers are supported, including AT&amp;T,
+        Verizon, T-Mobile, and others. Availability may vary by carrier.
       </p>
 
       <h2 className={h2}>4. Appointments &amp; Cancellations</h2>
