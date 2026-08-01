@@ -28,7 +28,8 @@ const footerLinks = {
   ],
   support: [
     { name: "Contact Us", href: "/contact" },
-    { name: "Request Service", href: "/contact" },
+    { name: "Request a Quote", href: "/request-quote" },
+    { name: "Financing", href: "/financing" },
     { name: "24/7 Dispatch", href: "tel:+18328597009" },
   ],
   legal: [
