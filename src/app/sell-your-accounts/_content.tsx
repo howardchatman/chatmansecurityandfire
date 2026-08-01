@@ -148,7 +148,7 @@ export default function SellAccountsContent() {
               </h1>
               <p className="text-xl text-gray-300 mb-8">
                 Retiring, downsizing, or ready to cash out? Sell your fire alarm, monitoring,
-                inspection, and security accounts to a local Houston operator who&apos;ll take
+                inspection, and security accounts to a Texan operator who&apos;ll take
                 great care of your customers. Direct buyer — no broker, no middleman.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
