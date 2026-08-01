@@ -103,6 +103,7 @@ const freeTools = [
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Services", href: "#services", hasDropdown: true },
+  { name: "Financing", href: "/financing" },
   { name: "For Contractors", href: "/for-contractors" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
