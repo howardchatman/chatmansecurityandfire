@@ -10,10 +10,11 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// TODO: replace with your unique Acorn Finance contractor prequalification
-// link (from your Acorn contractor dashboard) so applications are tracked
-// to your account.
-const ACORN_APPLY_URL = "https://acornfinance.com/";
+// Chatman's unique Acorn Finance contractor prequalification link
+// (d=DZNTT is the tracking code that credits applications to the account).
+const ACORN_APPLY_URL = "https://www.acornfinance.com/pre-qualify/?d=DZNTT";
+const ACORN_BANNER_URL = "https://www.acornfinance.com/pre-qualify/?d=DZNTT&utm_medium=web_pre_qual_banner";
+const ACORN_BANNER_IMG = "https://fs.acornfinance.com/banners/acorn-finance-banner-easy-payment-options-horizontal-medium.png";
 
 const steps = [
   { icon: Sparkles, title: "Check your rate in ~60 seconds", desc: "One short form. It's a soft credit check — seeing your offers will NOT affect your credit score." },
@@ -127,6 +128,14 @@ export default function FinancingContent() {
               <p className="text-xs text-white/50 mt-4 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" /> Soft credit check · no impact to your score to see offers
               </p>
+              <a href={ACORN_BANNER_URL} target="_blank" rel="noopener noreferrer" className="inline-block mt-6">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={ACORN_BANNER_IMG}
+                  alt="Acorn Finance — apply and get affordable payment options from multiple lenders"
+                  className="rounded-lg border border-white/20 max-w-full h-auto"
+                />
+              </a>
             </div>
           </div>
         </section>
