@@ -24,6 +24,7 @@ const footerLinks = {
     { name: "About Us", href: "/about" },
     { name: "Our Team", href: "/about/team" },
     { name: "Service Areas", href: "/service-areas" },
+    { name: "Sell Your Accounts", href: "/sell-your-accounts" },
   ],
   support: [
     { name: "Contact Us", href: "/contact" },
