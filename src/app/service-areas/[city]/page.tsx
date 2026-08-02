@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChadChat from "@/components/ChadChat";
 import { cities } from "@/lib/cities-data";
+import { catalogServices } from "@/lib/service-catalog";
 import {
   MapPin, Phone, ArrowLeft, ChevronDown, CheckCircle,
   Bell, Droplets, Shield, Zap, ArrowRight, MessageSquare,
@@ -175,6 +176,26 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 );
               })}
             </div>
+
+            {/* Service × City detail links (metro cities) */}
+            {city.metro && (
+              <div className="max-w-5xl mx-auto mt-10">
+                <p className="text-center text-sm text-gray-500 mb-4">
+                  Explore each service in {city.name}:
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {catalogServices.map((s) => (
+                    <Link
+                      key={s.slug}
+                      href={`/service-areas/${city.slug}/${s.slug}`}
+                      className="px-4 py-2 bg-white border border-gray-200 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700 rounded-full text-sm font-medium text-gray-700 transition-all"
+                    >
+                      {s.name} in {city.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

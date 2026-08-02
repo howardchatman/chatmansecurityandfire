@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { cities } from "@/lib/cities-data";
+import { catalogServiceSlugs } from "@/lib/service-catalog";
 
 const BASE_URL = "https://chatmansecurityandfire.com";
 
@@ -48,5 +49,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.85,
   }));
 
-  return [...staticPages, ...servicePages, ...cityPages];
+  // Service × City local landing pages (Houston-metro cities only)
+  const serviceCityPages: MetadataRoute.Sitemap = cities
+    .filter((c) => c.metro)
+    .flatMap((city) =>
+      catalogServiceSlugs.map((slug) => ({
+        url: `${BASE_URL}/service-areas/${city.slug}/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly" as const,
+        priority: 0.8,
+      }))
+    );
+
+  return [...staticPages, ...servicePages, ...cityPages, ...serviceCityPages];
 }

@@ -19,7 +19,19 @@ export interface CityData {
   services: CityService[];
   localContext: string;
   nearbyAreas: string[];
+  metro?: boolean;        // true = Houston-metro city that gets Service × City pages
+  fireMarshal?: string;   // name of the local AHJ / fire marshal office
 }
+
+// Shared service list for Houston-metro suburb hub pages.
+const METRO_SERVICES: CityService[] = [
+  { title: "Fire Marshal Compliance", description: "Fast correction of fire marshal deficiencies and re-inspection support to get your property back in compliance." },
+  { title: "Fire Alarm Systems", description: "Design, installation, NFPA 72 inspection, and repair of commercial fire alarm systems, permitted through the state." },
+  { title: "Fire Sprinkler Systems", description: "Installation, tenant modifications, and NFPA 25 inspection of commercial fire sprinkler systems." },
+  { title: "Fire Extinguishers", description: "Annual inspection, recharging, hydrostatic testing, and tagging of portable extinguishers per NFPA 10." },
+  { title: "Emergency & Exit Lighting", description: "Installation and 90-minute testing of exit signs and emergency egress lighting — cited on nearly every inspection." },
+  { title: "Fire Lane Marking & Security", description: "Code-compliant fire lane striping and signage, plus Brinks-monitored commercial security and fire monitoring." },
+];
 
 export const cities: CityData[] = [
   {
@@ -27,6 +39,8 @@ export const cities: CityData[] = [
     slug: "houston",
     county: "Harris County",
     population: "2.3 million",
+    metro: true,
+    fireMarshal: "Houston Fire Marshal's Office (HFMO)",
     description:
       "Houston is the largest city in Texas and home to one of the most active commercial construction and industrial markets in the United States, with thousands of high-rises, refineries, medical campuses, and retail corridors requiring code-compliant fire protection systems. The sheer scale of the city's commercial base means fire marshal inspections and AHJ compliance are strictly enforced across all occupancy types.",
     heroSubtitle:
@@ -734,5 +748,217 @@ export const cities: CityData[] = [
     localContext:
       "The Fort Worth Fire Marshal's Office operates under the Fort Worth Fire Department and enforces the International Fire Code with local amendments adopted by the Fort Worth City Council. Permits for fire alarm and sprinkler systems are obtained through the Fort Worth Development Services Department, which requires engineer-stamped or licensed contractor drawings for plan review. Fort Worth has also adopted specific amendments addressing high-piled combustible storage in the city's large industrial and logistics corridor, making those occupancies a particularly active area of fire marshal enforcement.",
     nearbyAreas: ["Arlington", "North Richland Hills", "Haltom City", "Burleson", "Mansfield"],
+  },
+
+  // ===== Houston-metro suburbs (Service × City coverage) =====
+  {
+    name: "Katy",
+    slug: "katy",
+    county: "Harris, Fort Bend & Waller Counties",
+    population: "24,000+",
+    metro: true,
+    fireMarshal: "Harris County Fire Marshal / Katy Fire Department",
+    description:
+      "Katy is one of the fastest-growing communities west of Houston, straddling Harris, Fort Bend, and Waller counties, with booming retail centers, medical offices, warehouses, and schools that all require code-compliant fire protection. Because Katy spans three counties, the authority having jurisdiction can differ block to block — making an experienced local contractor essential.",
+    heroSubtitle:
+      "Commercial fire alarm, sprinkler, and life safety services for Katy, TX businesses — we know the local AHJs.",
+    faqs: [
+      { question: "Who is the fire marshal for a business in Katy, TX?", answer: "It depends on your exact location — Katy spans Harris, Fort Bend, and Waller counties, plus the City of Katy. Properties inside city limits fall under the Katy Fire Department, while unincorporated areas answer to the applicable county fire marshal. Chatman Security & Fire works with all three county AHJs and can confirm who has jurisdiction over your Katy property." },
+      { question: "Do you correct failed fire inspections in Katy?", answer: "Yes. We review your deficiency report, correct every violation — fire alarm, sprinkler, extinguisher, or exit lighting — and coordinate re-inspection with the correct Katy-area AHJ. Most corrections are done in one to two visits." },
+      { question: "How fast can you get to a Katy commercial property?", answer: "Katy is within our core Houston-metro service area. We routinely schedule same-week assessments and offer emergency service for urgent inspection deadlines. Call (832) 859-7009." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "Katy's tri-county footprint means fire code enforcement is split between the Katy Fire Department (inside city limits) and the Harris, Fort Bend, and Waller County fire marshals in unincorporated areas. All adopt the International Fire Code, but permitting offices and local amendments differ, so identifying the correct AHJ before design and permitting is critical for Katy commercial projects.",
+    nearbyAreas: ["Cinco Ranch", "Fulshear", "Brookshire", "Cypress", "Sugar Land"],
+  },
+  {
+    name: "Sugar Land",
+    slug: "sugar-land",
+    county: "Fort Bend County",
+    population: "111,000+",
+    metro: true,
+    fireMarshal: "Sugar Land Fire Department Fire Marshal",
+    description:
+      "Sugar Land is a premier Fort Bend County business hub with corporate campuses, Class-A offices, the Smart Financial Centre, and dense retail — all under active fire code enforcement by the Sugar Land Fire Department. Its master-planned commercial districts hold properties to a high compliance standard.",
+    heroSubtitle:
+      "Trusted fire protection and life safety services for Sugar Land, TX commercial properties.",
+    faqs: [
+      { question: "What are the fire code requirements for a Sugar Land business?", answer: "Sugar Land enforces the International Fire Code through the Sugar Land Fire Department's fire marshal division, with plan review required before permits are issued for fire alarm and sprinkler work. Requirements depend on occupancy type and square footage — we can review your Sugar Land property and tell you exactly what applies." },
+      { question: "Do you provide annual fire alarm inspections in Sugar Land?", answer: "Yes. We perform NFPA 72 fire alarm inspections for Sugar Land offices, retail, and industrial properties, testing every device and providing a documented report for the fire marshal and your records." },
+      { question: "Can you handle a failed inspection in Sugar Land quickly?", answer: "Absolutely — we specialize in fast remediation of Sugar Land fire marshal violations and coordinate re-inspection so you avoid fines or occupancy issues." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "The Sugar Land Fire Department's fire marshal enforces the International Fire Code with Fort Bend County and City of Sugar Land amendments. Plan review and permitting run through the city's development services, and final fire marshal inspection is required before a certificate of occupancy — a strictly enforced step in Sugar Land's well-developed commercial corridors.",
+    nearbyAreas: ["Missouri City", "Stafford", "Richmond", "Rosenberg", "Houston"],
+  },
+  {
+    name: "The Woodlands",
+    slug: "the-woodlands",
+    county: "Montgomery County",
+    population: "116,000+",
+    metro: true,
+    fireMarshal: "The Woodlands Fire Department / Montgomery County Fire Marshal",
+    description:
+      "The Woodlands is a major Montgomery County commercial and corporate center north of Houston, home to headquarters, medical facilities, hospitality, and upscale retail across its master-planned villages — all requiring rigorous fire protection compliance.",
+    heroSubtitle:
+      "Commercial fire alarm, sprinkler, and compliance services for The Woodlands, TX.",
+    faqs: [
+      { question: "Who enforces fire code in The Woodlands?", answer: "The Woodlands Fire Department provides fire protection and works with the Montgomery County Fire Marshal on code enforcement and inspections. Both adopt the International Fire Code. Chatman Security & Fire coordinates with these AHJs for permitting, plan review, and final inspection on Woodlands commercial projects." },
+      { question: "Do you install commercial fire alarm systems in The Woodlands?", answer: "Yes — we design, permit, and install addressable and conventional fire alarm systems for offices, medical, and retail properties throughout The Woodlands, built to NFPA 72." },
+      { question: "How much does fire protection cost in The Woodlands?", answer: "It depends on the system and building. We provide free on-site assessments across The Woodlands and quote the exact scope required — no over-engineering." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "Fire code in The Woodlands is enforced through The Woodlands Fire Department alongside the Montgomery County Fire Marshal, both applying the International Fire Code. Because The Woodlands is a township rather than an incorporated city, jurisdiction and permitting nuances make an experienced contractor valuable for commercial fire alarm and sprinkler work.",
+    nearbyAreas: ["Spring", "Conroe", "Shenandoah", "Oak Ridge North", "Tomball"],
+  },
+  {
+    name: "Pearland",
+    slug: "pearland",
+    county: "Brazoria & Harris Counties",
+    population: "125,000+",
+    metro: true,
+    fireMarshal: "Pearland Fire Marshal's Office",
+    description:
+      "Pearland is one of the fastest-growing cities in the Houston metro, spanning Brazoria and Harris counties, with expanding retail, medical, and industrial development enforced by the Pearland Fire Marshal's Office.",
+    heroSubtitle:
+      "Fire alarm, sprinkler, and life safety services for Pearland, TX businesses.",
+    faqs: [
+      { question: "Who is the fire marshal in Pearland?", answer: "The Pearland Fire Marshal's Office enforces the International Fire Code within city limits, with plan review and permitting for fire alarm and sprinkler systems. Parts of the Pearland area extend into unincorporated Brazoria and Harris counties, where the county fire marshal applies — we confirm jurisdiction for your specific property." },
+      { question: "Do you correct fire code violations in Pearland?", answer: "Yes. We handle failed-inspection corrections across Pearland — alarms, sprinklers, extinguishers, and egress lighting — and manage re-inspection with the fire marshal." },
+      { question: "Do you serve commercial and industrial properties in Pearland?", answer: "We serve Pearland's retail, office, medical, and industrial properties with full fire protection design, installation, inspection, and repair." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "The Pearland Fire Marshal's Office enforces the International Fire Code with local amendments, and because Pearland straddles Brazoria and Harris counties, unincorporated pockets may fall under a county fire marshal instead. Confirming the AHJ up front is essential for Pearland commercial permitting.",
+    nearbyAreas: ["Friendswood", "Alvin", "Manvel", "League City", "Houston"],
+  },
+  {
+    name: "Cypress",
+    slug: "cypress",
+    county: "Harris County",
+    population: "200,000+ (area)",
+    metro: true,
+    fireMarshal: "Harris County Fire Marshal / Cy-Fair Fire Department",
+    description:
+      "Cypress is a large, rapidly developing unincorporated community in northwest Harris County, served by the Cy-Fair Fire Department, with sprawling retail, warehouse, and office growth requiring commercial fire protection.",
+    heroSubtitle:
+      "Commercial fire protection and compliance services for Cypress, TX.",
+    faqs: [
+      { question: "Who has fire code jurisdiction in Cypress?", answer: "Cypress is largely unincorporated Harris County, so the Harris County Fire Marshal has jurisdiction, with fire protection provided by the Cy-Fair Fire Department. Both apply the International Fire Code as adopted by Harris County. Chatman Security & Fire coordinates permitting and inspection with these AHJs." },
+      { question: "Do you install and inspect fire alarms in Cypress?", answer: "Yes — full design, installation, and annual NFPA 72 inspection for Cypress commercial properties, permitted through the state and Harris County." },
+      { question: "Can you help a Cypress business that failed inspection?", answer: "Yes. We correct Harris County fire marshal deficiencies in Cypress fast and coordinate re-inspection." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "Because Cypress is unincorporated, fire code enforcement runs through the Harris County Fire Marshal under the county-adopted International Fire Code, with the Cy-Fair Fire Department responding locally. Harris County permitting requirements govern commercial fire alarm and sprinkler installations throughout Cypress.",
+    nearbyAreas: ["Katy", "Tomball", "Spring", "Jersey Village", "Houston"],
+  },
+  {
+    name: "Spring",
+    slug: "spring",
+    county: "Harris County",
+    population: "60,000+",
+    metro: true,
+    fireMarshal: "Harris County Fire Marshal",
+    description:
+      "Spring is a growing community in north Harris County near the Grand Parkway and I-45 corridor, with office parks, retail, and light industrial properties under Harris County fire code enforcement.",
+    heroSubtitle:
+      "Fire alarm, sprinkler, and life safety services for Spring, TX businesses.",
+    faqs: [
+      { question: "Who is the fire marshal for Spring, TX?", answer: "Most of Spring is unincorporated Harris County, so the Harris County Fire Marshal enforces the fire code, with local fire districts (such as Spring Fire Department) responding. Chatman Security & Fire handles permitting and inspection coordination for Spring commercial properties." },
+      { question: "Do you provide annual fire protection inspections in Spring?", answer: "Yes — NFPA 72 fire alarm, NFPA 25 sprinkler, and NFPA 10 extinguisher inspections with documented reports for the Harris County fire marshal." },
+      { question: "How quickly can you serve a Spring business?", answer: "Spring is in our core service area — same-week assessments and emergency service for urgent deadlines are available." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "Spring's commercial properties fall primarily under the Harris County Fire Marshal, applying the county-adopted International Fire Code, with the Spring Fire Department providing local response. County permitting and plan review govern fire alarm and sprinkler installations in the Spring area.",
+    nearbyAreas: ["The Woodlands", "Klein", "Tomball", "Humble", "Cypress"],
+  },
+  {
+    name: "Conroe",
+    slug: "conroe",
+    county: "Montgomery County",
+    population: "100,000+",
+    metro: true,
+    fireMarshal: "Conroe Fire Marshal's Office",
+    description:
+      "Conroe is the fast-growing seat of Montgomery County, with a strong industrial, retail, and healthcare base enforced by the Conroe Fire Marshal's Office and the Montgomery County Fire Marshal in surrounding areas.",
+    heroSubtitle:
+      "Commercial fire protection and compliance services for Conroe, TX.",
+    faqs: [
+      { question: "Who enforces fire code in Conroe?", answer: "The Conroe Fire Marshal's Office enforces the International Fire Code within city limits, while the Montgomery County Fire Marshal covers unincorporated areas. Chatman Security & Fire works with both for Conroe-area permitting and inspection." },
+      { question: "Do you install fire alarm and sprinkler systems in Conroe?", answer: "Yes — full commercial design, installation, and inspection for Conroe offices, retail, and industrial facilities." },
+      { question: "Can you fix a failed fire inspection in Conroe fast?", answer: "Yes. We remediate Conroe fire marshal violations quickly and coordinate re-inspection to keep you compliant." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "The Conroe Fire Marshal's Office enforces the International Fire Code with local amendments inside city limits, and the Montgomery County Fire Marshal governs unincorporated Conroe-area properties. Plan review and final inspection are required before occupancy for commercial fire systems.",
+    nearbyAreas: ["The Woodlands", "Willis", "Montgomery", "Spring", "Magnolia"],
+  },
+  {
+    name: "Missouri City",
+    slug: "missouri-city",
+    county: "Fort Bend & Harris Counties",
+    population: "75,000+",
+    metro: true,
+    fireMarshal: "Missouri City Fire & Rescue Services",
+    description:
+      "Missouri City is an established Fort Bend County community (extending into Harris County) with growing retail, office, and multi-family development served by Missouri City Fire & Rescue Services.",
+    heroSubtitle:
+      "Fire alarm, sprinkler, and life safety services for Missouri City, TX.",
+    faqs: [
+      { question: "Who is the fire marshal in Missouri City?", answer: "Missouri City Fire & Rescue Services provides fire protection and code enforcement within the city, applying the International Fire Code. Because the city spans Fort Bend and Harris counties, unincorporated pockets may fall under a county fire marshal — we confirm jurisdiction for your property." },
+      { question: "Do you serve commercial properties in Missouri City?", answer: "Yes — fire alarm, sprinkler, extinguisher, and emergency lighting service for Missouri City offices, retail, and multi-family properties." },
+      { question: "Do you handle inspection corrections in Missouri City?", answer: "Yes. We correct fire code deficiencies and coordinate re-inspection with Missouri City Fire & Rescue." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "Missouri City Fire & Rescue Services enforces the International Fire Code within city limits, with Fort Bend and Harris county fire marshals covering adjacent unincorporated areas. Permitting and plan review are handled through the city for commercial fire protection projects.",
+    nearbyAreas: ["Sugar Land", "Stafford", "Fresno", "Pearland", "Houston"],
+  },
+  {
+    name: "Tomball",
+    slug: "tomball",
+    county: "Harris County",
+    population: "12,000+",
+    metro: true,
+    fireMarshal: "Tomball Fire Marshal / Harris County Fire Marshal",
+    description:
+      "Tomball is a growing northwest Harris County city with a strong small-business, medical, and retail base, plus surrounding unincorporated commercial development under Harris County jurisdiction.",
+    heroSubtitle:
+      "Commercial fire protection and compliance services for Tomball, TX.",
+    faqs: [
+      { question: "Who enforces fire code in Tomball?", answer: "The Tomball Fire Department and fire marshal enforce the International Fire Code within city limits, while the Harris County Fire Marshal covers unincorporated Tomball-area properties. We coordinate with both AHJs for permitting and inspection." },
+      { question: "Do you install and inspect fire alarms in Tomball?", answer: "Yes — commercial fire alarm design, installation, and NFPA 72 inspection for Tomball businesses and medical facilities." },
+      { question: "Can you correct a failed inspection in Tomball?", answer: "Yes. We remediate Tomball fire marshal violations and manage re-inspection quickly." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "Tomball enforces the International Fire Code through its city fire marshal inside city limits, with the Harris County Fire Marshal covering surrounding unincorporated areas. Confirming jurisdiction is important given Tomball's mix of city and county commercial properties.",
+    nearbyAreas: ["Cypress", "Spring", "The Woodlands", "Magnolia", "Klein"],
+  },
+  {
+    name: "Pasadena",
+    slug: "pasadena",
+    county: "Harris County",
+    population: "150,000+",
+    metro: true,
+    fireMarshal: "Pasadena Fire Marshal's Office",
+    description:
+      "Pasadena is a major industrial and commercial city in southeast Harris County, home to a dense petrochemical corridor, warehouses, and retail — making fire code compliance and the Pasadena Fire Marshal's enforcement especially rigorous.",
+    heroSubtitle:
+      "Commercial and industrial fire protection services for Pasadena, TX.",
+    faqs: [
+      { question: "Who is the fire marshal in Pasadena, TX?", answer: "The Pasadena Fire Marshal's Office enforces the International Fire Code with local amendments, and given the city's heavy industrial base, hazardous-materials and high-hazard occupancy requirements are strictly enforced. Chatman Security & Fire manages permitting and inspection with the Pasadena fire marshal." },
+      { question: "Do you serve industrial properties in Pasadena?", answer: "Yes — fire alarm, sprinkler, extinguisher, and emergency lighting for Pasadena's industrial, warehouse, and commercial facilities, including high-hazard occupancies." },
+      { question: "Can you correct fire violations at a Pasadena facility?", answer: "Yes. We correct Pasadena fire marshal deficiencies and coordinate re-inspection, including for complex industrial sites." },
+    ],
+    services: METRO_SERVICES,
+    localContext:
+      "The Pasadena Fire Marshal's Office enforces the International Fire Code with amendments tailored to the city's large petrochemical and industrial corridor, where high-hazard storage and process occupancies face heightened scrutiny. Plan review and final inspection are required for commercial and industrial fire systems.",
+    nearbyAreas: ["Deer Park", "La Porte", "South Houston", "Houston", "Baytown"],
   },
 ];
