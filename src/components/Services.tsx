@@ -54,6 +54,30 @@ const services = [
     image: "/brinks_logo_blue.png",
   },
   {
+    title: "Video Surveillance",
+    description: "Commercial security cameras — HD/4K IP systems, cloud or on-site recording, and remote viewing from your phone.",
+    href: "/services/video-surveillance",
+    image: "/video_surveillance_wide.png",
+  },
+  {
+    title: "Access Control",
+    description: "Key fobs, keypads, and mobile door entry. Grant or revoke access instantly with full audit trails.",
+    href: "/services/access-control",
+    image: "/access_control_wide.png",
+  },
+  {
+    title: "PA & Mass Notification",
+    description: "Paging, intercom, and building-wide emergency alerts — integrated with fire alarm voice evacuation.",
+    href: "/services/pa-systems",
+    image: "/pa_system_wide.png",
+  },
+  {
+    title: "Nurse Call Systems",
+    description: "Reliable nurse call for assisted living and healthcare — call stations, dome lights, and reporting.",
+    href: "/services/nurse-call",
+    image: "/nurse_call_wide.png",
+  },
+  {
     title: "Fiber Optics & Cabling",
     description: "Commercial fiber and structured cabling. Backbone, data drops, splicing, and certified testing.",
     href: "/services/fiber-optics",

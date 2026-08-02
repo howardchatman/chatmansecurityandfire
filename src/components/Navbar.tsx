@@ -24,6 +24,10 @@ import {
   Lock,
   Network,
   Wifi,
+  Video,
+  KeyRound,
+  Speaker,
+  BellRing,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SignInModal from "./SignInModal";
@@ -70,6 +74,30 @@ const services = [
     description: "Brinks authorized dealer",
     href: "/services/security-alarm",
     icon: Lock,
+  },
+  {
+    name: "Video Surveillance",
+    description: "Commercial security cameras",
+    href: "/services/video-surveillance",
+    icon: Video,
+  },
+  {
+    name: "Access Control",
+    description: "Door access, fobs & mobile entry",
+    href: "/services/access-control",
+    icon: KeyRound,
+  },
+  {
+    name: "PA & Mass Notification",
+    description: "Paging, intercom & alerts",
+    href: "/services/pa-systems",
+    icon: Speaker,
+  },
+  {
+    name: "Nurse Call Systems",
+    description: "Assisted living & healthcare",
+    href: "/services/nurse-call",
+    icon: BellRing,
   },
   {
     name: "Fiber Optics & Cabling",
