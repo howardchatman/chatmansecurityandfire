@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   Phone, ArrowLeft, ArrowRight, ChevronDown, ChevronUp,
-  Video, KeyRound, Speaker, BellRing, CheckCircle2, type LucideIcon,
+  Video, KeyRound, Speaker, BellRing, DoorOpen, ShieldAlert, CheckCircle2, type LucideIcon,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -16,6 +16,8 @@ const icons: Record<string, LucideIcon> = {
   access: KeyRound,
   pa: Speaker,
   nurse: BellRing,
+  gate: DoorOpen,
+  firedept: ShieldAlert,
 };
 
 export interface ServiceLandingData {

@@ -28,6 +28,8 @@ import {
   KeyRound,
   Speaker,
   BellRing,
+  DoorOpen,
+  ShieldAlert,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SignInModal from "./SignInModal";
@@ -98,6 +100,18 @@ const services = [
     description: "Assisted living & healthcare",
     href: "/services/nurse-call",
     icon: BellRing,
+  },
+  {
+    name: "Gate Entry Systems",
+    description: "Automated gates & keypads",
+    href: "/services/gate-entry",
+    icon: DoorOpen,
+  },
+  {
+    name: "Fire Dept. Access & Knox Box",
+    description: "Rapid-entry compliance",
+    href: "/services/fire-department-access",
+    icon: ShieldAlert,
   },
   {
     name: "Fiber Optics & Cabling",

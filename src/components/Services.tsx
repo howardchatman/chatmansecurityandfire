@@ -78,6 +78,18 @@ const services = [
     image: "/nurse_call_wide.png",
   },
   {
+    title: "Gate Entry Systems",
+    description: "Automated gate operators, keypads, and call boxes — with fire department access built in.",
+    href: "/services/gate-entry",
+    image: "/gate_entry_wide.png",
+  },
+  {
+    title: "Fire Dept. Access & Knox Box",
+    description: "Knox rapid-entry boxes and gate override so first responders are never locked out. Fire-code required.",
+    href: "/services/fire-department-access",
+    image: "/fire_dept_access_wide.png",
+  },
+  {
     title: "Fiber Optics & Cabling",
     description: "Commercial fiber and structured cabling. Backbone, data drops, splicing, and certified testing.",
     href: "/services/fiber-optics",

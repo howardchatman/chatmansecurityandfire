@@ -19,6 +19,8 @@ const serviceSlugs = [
   "access-control",
   "pa-systems",
   "nurse-call",
+  "gate-entry",
+  "fire-department-access",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
