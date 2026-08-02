@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
-import { addContactToSystemeIo } from "@/lib/systeme-io";
+import { upsertGhlContact } from "@/lib/gohighlevel";
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,6 +46,17 @@ export async function POST(request: NextRequest) {
 
     const data = await createLead(lead);
 
+    // Push into GoHighLevel — the single source of truth for CRM / leads /
+    // sales pipeline. Fires for every lead (phone-only or with email).
+    upsertGhlContact({
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      source: lead.source || "website",
+      tags: [body.serviceNeed, body.buildingType].filter(Boolean),
+      note: lead.message || undefined,
+    }).catch((err) => console.error("Failed to push lead to GoHighLevel:", err));
+
     // Send email notification (don't await to avoid slowing down response)
     sendLeadNotification({
       name: lead.name,
@@ -62,15 +73,6 @@ export async function POST(request: NextRequest) {
         customerName: lead.name,
         service: body.serviceNeed || undefined,
       }).catch((err) => console.error("Failed to send customer confirmation:", err));
-
-      // Enroll in Systeme.io automation
-      addContactToSystemeIo({
-        email: lead.email,
-        firstName: lead.name.split(" ")[0],
-        lastName: lead.name.split(" ").slice(1).join(" ") || undefined,
-        phone: lead.phone || undefined,
-        tags: [body.serviceNeed, body.buildingType, body.source].filter(Boolean),
-      }).catch((err) => console.error("Failed to add contact to Systeme.io:", err));
     }
 
     return NextResponse.json({
