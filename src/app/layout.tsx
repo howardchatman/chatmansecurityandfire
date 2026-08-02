@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   description:
     "Houston's trusted commercial fire protection company since 2009. Fire alarm systems, sprinklers, extinguishers, fire marshal compliance, and Brinks security. Licensed & insured. 24/7 dispatch. (832) 859-7009.",
   metadataBase: new URL("https://www.chatmansecurityandfire.com"),
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": "https://www.chatmansecurityandfire.com/rss.xml" },
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
