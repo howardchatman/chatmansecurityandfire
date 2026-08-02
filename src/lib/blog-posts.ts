@@ -14,6 +14,30 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    title: "Do I Need a Knox Box? Fire Department Access Rules for Texas Businesses",
+    url: "https://blog.chatmansecurityandfire.com/do-i-need-a-knox-box-texas",
+    description:
+      "Does your Texas business need a Knox Box? What it is, when the fire code requires one, how to order it through your fire department, and gate access rules — explained simply.",
+    date: "2026-08-02T15:20:00.000Z",
+    category: "Fire & Life Safety",
+  },
+  {
+    title: "Houston Commercial Fire Inspection Checklist: Pass the First Time",
+    url: "https://blog.chatmansecurityandfire.com/houston-commercial-fire-inspection-checklist",
+    description:
+      "A practical pre-inspection checklist for Houston businesses — the exact items fire marshals check, from fire alarms and extinguishers to exit lighting, egress, and Knox boxes.",
+    date: "2026-08-02T15:10:00.000Z",
+    category: "Fire & Life Safety",
+  },
+  {
+    title: "How Much Does a Commercial Fire Alarm System Cost in Houston?",
+    url: "https://blog.chatmansecurityandfire.com/commercial-fire-alarm-system-cost-houston",
+    description:
+      "What does a commercial fire alarm system cost in Houston? Real price ranges, the factors that drive cost, ongoing monitoring and inspection fees, and how to avoid overpaying.",
+    date: "2026-08-02T15:00:00.000Z",
+    category: "Fire & Life Safety",
+  },
+  {
     title: "Failed a Houston Fire Marshal Inspection? Here's Exactly What to Do",
     url: "https://blog.chatmansecurityandfire.com/failed-houston-fire-marshal-inspection-what-to-do",
     description:
