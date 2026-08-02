@@ -117,7 +117,7 @@ export default function FireAlarmContent() {
         <section
           className="relative py-16 lg:py-24"
           style={{
-            backgroundImage: "url('/fire_alarm_wide.png')",
+            backgroundImage: "url('/fire_alarm_wide.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundColor: "#1a1a1a",

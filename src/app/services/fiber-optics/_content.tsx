@@ -112,7 +112,7 @@ export default function FiberOpticsContent() {
         <section
           className="relative py-16 lg:py-24"
           style={{
-            backgroundImage: "url('/fiber_optic_wide.png')",
+            backgroundImage: "url('/fiber_optic_wide.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundColor: "#0D1B2A",

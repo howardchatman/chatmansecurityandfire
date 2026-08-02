@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 const data: ServiceLandingData = {
   iconName: "firedept",
-  bgImage: "/fire_dept_access_wide.png",
+  bgImage: "/fire_dept_access_wide.webp",
   kicker: "Fire Department Access",
   title: "Knox Box & Fire Department Access in Houston, TX",
   intro:

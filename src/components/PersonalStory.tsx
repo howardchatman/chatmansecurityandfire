@@ -17,7 +17,7 @@ export default function PersonalStory() {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[4/5]">
               <Image
-                src="/story-panel.jpg"
+                src="/story-panel.webp"
                 alt="Chatman Security & Fire technician wiring a commercial fire alarm control panel"
                 fill
                 className="object-cover"

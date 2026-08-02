@@ -11,7 +11,7 @@ export default function CTA() {
       {/* Embers background */}
       <div className="absolute inset-0">
         <Image
-          src="/bg-embers-dark.png"
+          src="/bg-embers-dark.webp"
           alt=""
           fill
           className="object-cover opacity-70"

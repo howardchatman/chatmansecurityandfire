@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 const data: ServiceLandingData = {
   iconName: "access",
-  bgImage: "/access_control_wide.png",
+  bgImage: "/access_control_wide.webp",
   kicker: "Access Control",
   title: "Commercial Access Control in Houston, TX",
   intro:

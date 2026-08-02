@@ -132,7 +132,7 @@ export default function SellAccountsContent() {
         {/* Hero */}
         <section
           className="relative py-20 lg:py-28"
-          style={{ backgroundImage: "url('/acquire_hero.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0D1B2A" }}
+          style={{ backgroundImage: "url('/acquire_hero.webp')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0D1B2A" }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B2A] via-[#0D1B2A]/85 to-[#0D1B2A]/40" />
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -243,7 +243,7 @@ export default function SellAccountsContent() {
                 </a>
               </div>
               <div className="rounded-2xl overflow-hidden shadow-2xl">
-                <img src="/acquire_valuation.png" alt="Reviewing an account portfolio and valuation" className="w-full h-auto" />
+                <img src="/acquire_valuation.webp" alt="Reviewing an account portfolio and valuation" className="w-full h-auto" />
               </div>
             </div>
           </div>

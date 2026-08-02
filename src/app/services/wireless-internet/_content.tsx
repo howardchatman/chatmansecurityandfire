@@ -112,7 +112,7 @@ export default function WirelessContent() {
         <section
           className="relative py-16 lg:py-24"
           style={{
-            backgroundImage: "url('/wireless_wide.png')",
+            backgroundImage: "url('/wireless_wide.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundColor: "#0D1B2A",

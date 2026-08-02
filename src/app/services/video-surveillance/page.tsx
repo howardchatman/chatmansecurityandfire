@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 const data: ServiceLandingData = {
   iconName: "video",
-  bgImage: "/video_surveillance_wide.png",
+  bgImage: "/video_surveillance_wide.webp",
   kicker: "Video Surveillance",
   title: "Commercial Security Cameras in Houston, TX",
   intro:

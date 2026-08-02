@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 const data: ServiceLandingData = {
   iconName: "pa",
-  bgImage: "/pa_system_wide.png",
+  bgImage: "/pa_system_wide.webp",
   kicker: "PA & Mass Notification",
   title: "PA & Mass Notification Systems in Houston, TX",
   intro:

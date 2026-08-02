@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 const data: ServiceLandingData = {
   iconName: "gate",
-  bgImage: "/gate_entry_wide.png",
+  bgImage: "/gate_entry_wide.webp",
   kicker: "Gate Entry Systems",
   title: "Commercial Gate Entry Systems in Houston, TX",
   intro:

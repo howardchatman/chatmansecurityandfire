@@ -21,7 +21,7 @@ export default function FireLaneMarkingContent() {
       <main className="pt-20">
         <section
           className="relative py-16 lg:py-24"
-          style={{ backgroundImage: "url('/fire_lane_wide.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#1a1a1a" }}
+          style={{ backgroundImage: "url('/fire_lane_wide.webp')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#1a1a1a" }}
         >
           <div className="absolute inset-0 bg-black/50" />
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

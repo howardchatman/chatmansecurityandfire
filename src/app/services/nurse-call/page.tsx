@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 const data: ServiceLandingData = {
   iconName: "nurse",
-  bgImage: "/nurse_call_wide.png",
+  bgImage: "/nurse_call_wide.webp",
   kicker: "Nurse Call Systems",
   title: "Nurse Call Systems in Houston, TX",
   intro:
