@@ -1,32 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAssignedJobs } from "@/lib/supabase";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-min-32-chars-long!!"
-);
-
-async function verifyAuth() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { userId: string; email: string; role: string };
-  } catch {
-    return null;
-  }
-}
+import { verifyAuth } from "@/lib/auth";
 
 // GET: Get jobs assigned to the current user
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const auth = await verifyAuth();
+    const auth = await verifyAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -42,7 +21,7 @@ export async function GET() {
       );
     }
 
-    const jobs = await getAssignedJobs(auth.userId);
+    const jobs = await getAssignedJobs(auth.id);
 
     return NextResponse.json({
       success: true,

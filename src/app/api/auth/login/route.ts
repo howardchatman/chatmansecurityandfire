@@ -50,6 +50,8 @@ export async function POST(request: NextRequest) {
       email: user.email,
       name: user.name,
       role: user.role,
+      // Present once the admin_users.customer_id column exists; otherwise resolved by email at request time.
+      customer_id: user.customer_id ?? null,
     };
 
     const token = await createToken(tokenUser);

@@ -17,13 +17,18 @@ export interface User {
   email: string;
   name: string | null;
   role: UserRole;
+  customer_id?: string | null;
 }
 
 export interface JWTPayload {
   id: string;
+  /** Alias of `id`. Kept so routes that historically read `auth.userId` work with the shared verifier. */
+  userId?: string;
   email: string;
   name: string | null;
   role: UserRole;
+  /** For role === "customer": the customers.id this login is scoped to (may be null if unlinked). */
+  customer_id?: string | null;
   exp?: number;
 }
 
@@ -48,6 +53,7 @@ export async function createToken(user: User): Promise<string> {
     email: user.email,
     name: user.name,
     role: user.role,
+    customer_id: user.customer_id ?? null,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -60,7 +66,12 @@ export async function createToken(user: User): Promise<string> {
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as unknown as JWTPayload;
+    const parsed = payload as unknown as JWTPayload;
+    // Expose `userId` as an alias of `id` for routes migrating off the old ad-hoc verifier.
+    if (parsed.userId === undefined) {
+      parsed.userId = parsed.id;
+    }
+    return parsed;
   } catch {
     return null;
   }

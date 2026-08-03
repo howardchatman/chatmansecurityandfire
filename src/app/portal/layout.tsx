@@ -41,8 +41,20 @@ export default function PortalLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    if (!user) {
       router.push("/");
+      return;
+    }
+    // This portal is customer-only. Send other roles to their own area.
+    if (user.role !== "customer") {
+      if (user.role === "admin" || user.role === "manager") {
+        router.push("/admin");
+      } else if (user.role === "technician" || user.role === "inspector") {
+        router.push("/tech");
+      } else {
+        router.push("/");
+      }
     }
   }, [user, loading, router]);
 
@@ -54,7 +66,7 @@ export default function PortalLayout({
     );
   }
 
-  if (!user) {
+  if (!user || user.role !== "customer") {
     return null;
   }
 

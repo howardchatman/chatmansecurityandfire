@@ -1,28 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-min-32-chars-long!!"
-);
-
-async function verifyAuth() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { userId: string; email: string; role: string; teamId?: string };
-  } catch {
-    return null;
-  }
-}
+import { verifyAuth } from "@/lib/auth";
+import { getCustomerIdForUser } from "@/lib/customer";
 
 // GET: List invoices with optional filters
 export async function GET(request: NextRequest) {
   try {
-    const auth = await verifyAuth();
+    const auth = await verifyAuth(request);
     if (!auth) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
@@ -32,6 +16,17 @@ export async function GET(request: NextRequest) {
     const customerId = searchParams.get("customer_id");
     const jobId = searchParams.get("job_id");
     const search = searchParams.get("search");
+
+    // A customer may only ever see their own invoices — ignore any customer_id
+    // param and force scope to the customers row linked to their login.
+    let effectiveCustomerId = customerId;
+    if (auth.role === "customer") {
+      const ownCustomerId = await getCustomerIdForUser(auth);
+      if (!ownCustomerId) {
+        return NextResponse.json({ success: true, data: [] });
+      }
+      effectiveCustomerId = ownCustomerId;
+    }
 
     let query = supabaseAdmin
       .from("invoices")
@@ -44,8 +39,8 @@ export async function GET(request: NextRequest) {
     if (status && status !== "all") {
       query = query.eq("status", status);
     }
-    if (customerId) {
-      query = query.eq("customer_id", customerId);
+    if (effectiveCustomerId) {
+      query = query.eq("customer_id", effectiveCustomerId);
     }
     if (jobId) {
       query = query.eq("job_id", jobId);
@@ -71,7 +66,7 @@ export async function GET(request: NextRequest) {
 // POST: Create a new invoice with line items
 export async function POST(request: NextRequest) {
   try {
-    const auth = await verifyAuth();
+    const auth = await verifyAuth(request);
     if (!auth) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }

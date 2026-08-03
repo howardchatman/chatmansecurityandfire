@@ -1,28 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-min-32-chars-long!!"
-);
-
-async function verifyAuth() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { userId: string; email: string; role: string; teamId?: string };
-  } catch {
-    return null;
-  }
-}
+import { verifyAuth } from "@/lib/auth";
+import { getCustomerIdForUser } from "@/lib/customer";
 
 // GET: List payments with optional filters
 export async function GET(request: NextRequest) {
   try {
-    const auth = await verifyAuth();
+    const auth = await verifyAuth(request);
     if (!auth) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
@@ -31,6 +15,16 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const customerId = searchParams.get("customer_id");
     const invoiceId = searchParams.get("invoice_id");
+
+    // A customer may only ever see their own payments.
+    let effectiveCustomerId = customerId;
+    if (auth.role === "customer") {
+      const ownCustomerId = await getCustomerIdForUser(auth);
+      if (!ownCustomerId) {
+        return NextResponse.json({ success: true, data: [] });
+      }
+      effectiveCustomerId = ownCustomerId;
+    }
 
     let query = supabaseAdmin
       .from("payments")
@@ -44,8 +38,8 @@ export async function GET(request: NextRequest) {
     if (status && status !== "all") {
       query = query.eq("status", status);
     }
-    if (customerId) {
-      query = query.eq("customer_id", customerId);
+    if (effectiveCustomerId) {
+      query = query.eq("customer_id", effectiveCustomerId);
     }
     if (invoiceId) {
       query = query.eq("invoice_id", invoiceId);
@@ -68,7 +62,7 @@ export async function GET(request: NextRequest) {
 // POST: Record a manual payment (check, cash, etc.)
 export async function POST(request: NextRequest) {
   try {
-    const auth = await verifyAuth();
+    const auth = await verifyAuth(request);
     if (!auth) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }

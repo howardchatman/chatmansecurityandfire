@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
         email: payload.email,
         name: payload.name,
         role: payload.role,
+        customer_id: payload.customer_id ?? null,
       },
     });
   } catch (error) {
