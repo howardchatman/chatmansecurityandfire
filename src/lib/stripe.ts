@@ -75,17 +75,14 @@ export async function createInvoice(data: {
   memo?: string;
   metadata?: Record<string, string>;
 }) {
-  // Create invoice items
-  for (const item of data.items) {
-    await stripe.invoiceItems.create({
-      customer: data.customerId,
-      amount: item.amount,
-      currency: "usd",
-      description: item.description,
-    });
-  }
-
-  // Create the invoice
+  // Create the invoice first, then attach each line item to it explicitly.
+  //
+  // Items created with only a `customer` are "pending" items, and current
+  // Stripe API versions do NOT pull those into a new invoice by default
+  // (pending_invoice_items_behavior defaults to "exclude"). Doing it in the old
+  // order produced a finalized invoice with no line items — a $0 invoice sent
+  // to the customer. Attaching by invoice id also stops unrelated pending items
+  // on the same customer from being swept into this invoice.
   const invoice = await stripe.invoices.create({
     customer: data.customerId,
     collection_method: "send_invoice",
@@ -95,6 +92,18 @@ export async function createInvoice(data: {
     description: data.memo,
     metadata: data.metadata,
   });
+
+  if (!invoice.id) throw new Error("Stripe did not return an invoice id");
+
+  for (const item of data.items) {
+    await stripe.invoiceItems.create({
+      customer: data.customerId,
+      invoice: invoice.id,
+      amount: item.amount,
+      currency: "usd",
+      description: item.description,
+    });
+  }
 
   // Finalize the invoice
   const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
@@ -115,15 +124,7 @@ export async function createDepositInvoice(data: {
 }) {
   const depositAmount = Math.round(data.totalAmount * (data.depositPercent / 100));
 
-  // Create deposit invoice item
-  await stripe.invoiceItems.create({
-    customer: data.customerId,
-    amount: depositAmount,
-    currency: "usd",
-    description: `Deposit (${data.depositPercent}%) - ${data.projectDescription}`,
-  });
-
-  // Create the deposit invoice
+  // Invoice first, then attach the item to it — see createInvoice above for why.
   const invoice = await stripe.invoices.create({
     customer: data.customerId,
     collection_method: "send_invoice",
@@ -135,6 +136,16 @@ export async function createDepositInvoice(data: {
       total_project_amount: String(data.totalAmount),
       deposit_percent: String(data.depositPercent),
     },
+  });
+
+  if (!invoice.id) throw new Error("Stripe did not return an invoice id");
+
+  await stripe.invoiceItems.create({
+    customer: data.customerId,
+    invoice: invoice.id,
+    amount: depositAmount,
+    currency: "usd",
+    description: `Deposit (${data.depositPercent}%) - ${data.projectDescription}`,
   });
 
   const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
@@ -153,15 +164,7 @@ export async function createBalanceInvoice(data: {
   originalInvoiceId?: string;
   metadata?: Record<string, string>;
 }) {
-  // Create balance invoice item
-  await stripe.invoiceItems.create({
-    customer: data.customerId,
-    amount: data.balanceAmount,
-    currency: "usd",
-    description: `Balance Due - ${data.projectDescription}`,
-  });
-
-  // Create the balance invoice
+  // Invoice first, then attach the item to it — see createInvoice above for why.
   const invoice = await stripe.invoices.create({
     customer: data.customerId,
     collection_method: "send_invoice",
@@ -172,6 +175,16 @@ export async function createBalanceInvoice(data: {
       type: "balance",
       original_deposit_invoice: data.originalInvoiceId || "",
     },
+  });
+
+  if (!invoice.id) throw new Error("Stripe did not return an invoice id");
+
+  await stripe.invoiceItems.create({
+    customer: data.customerId,
+    invoice: invoice.id,
+    amount: data.balanceAmount,
+    currency: "usd",
+    description: `Balance Due - ${data.projectDescription}`,
   });
 
   const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
