@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Plus, MoreHorizontal, Mail, Phone, RefreshCw, UserPlus, Loader2, X, CheckCircle, Building2, FileText } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
+import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 interface Lead {
@@ -343,6 +344,12 @@ export default function LeadsPage() {
               >
                 <MoreHorizontal className="w-4 h-4" />
               </button>
+              <DeleteButton
+                endpoint={`/api/leads/${lead.id}`}
+                label={lead.name}
+                entity="lead"
+                onDeleted={fetchLeads}
+              />
             </div>
           )}
         />

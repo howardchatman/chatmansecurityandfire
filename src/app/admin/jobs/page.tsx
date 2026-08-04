@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   ClipboardList,
 } from "lucide-react";
+import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 interface Team {
@@ -559,6 +560,15 @@ export default function JobsPage() {
                     >
                       <MoreHorizontal className="w-4 h-4" />
                     </button>
+                    <div onClick={(e) => e.preventDefault()}>
+                      <DeleteButton
+                        endpoint={`/api/jobs/${job.id}`}
+                        label={`${job.job_number} — ${job.customer_name}`}
+                        entity="job"
+                        warning="Its assignments, notes, photos, and checklists are removed too. A job that has been invoiced can't be deleted."
+                        onDeleted={fetchData}
+                      />
+                    </div>
                   </div>
                 </div>
               </Link>

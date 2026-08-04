@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Building2, MapPin, X } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
+import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 interface Customer {
@@ -199,6 +200,15 @@ export default function CustomersPage() {
           data={filteredCustomers}
           searchPlaceholder="Search customers..."
           onRowClick={(customer) => router.push(`/admin/customers/${customer.id}`)}
+          actions={(customer) => (
+            <DeleteButton
+              endpoint={`/api/customers/${customer.id}`}
+              label={customer.company || customer.name}
+              entity="customer"
+              warning="Their quotes, jobs, and invoices will remain but will no longer be linked to a customer record."
+              onDeleted={fetchCustomers}
+            />
+          )}
         />
       )}
 

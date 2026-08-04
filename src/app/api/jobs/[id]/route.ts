@@ -108,6 +108,63 @@ export async function GET(
   }
 }
 
+// DELETE: Remove a job and everything hanging off it (admin only)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await verifyAuth(request);
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json(
+        { success: false, error: "Only admins can delete jobs" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await params;
+
+    // An invoiced job is a financial record — void the invoice first.
+    const { data: invoice } = await supabase
+      .from("invoices")
+      .select("invoice_number")
+      .eq("job_id", id)
+      .maybeSingle();
+
+    if (invoice) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `This job is attached to invoice ${invoice.invoice_number}. Delete that invoice first.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Child rows first — these do not all cascade.
+    await supabase.from("job_assignments").delete().eq("job_id", id);
+    await supabase.from("job_notes").delete().eq("job_id", id);
+    await supabase.from("job_photos").delete().eq("job_id", id);
+    await supabase.from("job_events").delete().eq("job_id", id);
+    await supabase.from("job_checklists").delete().eq("job_id", id);
+
+    const { error } = await supabase.from("jobs").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting job:", error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: "Job deleted" });
+  } catch (error) {
+    console.error("Error deleting job:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to delete job" },
+      { status: 500 }
+    );
+  }
+}
+
 // PATCH: Update job or perform actions
 export async function PATCH(
   request: NextRequest,

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, MoreHorizontal, FileText } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
+import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 interface Invoice {
@@ -217,15 +218,24 @@ export default function InvoicesPage() {
           searchPlaceholder="Search invoices..."
           onRowClick={(invoice) => router.push(`/admin/invoices/${invoice.id}`)}
           actions={(invoice) => (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/admin/invoices/${invoice.id}`);
-              }}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/admin/invoices/${invoice.id}`);
+                }}
+                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+              <DeleteButton
+                endpoint={`/api/invoices/${invoice.id}`}
+                label={invoice.invoice_number}
+                entity="invoice"
+                warning="Only draft invoices can be deleted. Void a sent invoice instead."
+                onDeleted={fetchInvoices}
+              />
+            </div>
           )}
         />
       )}

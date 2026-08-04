@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Plus, User, Mail, Loader2, X, Pencil, Copy, Check } from "lucide-react";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 interface Employee {
   id: string;
@@ -183,10 +184,19 @@ export default function EmployeesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button onClick={() => { setEditing(p); setForm({ full_name: p.full_name, email: p.email, phone: p.phone || "", role: p.role }); setError(""); setShowEdit(true); }}
-                      className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
-                      <Pencil className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => { setEditing(p); setForm({ full_name: p.full_name, email: p.email, phone: p.phone || "", role: p.role }); setError(""); setShowEdit(true); }}
+                        className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <DeleteButton
+                        endpoint={`/api/admin/invite?id=${p.id}`}
+                        label={p.full_name || p.email}
+                        entity="employee"
+                        warning="If they have job history their account is deactivated instead of deleted, so their work stays intact."
+                        onDeleted={fetchEmployees}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

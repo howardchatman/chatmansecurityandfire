@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, ExternalLink, CheckCircle, XCircle, Clock } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
+import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 interface Payment {
@@ -245,6 +246,15 @@ export default function PaymentsPage() {
           columns={columns}
           data={payments}
           searchPlaceholder="Search payments..."
+          actions={(payment) => (
+            <DeleteButton
+              endpoint={`/api/payments/${payment.id}`}
+              label={`$${Number(payment.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} payment`}
+              entity="payment"
+              warning="The invoice balance this was applied to will be adjusted back up."
+              onDeleted={fetchPayments}
+            />
+          )}
         />
       )}
     </div>

@@ -148,6 +148,64 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// DELETE: Remove a login. Accounts that already own work history are
+// deactivated instead of deleted, so their jobs/notes keep a valid author.
+export async function DELETE(request: NextRequest) {
+  try {
+    const auth = await verifyAdminAuth(request);
+    if (!auth) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized - Admin access required" },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ success: false, error: "Employee id is required" }, { status: 400 });
+    }
+
+    if (id === auth.id) {
+      return NextResponse.json(
+        { success: false, error: "You cannot delete the account you are signed in with." },
+        { status: 400 }
+      );
+    }
+
+    const { data: assignments } = await supabaseAdmin
+      .from("job_assignments")
+      .select("id")
+      .eq("user_id", id)
+      .limit(1);
+
+    if (assignments && assignments.length > 0) {
+      const { error } = await supabaseAdmin
+        .from("admin_users")
+        .update({ is_active: false })
+        .eq("id", id);
+      if (error) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      }
+      return NextResponse.json({
+        success: true,
+        deactivated: true,
+        message: "This person has job history, so their account was deactivated instead of deleted. They can no longer sign in.",
+      });
+    }
+
+    const { error } = await supabaseAdmin.from("admin_users").delete().eq("id", id);
+    if (error) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: "Employee deleted" });
+  } catch (error) {
+    console.error("Error deleting employee:", error);
+    return NextResponse.json({ success: false, error: "Failed to delete employee" }, { status: 500 });
+  }
+}
+
 // PATCH: Update an employee's role or active status
 export async function PATCH(request: NextRequest) {
   try {
