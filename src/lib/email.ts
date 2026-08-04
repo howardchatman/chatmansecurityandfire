@@ -359,6 +359,15 @@ export async function sendEmail({
   }
 }
 
+// Resend rejects the whole send with a 422 if reply_to isn't a real address.
+// Phone-only leads arrive with no email (callers pass "not provided"), which
+// used to kill the notification entirely — so only set reply_to when it's valid.
+function validReplyTo(email?: string | null): string | undefined {
+  if (!email) return undefined;
+  const trimmed = email.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed) ? trimmed : undefined;
+}
+
 export async function sendLeadNotification(lead: {
   name: string;
   email: string;
@@ -371,7 +380,7 @@ export async function sendLeadNotification(lead: {
     to: ADMIN_EMAIL,
     subject: template.subject,
     html: template.html,
-    replyTo: lead.email,
+    replyTo: validReplyTo(lead.email),
   });
 }
 
@@ -386,7 +395,7 @@ export async function sendAccessRequestNotification(request: {
     to: ADMIN_EMAIL,
     subject: template.subject,
     html: template.html,
-    replyTo: request.email,
+    replyTo: validReplyTo(request.email),
   });
 }
 
