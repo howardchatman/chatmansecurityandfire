@@ -8,7 +8,7 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 // Admin emails that get admin role
-const ADMIN_EMAILS = ["howard@chatmaninc.com", "howardchatman@icloud.com"];
+const ADMIN_EMAILS = ["howardchatman@icloud.com"];
 
 export type UserRole = "admin" | "manager" | "customer" | "technician" | "inspector";
 
