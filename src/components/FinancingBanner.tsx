@@ -6,7 +6,7 @@ import { CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
 
 const points = [
   "Up to $100,000",
-  "Rates as low as 4.49% APR",
+  "Rates as low as 6% APR",
   "Checking won't affect your credit",
 ];
 

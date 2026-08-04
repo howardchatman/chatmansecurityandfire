@@ -19,7 +19,7 @@ const ACORN_BANNER_IMG = "https://fs.acornfinance.com/banners/acorn-finance-bann
 const steps = [
   { icon: Sparkles, title: "Check your rate in ~60 seconds", desc: "One short form. It's a soft credit check — seeing your offers will NOT affect your credit score." },
   { icon: Users, title: "Compare offers from 12+ lenders", desc: "Acorn's network puts competing lenders side by side so you get the best rate you qualify for." },
-  { icon: Wallet, title: "Pick the terms that fit you", desc: "Choose your monthly payment and term — up to $100,000 and terms up to 12 years." },
+  { icon: Wallet, title: "Pick the terms that fit you", desc: "Choose your monthly payment and term — up to $100,000 and terms up to 20 years." },
   { icon: Clock, title: "Get funded, we get to work", desc: "Approved funds can arrive in as little as 1–2 business days, and we schedule your project." },
 ];
 
@@ -50,7 +50,7 @@ const faqs = [
   {
     question: "What are the rates and terms?",
     answer:
-      "Rates start as low as 4.49% APR, with repayment terms up to 12 years, depending on your credit and the lender you choose. Because Acorn shows you offers from 12+ competing lenders at once, you can pick the combination of rate and monthly payment that works best for you.",
+      "Rates start as low as 6% APR, with repayment terms up to 20 years, depending on your credit and the lender you choose. Because Acorn shows you offers from 12+ competing lenders at once, you can pick the combination of rate and monthly payment that works best for you.",
   },
   {
     question: "How fast can I get funded?",
@@ -115,7 +115,7 @@ export default function FinancingContent() {
               <p className="text-gray-400 mb-8">
                 Compare offers from <strong className="text-white">12+ lenders</strong> · up to{" "}
                 <strong className="text-white">$100,000</strong> · rates as low as{" "}
-                <strong className="text-white">4.49% APR</strong> · checking won&apos;t affect your credit.
+                <strong className="text-white">6% APR</strong> · checking won&apos;t affect your credit.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a href={ACORN_APPLY_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-full transition-all shadow-lg shadow-orange-600/30">
@@ -198,8 +198,8 @@ export default function FinancingContent() {
             <p className="text-xs text-gray-500 mt-6 max-w-3xl leading-relaxed">
               <strong>Estimates for illustration only.</strong> Actual rates, terms, and monthly
               payments are set by third-party lenders in the Acorn Finance network and depend on your
-              creditworthiness and the offer you accept. Rates start as low as 4.49% APR with terms up
-              to 12 years. Financing is provided by Acorn&apos;s lending partners, not by Chatman
+              creditworthiness and the offer you accept. Rates start as low as 6% APR with terms up
+              to 20 years. Financing is provided by Acorn&apos;s lending partners, not by Chatman
               Security &amp; Fire. This is not a commitment to lend or an offer of credit.
             </p>
             <div className="mt-6">
