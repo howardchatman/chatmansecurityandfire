@@ -4,7 +4,6 @@ import { supabaseAdmin } from "@/lib/supabase";
 import {
   getOrCreateStripeCustomer,
   createInvoice as createStripeInvoice,
-  sendInvoice as sendStripeInvoice,
   formatAmount,
 } from "@/lib/stripe";
 import { sendInvoiceEmail } from "@/lib/email";
@@ -70,7 +69,12 @@ export async function POST(
       },
     });
 
-    await sendStripeInvoice(stripeInvoice.id);
+    // Deliberately NOT calling Stripe's own send here. Stripe would email its
+    // own copy of the invoice under its own number (e.g. 3VJ5HA8F-0002) while
+    // we separately email ours (INV-2026-...), so the customer received two
+    // emails with two different numbers for one bill. We send the branded one
+    // below; the invoice is already finalized, so the hosted pay page and PDF
+    // work regardless.
 
     // Update our invoice with Stripe data
     await supabaseAdmin
