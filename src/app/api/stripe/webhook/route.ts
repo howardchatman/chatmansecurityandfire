@@ -12,22 +12,24 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
     const signature = request.headers.get("stripe-signature");
 
-    let event;
+    // The signature is the ONLY thing authenticating this endpoint. There is no
+    // unverified path: this previously fell back to trusting the raw body when
+    // no signature header was present, which let anyone POST a forged
+    // invoice.paid and mark an invoice paid without paying.
+    if (!webhookSecret) {
+      console.error("STRIPE_WEBHOOK_SECRET is not configured — refusing webhook");
+      return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+    }
+    if (!signature) {
+      return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+    }
 
-    // Verify webhook signature if secret is configured
-    if (webhookSecret && signature) {
-      try {
-        event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-      } catch (err) {
-        console.error("Webhook signature verification failed:", err);
-        return NextResponse.json(
-          { error: "Invalid signature" },
-          { status: 400 }
-        );
-      }
-    } else {
-      // For testing without signature verification
-      event = JSON.parse(body);
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    } catch (err) {
+      console.error("Webhook signature verification failed:", err);
+      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
     console.log("[Stripe Webhook] Received:", event.type);
@@ -44,7 +46,10 @@ export async function POST(request: NextRequest) {
             .update({
               status: "paid",
               paid_at: new Date().toISOString(),
-              stripe_payment_intent: invoice.payment_intent,
+              // payment_intent is no longer on the Invoice type in this API
+              // version but is still present on the wire for card payments.
+              stripe_payment_intent:
+                (invoice as unknown as { payment_intent?: string }).payment_intent ?? null,
             })
             .eq("id", invoice.metadata.invoice_db_id);
         }
