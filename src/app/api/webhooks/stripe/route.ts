@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+// Webhooks are authenticated by Stripe's signature, not a user session, so they
+// must use the service-role client. The anon client is blocked by RLS, which
+// made every payment update silently no-op while still returning 200 to Stripe.
+import { supabaseAdmin } from "@/lib/supabase";
 import Stripe from "stripe";
 
 // Lazy initialization to avoid build errors when STRIPE_SECRET_KEY is not set
@@ -88,7 +91,7 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
 
   const amountPaid = (stripeInvoice.amount_paid || 0) / 100;
 
-  const { data: invoice } = await supabase
+  const { data: invoice } = await supabaseAdmin
     .from("invoices")
     .select("id, total")
     .eq("stripe_invoice_id", stripeInvoice.id)
@@ -101,7 +104,7 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
 
   const isFullyPaid = amountPaid >= (invoice.total || 0);
 
-  await supabase
+  await supabaseAdmin
     .from("invoices")
     .update({
       status: isFullyPaid ? "paid" : "partial",
@@ -112,14 +115,14 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
 
   if (isFullyPaid) {
     // Also update the job status to paid if linked
-    const { data: inv } = await supabase
+    const { data: inv } = await supabaseAdmin
       .from("invoices")
       .select("job_id")
       .eq("id", invoice.id)
       .single();
 
     if (inv?.job_id) {
-      await supabase
+      await supabaseAdmin
         .from("jobs")
         .update({ status: "paid", paid_at: new Date().toISOString() })
         .eq("id", inv.job_id);
@@ -133,7 +136,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const { quote_id, acceptance_id, payment_type } = session.metadata || {};
 
   // Update payment record
-  const { error: paymentError } = await supabase
+  const { error: paymentError } = await supabaseAdmin
     .from("payments")
     .update({
       status: "succeeded",
@@ -159,7 +162,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       updateData.payment_status = "paid";
     }
 
-    const { error: quoteError } = await supabase
+    const { error: quoteError } = await supabaseAdmin
       .from("quotes")
       .update(updateData)
       .eq("id", quote_id);
@@ -184,7 +187,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   const receiptUrl = charges.data[0]?.receipt_url;
 
   // Update payment record
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from("payments")
     .update({
       status: "succeeded",
@@ -205,7 +208,7 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
   const failureMessage = paymentIntent.last_payment_error?.message || "Payment failed";
 
   // Update payment record
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from("payments")
     .update({
       status: "failed",
@@ -226,7 +229,7 @@ async function handleRefund(charge: Stripe.Charge) {
   const isFullRefund = charge.refunded;
 
   // Update payment record
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from("payments")
     .update({
       status: isFullRefund ? "refunded" : "partially_refunded",
@@ -242,14 +245,14 @@ async function handleRefund(charge: Stripe.Charge) {
   // Update quote payment status if fully refunded
   if (isFullRefund) {
     // Get the payment to find the quote
-    const { data: payment } = await supabase
+    const { data: payment } = await supabaseAdmin
       .from("payments")
       .select("quote_id")
       .eq("stripe_charge_id", charge.id)
       .single();
 
     if (payment?.quote_id) {
-      await supabase
+      await supabaseAdmin
         .from("quotes")
         .update({ payment_status: "refunded" })
         .eq("id", payment.quote_id);

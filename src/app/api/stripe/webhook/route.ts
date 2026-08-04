@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { supabase } from "@/lib/supabase";
+// Webhooks are authenticated by Stripe's signature, not a user session, so they
+// must use the service-role client. The anon client is blocked by RLS, which
+// made every payment update silently no-op while still returning 200 to Stripe.
+import { supabaseAdmin } from "@/lib/supabase";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -36,7 +39,7 @@ export async function POST(request: NextRequest) {
 
         // Update invoice status in database if tracking
         if (invoice.metadata?.invoice_db_id) {
-          await supabase
+          await supabaseAdmin
             .from("invoices")
             .update({
               status: "paid",
@@ -53,7 +56,7 @@ export async function POST(request: NextRequest) {
         console.log("[Stripe Webhook] Invoice payment failed:", invoice.id);
 
         if (invoice.metadata?.invoice_db_id) {
-          await supabase
+          await supabaseAdmin
             .from("invoices")
             .update({ status: "payment_failed" })
             .eq("id", invoice.metadata.invoice_db_id);
