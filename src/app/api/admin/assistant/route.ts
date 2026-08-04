@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
 
 // Mock data for the assistant to reference
 // In production, this would query your Supabase database
@@ -114,6 +115,11 @@ INSTRUCTIONS:
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAuth(req);
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const { messages } = await req.json();
 
     // Use Retell API for chat completion

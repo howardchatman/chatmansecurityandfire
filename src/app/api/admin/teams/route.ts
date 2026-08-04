@@ -1,34 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
 import { getTeams, createTeam, updateTeam } from "@/lib/supabase";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-min-32-chars-long!!"
-);
-
-async function verifyAdminAuth() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    if (payload.role !== "admin") {
-      return null;
-    }
-    return payload;
-  } catch {
-    return null;
-  }
+async function verifyAdminAuth(request: NextRequest) {
+  const auth = await verifyAuth(request);
+  if (!auth || auth.role !== "admin") return null;
+  return auth;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const auth = await verifyAdminAuth();
+    const auth = await verifyAdminAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -53,7 +35,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await verifyAdminAuth();
+    const auth = await verifyAdminAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -92,7 +74,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const auth = await verifyAdminAuth();
+    const auth = await verifyAdminAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },

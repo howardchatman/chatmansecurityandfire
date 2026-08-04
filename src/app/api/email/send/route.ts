@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendQuoteEmail, sendInvoiceEmail, sendEmail } from "@/lib/email";
+import { verifyAuth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
+    // Unauthenticated access here would let anyone send mail from our domain.
+    const auth = await verifyAuth(request);
+    if (!auth || !["admin", "manager"].includes(auth.role)) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { type, ...data } = body;
 

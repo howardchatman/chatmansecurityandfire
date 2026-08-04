@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
 import { upsertGhlContact } from "@/lib/gohighlevel";
+import { verifyAuth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -88,8 +89,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+// Listing leads exposes customer PII — staff only. (POST stays public: it is
+// what the website's contact / service forms submit to.)
+export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAuth(request);
+    if (!auth || !["admin", "manager"].includes(auth.role)) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const leads = await getLeads();
     return NextResponse.json({
       success: true,

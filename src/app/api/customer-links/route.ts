@@ -1,28 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
 import crypto from "crypto";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-min-32-chars-long!!"
-);
-
-async function verifyAuth() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { userId: string; email: string; role: string; teamId?: string };
-  } catch {
-    return null;
-  }
-}
 
 // Generate URL-safe random token
 function generateToken(): string {
@@ -33,7 +13,7 @@ function generateToken(): string {
 // GET: List customer links (admin/manager only)
 export async function GET(request: NextRequest) {
   try {
-    const auth = await verifyAuth();
+    const auth = await verifyAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -99,7 +79,7 @@ export async function GET(request: NextRequest) {
 // POST: Create a new customer link
 export async function POST(request: NextRequest) {
   try {
-    const auth = await verifyAuth();
+    const auth = await verifyAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },

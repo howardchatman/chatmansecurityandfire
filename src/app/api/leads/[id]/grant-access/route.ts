@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendAccessGrantedEmail } from "@/lib/email";
+import { verifyAuth } from "@/lib/auth";
 import crypto from "crypto";
 
 // Generate URL-safe random token
@@ -14,6 +15,12 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // This provisions portal access for a lead — staff only.
+    const auth = await verifyAuth(request);
+    if (!auth || !["admin", "manager"].includes(auth.role)) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
 
     // Get the lead

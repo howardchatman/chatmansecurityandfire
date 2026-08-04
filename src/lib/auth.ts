@@ -29,6 +29,8 @@ export interface JWTPayload {
   role: UserRole;
   /** For role === "customer": the customers.id this login is scoped to (may be null if unlinked). */
   customer_id?: string | null;
+  /** Team scoping used by jobs/quotes routes for role === "manager". */
+  teamId?: string;
   exp?: number;
 }
 

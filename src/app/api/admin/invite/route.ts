@@ -1,26 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { hashPassword } from "@/lib/auth";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-min-32-chars-long!!"
-);
+import { hashPassword, verifyAuth } from "@/lib/auth";
 
 const VALID_ROLES = ["admin", "manager", "technician", "inspector", "dispatcher"];
 
-async function verifyAdminAuth() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    if (payload.role !== "admin") return null;
-    return payload;
-  } catch {
-    return null;
-  }
+async function verifyAdminAuth(request: NextRequest) {
+  const auth = await verifyAuth(request);
+  if (!auth || auth.role !== "admin") return null;
+  return auth;
 }
 
 // Readable temporary password (no ambiguous chars)
@@ -34,7 +21,7 @@ function generateTempPassword() {
 // POST: Add an employee to admin_users (the table login actually checks)
 export async function POST(request: NextRequest) {
   try {
-    const auth = await verifyAdminAuth();
+    const auth = await verifyAdminAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized - Admin access required" },
@@ -124,7 +111,7 @@ export async function POST(request: NextRequest) {
 // GET: List employees from admin_users
 export async function GET(request: NextRequest) {
   try {
-    const auth = await verifyAdminAuth();
+    const auth = await verifyAdminAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized - Admin access required" },
@@ -162,7 +149,7 @@ export async function GET(request: NextRequest) {
 // PATCH: Update an employee's role or active status
 export async function PATCH(request: NextRequest) {
   try {
-    const auth = await verifyAdminAuth();
+    const auth = await verifyAdminAuth(request);
     if (!auth) {
       return NextResponse.json(
         { success: false, error: "Unauthorized - Admin access required" },
