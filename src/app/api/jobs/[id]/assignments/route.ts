@@ -23,7 +23,7 @@ export async function GET(
       .from("job_assignments")
       .select(`
         *,
-        user:profiles(id, full_name, email, phone, role)
+        user:profiles!job_assignments_user_id_fkey(id, full_name, email, phone, role)
       `)
       .eq("job_id", id)
       .order("assigned_at", { ascending: true });
@@ -114,7 +114,7 @@ export async function POST(
       })
       .select(`
         *,
-        user:profiles(id, full_name, email, phone, role)
+        user:profiles!job_assignments_user_id_fkey(id, full_name, email, phone, role)
       `)
       .single();
 

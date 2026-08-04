@@ -41,7 +41,7 @@ export async function GET(
           role,
           assigned_at,
           acknowledged_at,
-          user:profiles(id, full_name, email, phone, role)
+          user:profiles!job_assignments_user_id_fkey(id, full_name, email, phone, role)
         ),
         job_notes(
           id,

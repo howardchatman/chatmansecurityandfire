@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { hashPassword, verifyAuth } from "@/lib/auth";
 
-const VALID_ROLES = ["admin", "manager", "technician", "inspector", "dispatcher"];
+// admin_users backs every login, customers included — "customer" accounts are
+// what the /portal area authenticates against.
+const VALID_ROLES = ["admin", "manager", "technician", "inspector", "dispatcher", "customer"];
 
 async function verifyAdminAuth(request: NextRequest) {
   const auth = await verifyAuth(request);

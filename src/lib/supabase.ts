@@ -733,7 +733,7 @@ export async function getJobs(filters?: {
       assignments:job_assignments(
         id,
         role,
-        user:profiles(id, full_name, phone)
+        user:profiles!job_assignments_user_id_fkey(id, full_name, phone)
       )
     `)
     .order("scheduled_date", { ascending: true, nullsFirst: false })
@@ -769,7 +769,7 @@ export async function getJobById(id: string) {
         role,
         assigned_at,
         acknowledged_at,
-        user:profiles(id, full_name, email, phone)
+        user:profiles!job_assignments_user_id_fkey(id, full_name, email, phone)
       )
     `)
     .eq("id", id)
@@ -833,7 +833,7 @@ export async function assignUserToJob(assignment: Omit<JobAssignment, "id" | "as
     .insert([assignment])
     .select(`
       *,
-      user:profiles(id, full_name, email)
+      user:profiles!job_assignments_user_id_fkey(id, full_name, email)
     `)
     .single();
 
@@ -1161,7 +1161,7 @@ export async function getJobWithDetails(id: string): Promise<JobExtended> {
         role,
         assigned_at,
         acknowledged_at,
-        user:profiles(id, full_name, email, phone)
+        user:profiles!job_assignments_user_id_fkey(id, full_name, email, phone)
       )
     `)
     .eq("id", id)

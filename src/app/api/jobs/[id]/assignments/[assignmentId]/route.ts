@@ -32,7 +32,7 @@ export async function DELETE(
       .from("job_assignments")
       .select(`
         *,
-        user:profiles(id, full_name)
+        user:profiles!job_assignments_user_id_fkey(id, full_name)
       `)
       .eq("id", assignmentId)
       .eq("job_id", jobId)
