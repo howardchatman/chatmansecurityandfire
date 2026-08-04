@@ -1,20 +1,21 @@
--- customer_links.quote_id has always pointed at quotes(id), but no foreign key
--- constraint was ever declared. PostgREST resolves embeds from foreign keys, so
--- `quote:quotes(...)` in /api/customer-links failed with PGRST200
--- ("Could not find a relationship between 'customer_links' and 'quotes'") and
--- the whole endpoint returned 500. Declaring the FK fixes the embed.
+-- /api/customer-links returned 500 (PGRST200) on the `quote:quotes(...)` embed.
 --
--- ON DELETE CASCADE: a customer link is meaningless once its quote is gone.
+-- Cause: customer_links.quote_id has a foreign key, but it points at the legacy
+-- `security_quotes` table, while the application reads and writes `quotes`
+-- (see createQuote/getQuotes in src/lib/supabase.ts). PostgREST resolves embeds
+-- from foreign keys, so it could not relate customer_links to `quotes` and
+-- suggested `security_quotes` instead.
+--
+-- Both tables are empty, so re-pointing the constraint cannot orphan any rows.
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'customer_links_quote_id_fkey'
-  ) THEN
-    ALTER TABLE customer_links
-      ADD CONSTRAINT customer_links_quote_id_fkey
-      FOREIGN KEY (quote_id) REFERENCES quotes(id) ON DELETE CASCADE;
-  END IF;
-END $$;
+ALTER TABLE customer_links
+  DROP CONSTRAINT IF EXISTS customer_links_quote_id_fkey;
+
+ALTER TABLE customer_links
+  ADD CONSTRAINT customer_links_quote_id_fkey
+  FOREIGN KEY (quote_id) REFERENCES quotes(id) ON DELETE CASCADE;
 
 CREATE INDEX IF NOT EXISTS idx_customer_links_quote_id ON customer_links(quote_id);
+
+-- PostgREST caches the schema; make it pick up the new relationship immediately.
+NOTIFY pgrst, 'reload schema';
