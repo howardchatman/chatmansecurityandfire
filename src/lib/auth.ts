@@ -22,8 +22,11 @@ export interface User {
 
 export interface JWTPayload {
   id: string;
-  /** Alias of `id`. Kept so routes that historically read `auth.userId` work with the shared verifier. */
-  userId?: string;
+  /**
+   * Alias of `id`, always populated by verifyToken. Kept so routes that
+   * historically read `auth.userId` work with the shared verifier.
+   */
+  userId: string;
   email: string;
   name: string | null;
   role: UserRole;
@@ -68,12 +71,12 @@ export async function createToken(user: User): Promise<string> {
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    const parsed = payload as unknown as JWTPayload;
+    const parsed = payload as unknown as Omit<JWTPayload, "userId"> & { userId?: string };
     // Expose `userId` as an alias of `id` for routes migrating off the old ad-hoc verifier.
     if (parsed.userId === undefined) {
       parsed.userId = parsed.id;
     }
-    return parsed;
+    return parsed as JWTPayload;
   } catch {
     return null;
   }
