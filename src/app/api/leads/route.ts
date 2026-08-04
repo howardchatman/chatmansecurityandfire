@@ -16,6 +16,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Phone is required for anything that's an actual service inquiry — every
+    // one of those leads should be callable. Content downloads (the printable
+    // checklist) are email-only lead magnets and are exempt.
+    const PHONE_EXEMPT_SOURCES = ["checklist_page", "checklist", "checklist_pdf", "newsletter"];
+    const source = String(body.source || "website");
+    if (!PHONE_EXEMPT_SOURCES.includes(source)) {
+      const digits = String(body.phone || "").replace(/\D/g, "");
+      if (!digits) {
+        return NextResponse.json(
+          { success: false, error: "Phone number is required" },
+          { status: 400 }
+        );
+      }
+      if (digits.length < 10) {
+        return NextResponse.json(
+          { success: false, error: "Please enter a valid 10-digit phone number" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Validate email format only if provided
     if (body.email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

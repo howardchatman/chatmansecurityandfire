@@ -159,7 +159,8 @@ export default function LeadCapture() {
                       />
                       <input
                         type="tel"
-                        placeholder="Phone (optional)"
+                        required
+                        placeholder="Phone Number *"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-500"
