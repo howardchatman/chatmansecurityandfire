@@ -36,6 +36,12 @@ export async function GET(request: NextRequest) {
       `)
       .order("created_at", { ascending: false });
 
+    // A draft is an invoice we haven't sent yet — the customer must never see
+    // one in their portal.
+    if (auth.role === "customer") {
+      query = query.neq("status", "draft");
+    }
+
     if (status && status !== "all") {
       query = query.eq("status", status);
     }
