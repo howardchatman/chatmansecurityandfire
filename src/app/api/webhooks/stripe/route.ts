@@ -93,7 +93,7 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
 
   const { data: invoice } = await supabaseAdmin
     .from("invoices")
-    .select("id, total")
+    .select("id, total, customer_id")
     .eq("stripe_invoice_id", stripeInvoice.id)
     .single();
 
@@ -113,6 +113,11 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
     })
     .eq("id", invoice.id);
 
+  // Record the payment itself. Marking the invoice paid is not enough — without
+  // this row the admin Payments page and the customer's payment history stay
+  // empty even though money moved, and there is no receipt to link to.
+  await recordInvoicePayment(stripeInvoice, invoice, amountPaid);
+
   if (isFullyPaid) {
     // Also update the job status to paid if linked
     const { data: inv } = await supabaseAdmin
@@ -127,6 +132,72 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
         .update({ status: "paid", paid_at: new Date().toISOString() })
         .eq("id", inv.job_id);
     }
+  }
+}
+
+/**
+ * Insert a payments row for a paid Stripe invoice.
+ *
+ * Idempotent: Stripe retries webhooks, and invoice.paid can arrive more than
+ * once, so a payment already recorded for this Stripe invoice is left alone
+ * rather than duplicated into the books.
+ */
+async function recordInvoicePayment(
+  stripeInvoice: Stripe.Invoice,
+  invoice: { id: string; customer_id: string | null },
+  amountPaid: number
+) {
+  const reference = `stripe:${stripeInvoice.id}`;
+
+  const { data: existing } = await supabaseAdmin
+    .from("payments")
+    .select("id")
+    .eq("invoice_id", invoice.id)
+    .eq("notes", reference)
+    .maybeSingle();
+
+  if (existing) {
+    console.log("Payment already recorded for", stripeInvoice.id);
+    return;
+  }
+
+  // Work out how they actually paid — card vs ACH matters for reconciliation
+  // and for what the customer sees on their receipt.
+  let paymentMethod = "card";
+  let receiptUrl: string | null = null;
+  const paymentIntentId = (stripeInvoice as unknown as { payment_intent?: string })
+    .payment_intent;
+
+  if (paymentIntentId) {
+    try {
+      const stripe = getStripe();
+      const charges = await stripe.charges.list({ payment_intent: paymentIntentId, limit: 1 });
+      const charge = charges.data[0];
+      receiptUrl = charge?.receipt_url ?? null;
+      const type = charge?.payment_method_details?.type;
+      if (type === "us_bank_account" || type === "ach_debit") paymentMethod = "ach";
+      else if (type) paymentMethod = type;
+    } catch (err) {
+      // Never let a lookup failure lose the payment record itself.
+      console.error("Could not resolve charge details for", paymentIntentId, err);
+    }
+  }
+
+  const { error } = await supabaseAdmin.from("payments").insert({
+    invoice_id: invoice.id,
+    customer_id: invoice.customer_id,
+    amount: amountPaid,
+    payment_method: paymentMethod,
+    payment_date: new Date().toISOString(),
+    status: "completed",
+    receipt_url: receiptUrl,
+    notes: reference,
+  });
+
+  if (error) {
+    console.error("Failed to record payment for", stripeInvoice.id, error);
+  } else {
+    console.log(`Recorded ${paymentMethod} payment of ${amountPaid} for invoice`, invoice.id);
   }
 }
 
