@@ -24,9 +24,11 @@ const steps = [
 ];
 
 const examples = [
-  { job: "$25,000", low: "$330", high: "$403" },
-  { job: "$45,000", low: "$595", high: "$725" },
-  { job: "$100,000", low: "$1,322", high: "$1,610" },
+  // Straight amortization at the stated APR/term — best is the advertised floor
+  // (6% APR over 20 years), the other two are mid and high-rate scenarios.
+  { job: "$25,000", best: "$179", low: "$330", high: "$403" },
+  { job: "$45,000", best: "$322", low: "$595", high: "$725" },
+  { job: "$100,000", best: "$716", low: "$1,322", high: "$1,610" },
 ];
 
 const whyFinance = [
@@ -177,9 +179,16 @@ export default function FinancingContent() {
                     <p className="text-3xl font-bold text-white">{ex.job}</p>
                   </div>
                   <div className="divide-y divide-gray-100">
+                    <div className="p-5 flex items-center justify-between bg-orange-50">
+                      <div>
+                        <p className="text-2xl font-bold text-orange-600">{ex.best}<span className="text-base font-medium text-gray-500">/mo</span></p>
+                        <p className="text-xs text-gray-600 mt-0.5 font-medium">6% APR · 20 years</p>
+                      </div>
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    </div>
                     <div className="p-5 flex items-center justify-between">
                       <div>
-                        <p className="text-2xl font-bold text-orange-600">{ex.low}<span className="text-base font-medium text-gray-500">/mo</span></p>
+                        <p className="text-2xl font-bold text-gray-900">{ex.low}<span className="text-base font-medium text-gray-500">/mo</span></p>
                         <p className="text-xs text-gray-500 mt-0.5">10% APR · 10 years</p>
                       </div>
                       <CheckCircle2 className="w-5 h-5 text-green-500" />
