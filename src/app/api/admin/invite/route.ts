@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { hashPassword, verifyAuth } from "@/lib/auth";
+import {
+  generateInviteToken,
+  inviteExpiry,
+  buildInviteUrl,
+  sendEmployeeInviteEmail,
+  INVITE_TTL_DAYS,
+} from "@/lib/employee-invite";
 
 // admin_users backs every login, customers included — "customer" accounts are
 // what the /portal area authenticates against.
@@ -63,8 +70,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Two ways to onboard:
+    //  "invite"   (default) — email a one-time link, they choose their own
+    //                         password. The admin never handles a credential.
+    //  "password"           — generate a temp password to read out to them,
+    //                         for someone without working email.
+    const method: "invite" | "password" = body.method === "password" ? "password" : "invite";
+
+    // An account always gets a password hash so no row is ever passwordless;
+    // for the invite flow it is a random value nobody is told, and setting a
+    // password through the invite link replaces it.
     const tempPassword = generateTempPassword();
-    const passwordHash = await hashPassword(tempPassword);
+    const passwordHash = await hashPassword(
+      method === "password" ? tempPassword : generateInviteToken()
+    );
 
     const row: Record<string, unknown> = {
       email,
@@ -74,6 +93,13 @@ export async function POST(request: NextRequest) {
       password_hash: passwordHash,
     };
     if (phone) row.phone = phone;
+
+    let inviteToken: string | null = null;
+    if (method === "invite") {
+      inviteToken = generateInviteToken();
+      row.invite_token = inviteToken;
+      row.invite_expires_at = inviteExpiry();
+    }
 
     let { data, error } = await supabaseAdmin
       .from("admin_users")
@@ -91,11 +117,39 @@ export async function POST(request: NextRequest) {
         .single());
     }
 
+    // If the invite columns aren't migrated yet, fall back to a temp password
+    // rather than failing to create the employee at all.
+    if (error && inviteToken && /invite_token|invite_expires_at/i.test(error.message)) {
+      delete row.invite_token;
+      delete row.invite_expires_at;
+      row.password_hash = await hashPassword(tempPassword);
+      inviteToken = null;
+      ({ data, error } = await supabaseAdmin
+        .from("admin_users")
+        .insert(row)
+        .select("*")
+        .single());
+    }
+
     if (error) {
       console.error("Error creating employee:", error);
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
     if (data) delete data.password_hash;
+
+    if (inviteToken) {
+      const inviteUrl = buildInviteUrl(inviteToken);
+      const sent = await sendEmployeeInviteEmail({ to: email, name, role, inviteUrl });
+      return NextResponse.json({
+        success: true,
+        data,
+        inviteUrl,
+        emailSent: sent.success !== false,
+        message: sent.success !== false
+          ? `Invite emailed to ${email}. The link is good for ${INVITE_TTL_DAYS} days.`
+          : `${name} was added, but the invite email failed to send. Copy the link below and send it to them.`,
+      });
+    }
 
     return NextResponse.json({
       success: true,

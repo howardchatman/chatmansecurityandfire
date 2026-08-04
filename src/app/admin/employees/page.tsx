@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, User, Mail, Loader2, X, Pencil, Copy, Check } from "lucide-react";
+import { Plus, User, Mail, Loader2, X, Pencil, Copy, Check, Send } from "lucide-react";
 import DeleteButton from "@/components/admin/DeleteButton";
 
 interface Employee {
@@ -24,7 +24,7 @@ const roleColor: Record<string, string> = {
   dispatcher: "bg-gray-100 text-gray-600",
 };
 
-const blank = { full_name: "", email: "", phone: "", role: "technician" };
+const blank = { full_name: "", email: "", phone: "", role: "technician", method: "invite" };
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -38,6 +38,9 @@ export default function EmployeesPage() {
   const [error, setError] = useState("");
   const [tempPassword, setTempPassword] = useState("");
   const [copied, setCopied] = useState(false);
+  const [inviteResult, setInviteResult] = useState<{ inviteUrl: string; emailSent: boolean; message: string } | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const [notice, setNotice] = useState("");
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
@@ -82,11 +85,15 @@ export default function EmployeesPage() {
       const res = await fetch("/api/admin/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, full_name: form.full_name, role: form.role, phone: form.phone }),
+        body: JSON.stringify({ email: form.email, full_name: form.full_name, role: form.role, phone: form.phone, method: form.method }),
       });
       const data = await res.json();
       if (!data.success) { setError(data.error || "Failed to add employee"); return; }
-      setTempPassword(data.tempPassword || "");
+      if (data.inviteUrl) {
+        setInviteResult({ inviteUrl: data.inviteUrl, emailSent: !!data.emailSent, message: data.message || "" });
+      } else {
+        setTempPassword(data.tempPassword || "");
+      }
       fetchEmployees();
     } catch { setError("Failed to add employee."); }
     finally { setSaving(false); }
@@ -116,6 +123,40 @@ export default function EmployeesPage() {
     });
   };
 
+  const copyText = (text: string) => {
+    navigator.clipboard?.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleResendInvite = async (p: Employee) => {
+    setResendingId(p.id);
+    setNotice("");
+    try {
+      const res = await fetch("/api/admin/invite/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: p.id }),
+      });
+      const data = await res.json();
+      setNotice(data.success ? data.message : data.error || "Couldn't send the invite.");
+      if (data.success && !data.emailSent && data.inviteUrl) copyText(data.inviteUrl);
+      fetchEmployees();
+    } catch {
+      setNotice("Couldn't send the invite.");
+    } finally {
+      setResendingId(null);
+    }
+  };
+
+  const closeAddModal = () => {
+    setShowInvite(false);
+    setTempPassword("");
+    setInviteResult(null);
+    setForm({ ...blank });
+  };
+
   const f = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
@@ -131,6 +172,13 @@ export default function EmployeesPage() {
           <Plus className="w-4 h-4" /> Add Employee
         </button>
       </div>
+
+      {notice && (
+        <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-xl text-sm flex items-start justify-between gap-3">
+          <span>{notice}</span>
+          <button onClick={() => setNotice("")} className="text-blue-500 hover:text-blue-700 flex-shrink-0"><X className="w-4 h-4" /></button>
+        </div>
+      )}
 
       {/* Role filters */}
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -185,9 +233,16 @@ export default function EmployeesPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => { setEditing(p); setForm({ full_name: p.full_name, email: p.email, phone: p.phone || "", role: p.role }); setError(""); setShowEdit(true); }}
-                        className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
+                      <button onClick={() => { setEditing(p); setForm({ ...blank, full_name: p.full_name, email: p.email, phone: p.phone || "", role: p.role }); setError(""); setShowEdit(true); }}
+                        className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                        title="Edit">
                         <Pencil className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleResendInvite(p)}
+                        disabled={resendingId === p.id}
+                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
+                        title="Email them a new enrollment link">
+                        {resendingId === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       </button>
                       <DeleteButton
                         endpoint={`/api/admin/invite?id=${p.id}`}
@@ -214,7 +269,28 @@ export default function EmployeesPage() {
               <button onClick={() => setShowInvite(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5" /></button>
             </div>
 
-            {tempPassword ? (
+            {inviteResult ? (
+              /* Success: invite link emailed — show it so it can be copied too */
+              <div className="p-6 space-y-4">
+                <div className={`p-3 rounded-xl text-sm font-medium ${inviteResult.emailSent ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-800"}`}>
+                  {inviteResult.message}
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-1">Enrollment link</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 px-3 py-2 bg-gray-100 rounded-xl font-mono text-xs text-gray-700 break-all">
+                      {inviteResult.inviteUrl}
+                    </code>
+                    <button onClick={() => copyText(inviteResult.inviteUrl)} className="p-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl flex-shrink-0">
+                      {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  They pick their own password. The link works once and expires in 7 days.
+                </p>
+              </div>
+            ) : tempPassword ? (
               /* Success: show temp password to share */
               <div className="p-6 space-y-4">
                 <div className="p-3 bg-green-50 text-green-700 rounded-xl text-sm font-medium">
@@ -251,12 +327,32 @@ export default function EmployeesPage() {
                     {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">How should they get their login?</label>
+                  <div className="space-y-2">
+                    <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${form.method === "invite" ? "border-orange-500 bg-orange-50" : "border-gray-200 hover:bg-gray-50"}`}>
+                      <input type="radio" name="method" value="invite" checked={form.method === "invite"} onChange={f("method")} className="mt-0.5 accent-orange-600" />
+                      <span>
+                        <span className="block text-sm font-medium text-gray-900">Email them an enrollment link</span>
+                        <span className="block text-xs text-gray-500">They choose their own password. You never handle it.</span>
+                      </span>
+                    </label>
+                    <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${form.method === "password" ? "border-orange-500 bg-orange-50" : "border-gray-200 hover:bg-gray-50"}`}>
+                      <input type="radio" name="method" value="password" checked={form.method === "password"} onChange={f("method")} className="mt-0.5 accent-orange-600" />
+                      <span>
+                        <span className="block text-sm font-medium text-gray-900">Give me a temporary password</span>
+                        <span className="block text-xs text-gray-500">For someone without working email — you read it to them.</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
               </div>
             )}
 
             <div className="p-6 border-t border-gray-100 flex gap-3 justify-end">
-              {tempPassword ? (
-                <button onClick={() => { setShowInvite(false); setTempPassword(""); setForm({ ...blank }); }}
+              {tempPassword || inviteResult ? (
+                <button onClick={closeAddModal}
                   className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-sm font-medium">Done</button>
               ) : (
                 <>
