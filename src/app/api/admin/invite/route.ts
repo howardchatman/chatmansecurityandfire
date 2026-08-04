@@ -160,7 +160,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, role, is_active, name } = body;
+    const { id, role, is_active, name, customer_id } = body;
     if (!id) {
       return NextResponse.json({ success: false, error: "Employee id is required" }, { status: 400 });
     }
@@ -175,12 +175,15 @@ export async function PATCH(request: NextRequest) {
     if (role !== undefined) updates.role = role;
     if (is_active !== undefined) updates.is_active = is_active;
     if (name !== undefined) updates.name = name;
+    // Links a customer-role login to its customers row, which is what the
+    // portal scopes invoices / payments / projects by. Pass null to unlink.
+    if (customer_id !== undefined) updates.customer_id = customer_id;
 
     const { data, error } = await supabaseAdmin
       .from("admin_users")
       .update(updates)
       .eq("id", id)
-      .select("id, email, name, role, is_active")
+      .select("id, email, name, role, is_active, customer_id")
       .single();
 
     if (error) {
