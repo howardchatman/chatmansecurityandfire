@@ -119,9 +119,21 @@ Reply with ONLY a JSON object, no prose and no code fence:
         upstream = detail.slice(0, 200);
       }
 
+      // Describe the SHAPE of the stored key so a paste error can be spotted
+      // without revealing it. The prefix is public and four trailing characters
+      // are the standard way to match a key against the console listing.
+      let keyShape = "";
+      if (resp.status === 401) {
+        const trimmed = apiKey.trim();
+        keyShape =
+          ` [stored key: ${apiKey.length} chars` +
+          (trimmed.length !== apiKey.length ? `, HAS SURROUNDING WHITESPACE (${apiKey.length - trimmed.length} chars)` : "") +
+          `, starts "${trimmed.slice(0, 11)}", ends "${trimmed.slice(-4)}"]`;
+      }
+
       const hint =
         resp.status === 401
-          ? "The API key was rejected. Check for a stray space when it was pasted, that it hasn't been revoked, and that Vercel was redeployed after the variable was added."
+          ? `The key reached Anthropic and was rejected, so this is the value itself — not the deployment.${keyShape}`
           : resp.status === 429
             ? "Rate limited or out of credit on the Anthropic account."
             : "";
