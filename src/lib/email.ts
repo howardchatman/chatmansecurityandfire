@@ -5,6 +5,22 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.FROM_EMAIL || "Chatman Security & Fire <notifications@chatmansecurityandfire.com>";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "howardchatman@icloud.com";
 
+// Email clients need an absolute URL — a relative path resolves against the
+// mail client, not the site. The band behind it is light because the logo's
+// shield has an opaque white interior and email cannot apply CSS filters.
+const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com").replace(/\/$/, "");
+const EMAIL_LOGO_URL = `${SITE_URL}/csf_wide_logo.png`;
+
+function emailHeader(title: string) {
+  return `
+        <div style="background-color:#ffffff;padding:20px;text-align:center;border-bottom:3px solid #E85D04;">
+          <img src="${EMAIL_LOGO_URL}" alt="Chatman Security &amp; Fire" width="220" style="width:220px;max-width:75%;height:auto;display:inline-block;" />
+        </div>
+        <div style="background-color:#111827;padding:14px 20px;text-align:center;">
+          <h1 style="color:white;margin:0;font-size:20px;">${title}</h1>
+        </div>`;
+}
+
 // ============================================
 // EMAIL TEMPLATES
 // ============================================
@@ -21,9 +37,7 @@ export const emailTemplates = {
     subject: `New Lead: ${lead.name}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #ea580c; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">New Lead Received</h1>
-        </div>
+        ${emailHeader("New Lead Received")}
         <div style="padding: 30px; background-color: #f9fafb;">
           <h2 style="color: #111827; margin-top: 0;">Contact Details</h2>
           <table style="width: 100%; border-collapse: collapse;">
@@ -80,9 +94,7 @@ export const emailTemplates = {
     subject: `Portal Access Request: ${request.name} (${request.company})`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #7c3aed; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Portal Access Request</h1>
-        </div>
+        ${emailHeader("Portal Access Request")}
         <div style="padding: 30px; background-color: #f9fafb;">
           <h2 style="color: #111827; margin-top: 0;">Request Details</h2>
           <table style="width: 100%; border-collapse: collapse;">
@@ -132,9 +144,7 @@ export const emailTemplates = {
     subject: `Your Quote #${data.quoteNumber} from Chatman Security & Fire`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #ea580c; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Your Quote is Ready</h1>
-        </div>
+        ${emailHeader("Your Quote is Ready")}
         <div style="padding: 30px; background-color: #f9fafb;">
           <p style="color: #374151; font-size: 16px;">Hi ${data.customerName},</p>
           <p style="color: #374151; font-size: 16px;">
@@ -186,9 +196,7 @@ export const emailTemplates = {
     subject: `Invoice #${data.invoiceNumber} from Chatman Security & Fire`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #111827; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Invoice</h1>
-        </div>
+        ${emailHeader("Invoice")}
         <div style="padding: 30px; background-color: #f9fafb;">
           <p style="color: #374151; font-size: 16px;">Hi ${data.customerName},</p>
           <p style="color: #374151; font-size: 16px;">
@@ -243,9 +251,7 @@ export const emailTemplates = {
     subject: `We received your request - Chatman Security & Fire`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #ea580c; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Request Received</h1>
-        </div>
+        ${emailHeader("Request Received")}
         <div style="padding: 30px; background-color: #f9fafb;">
           <p style="color: #374151; font-size: 16px;">Hi ${data.customerName},</p>
           <p style="color: #374151; font-size: 16px;">
@@ -283,9 +289,7 @@ export const emailTemplates = {
     subject: `Your Chatman Security & Fire Portal Access`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #16a34a; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Welcome to Your Customer Portal</h1>
-        </div>
+        ${emailHeader("Welcome to Your Customer Portal")}
         <div style="padding: 30px; background-color: #f9fafb;">
           <p style="color: #374151; font-size: 16px;">Hi ${data.customerName},</p>
           <p style="color: #374151; font-size: 16px;">
