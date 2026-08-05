@@ -19,6 +19,7 @@ import {
   Plus,
 } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
+import CustomerSystems from "@/components/admin/CustomerSystems";
 
 interface CustomerData {
   id: string;
@@ -153,6 +154,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
 
   const tabs = [
     { key: "overview", label: "Overview" },
+    { key: "systems", label: "Systems" },
     { key: "quotes", label: `Quotes (${customer.quotes.length})` },
     { key: "jobs", label: `Jobs (${customer.jobs.length})` },
     { key: "invoices", label: `Invoices (${customer.invoices.length})` },
@@ -392,6 +394,13 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
               </div>
             </div>
           )}
+
+          {/* Systems Tab */}
+
+
+          {activeTab === "systems" && <CustomerSystems customerId={customer.id} />}
+
+
 
           {/* Quotes Tab */}
           {activeTab === "quotes" && (

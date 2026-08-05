@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { LucideIcon, TrendingUp, TrendingDown } from "lucide-react";
 
 interface StatCardProps {
@@ -12,6 +13,9 @@ interface StatCardProps {
   icon: LucideIcon;
   color: "red" | "green" | "blue" | "amber" | "neutral";
   subtitle?: string;
+  /** Where the card drills through to. The card already looks interactive, so
+   *  without this it reads as clickable but does nothing. */
+  href?: string;
 }
 
 const colorClasses = {
@@ -29,11 +33,20 @@ export default function StatCard({
   icon: Icon,
   color,
   subtitle,
+  href,
 }: StatCardProps) {
   const colors = colorClasses[color];
+  const Wrapper = (href ? Link : "div") as React.ElementType;
 
   return (
-    <div className="relative bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all overflow-hidden">
+    <Wrapper
+      {...(href ? { href } : {})}
+      className={`relative block bg-white rounded-2xl border border-gray-200 p-5 transition-all overflow-hidden ${
+        href
+          ? "hover:shadow-lg hover:-translate-y-0.5 hover:border-orange-200 cursor-pointer"
+          : ""
+      }`}
+    >
       {/* Accent bar */}
       <div className={`absolute top-0 left-0 h-full w-1 ${colors.accent}`} />
 
@@ -68,6 +81,6 @@ export default function StatCard({
           <Icon className={`w-5 h-5 ${colors.icon}`} />
         </div>
       </div>
-    </div>
+    </Wrapper>
   );
 }
