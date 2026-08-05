@@ -21,6 +21,7 @@ import {
   Calculator,
   Kanban,
   FileCheck,
+  Sparkles,
   ClipboardList,
   CalendarClock,
   Bell,
@@ -62,8 +63,10 @@ const navigation = [
     items: [
       { name: "Quote Builder", href: "/admin/quote", icon: Calculator },
       { name: "Quotes", href: "/admin/quotes", icon: FileCheck },
+      { name: "Proposals", href: "/admin/proposals", icon: Sparkles },
       { name: "Estimates", href: "/admin/estimates", icon: Calculator },
-      { name: "Inventory", href: "/admin/inventory", icon: Package },
+      { name: "Inventory", href: "/admin/inventory", icon: Package },
+
       { name: "QR Codes", href: "/admin/qr-codes", icon: QrCode },
     ],
   },
