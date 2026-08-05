@@ -108,8 +108,29 @@ Reply with ONLY a JSON object, no prose and no code fence:
     if (!resp.ok) {
       const detail = await resp.text();
       console.error("Anthropic error:", resp.status, detail.slice(0, 400));
+
+      // Pass the upstream reason through. It never contains the key, and
+      // without it a 401 is indistinguishable from a typo, a revoked key or an
+      // account with no credit.
+      let upstream = "";
+      try {
+        upstream = JSON.parse(detail)?.error?.message || "";
+      } catch {
+        upstream = detail.slice(0, 200);
+      }
+
+      const hint =
+        resp.status === 401
+          ? "The API key was rejected. Check for a stray space when it was pasted, that it hasn't been revoked, and that Vercel was redeployed after the variable was added."
+          : resp.status === 429
+            ? "Rate limited or out of credit on the Anthropic account."
+            : "";
+
       return NextResponse.json(
-        { success: false, error: `The proposal service returned ${resp.status}. Check the API key and try again.` },
+        {
+          success: false,
+          error: `Anthropic returned ${resp.status}${upstream ? `: ${upstream}` : ""}${hint ? ` — ${hint}` : ""}`,
+        },
         { status: 502 }
       );
     }
