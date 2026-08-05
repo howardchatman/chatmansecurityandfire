@@ -99,7 +99,10 @@ Reply with ONLY a JSON object, no prose and no code fence:
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 2000,
+        // A full proposal with twenty-odd line items plus assumptions and code
+        // notes runs well past 2000 tokens; truncating mid-JSON produced an
+        // unparseable draft rather than a short one.
+        max_tokens: 8000,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
       }),
@@ -160,13 +163,26 @@ Reply with ONLY a JSON object, no prose and no code fence:
       code_notes?: string[];
     };
     try {
-      // Be forgiving about a stray code fence rather than failing the whole draft.
-      const json = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+      // Tolerate a code fence or a sentence of preamble by taking the outermost
+      // JSON object rather than assuming the reply is bare JSON.
+      const start = raw.indexOf("{");
+      const end = raw.lastIndexOf("}");
+      const json = start >= 0 && end > start ? raw.slice(start, end + 1) : raw.trim();
       draft = JSON.parse(json);
     } catch {
-      console.error("Could not parse proposal JSON:", raw.slice(0, 400));
+      console.error("Could not parse proposal JSON:", raw.slice(0, 600));
+      const stopReason = payload?.stop_reason;
       return NextResponse.json(
-        { success: false, error: "The draft came back in an unexpected format. Try again." },
+        {
+          success: false,
+          error:
+            stopReason === "max_tokens"
+              ? "The draft ran past the length limit and came back incomplete. Try describing a smaller scope."
+              : "The draft came back in an unexpected format.",
+          // Admin-only endpoint; showing the start of the reply turns a guess
+          // into a diagnosis.
+          debug: { stop_reason: stopReason, length: raw.length, preview: raw.slice(0, 300) },
+        },
         { status: 502 }
       );
     }
