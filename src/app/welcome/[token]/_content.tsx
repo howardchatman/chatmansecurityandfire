@@ -67,7 +67,7 @@ export default function WelcomeContent({ token }: { token: string }) {
         return;
       }
       setDone(true);
-      setTimeout(() => router.push("/login"), 2500);
+      setTimeout(() => router.push("/login?welcome=1"), 2500);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

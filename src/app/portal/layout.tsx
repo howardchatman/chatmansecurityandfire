@@ -45,7 +45,7 @@ export default function PortalLayout({
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.push("/");
+      router.push("/login?next=/portal/dashboard");
       return;
     }
     // This portal is customer-only. Send other roles to their own area.
