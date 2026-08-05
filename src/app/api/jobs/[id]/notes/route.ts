@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 
 // GET: Get notes for a job
@@ -19,7 +19,7 @@ export async function GET(
 
     const { id } = await params;
 
-    let query = supabase
+    let query = supabaseAdmin
       .from("job_notes")
       .select(`
         *,
@@ -28,10 +28,11 @@ export async function GET(
       .eq("job_id", id)
       .order("created_at", { ascending: false });
 
-    // Filter visibility based on role
-    if (auth.role === "technician" || auth.role === "inspector") {
-      query = query.in("visibility", ["tech", "customer"]);
-    }
+    // job_notes has no "visibility" column — it has a boolean
+    // is_customer_visible. Querying the old name errored out, which made this
+    // endpoint fail for everyone. Techs and inspectors see all notes on a job
+    // they are assigned to; the customer-visible flag governs the portal, not
+    // internal staff.
 
     const { data, error } = await query;
 
@@ -72,7 +73,7 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json();
-    const { note, visibility = "internal" } = body;
+    const { note, is_customer_visible = false, note_type = "general" } = body;
 
     if (!note || !note.trim()) {
       return NextResponse.json(
@@ -81,21 +82,14 @@ export async function POST(
       );
     }
 
-    // Techs can only create tech-visible or customer-visible notes
-    let finalVisibility = visibility;
-    if (["technician", "inspector"].includes(auth.role)) {
-      if (visibility === "internal") {
-        finalVisibility = "tech";
-      }
-    }
-
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("job_notes")
       .insert({
         job_id: id,
         note: note.trim(),
-        visibility: finalVisibility,
-        author_id: auth.userId,
+        note_type,
+        is_customer_visible: Boolean(is_customer_visible),
+        user_id: auth.id,
       })
       .select(`
         *,
@@ -112,7 +106,7 @@ export async function POST(
     }
 
     // Also create a job event
-    await supabase.from("job_events").insert({
+    await supabaseAdmin.from("job_events").insert({
       job_id: id,
       event_type: "note_added",
       payload: { note_id: data.id, preview: note.substring(0, 100) },

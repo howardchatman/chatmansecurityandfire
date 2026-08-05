@@ -46,7 +46,7 @@ export async function GET(
         job_notes(
           id,
           note,
-          visibility,
+
           created_at,
           author:profiles(id, full_name, email)
         ),
@@ -79,12 +79,9 @@ export async function GET(
           { status: 403 }
         );
       }
-      // Filter notes visibility for techs
-      if (job.job_notes) {
-        job.job_notes = job.job_notes.filter(
-          (n: { visibility: string }) => n.visibility === "tech" || n.visibility === "customer"
-        );
-      }
+      // Notes have no "visibility" column — the boolean is_customer_visible
+      // governs what the customer portal shows, not what staff can read. A
+      // tech assigned to the job sees every note on it.
     } else if (auth.role === "manager" && auth.teamId) {
       // Managers can only see their team's jobs
       if (job.team_id && job.team_id !== auth.teamId) {

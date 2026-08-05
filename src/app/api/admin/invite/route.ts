@@ -137,6 +137,28 @@ export async function POST(request: NextRequest) {
     }
     if (data) delete data.password_hash;
 
+    // Mirror staff into profiles under the same id. Jobs, job assignments,
+    // notes, inspections, deficiencies and checklists all foreign-key to
+    // profiles, so a login without a matching profiles row cannot be assigned
+    // work or create a job — the insert fails on the foreign key. Customers
+    // never touch those tables, so they are not mirrored.
+    if (data?.id && role !== "customer") {
+      const { error: profileError } = await supabaseAdmin.from("profiles").upsert(
+        {
+          id: data.id,
+          full_name: name,
+          email,
+          phone: phone || null,
+          role,
+          is_active: true,
+        },
+        { onConflict: "id" }
+      );
+      if (profileError) {
+        console.error("Failed to mirror employee into profiles:", profileError);
+      }
+    }
+
     if (inviteToken) {
       const inviteUrl = buildInviteUrl(inviteToken);
       const sent = await sendEmployeeInviteEmail({ to: email, name, role, inviteUrl });
@@ -301,6 +323,24 @@ export async function PATCH(request: NextRequest) {
     if (error) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
+
+    // Keep the profiles mirror in step, so a renamed or deactivated employee
+    // shows correctly wherever jobs and inspections display their name.
+    if (data && data.role !== "customer") {
+      await supabaseAdmin
+        .from("profiles")
+        .upsert(
+          {
+            id: data.id,
+            full_name: data.name,
+            email: data.email,
+            role: data.role,
+            is_active: data.is_active,
+          },
+          { onConflict: "id" }
+        );
+    }
+
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error("Error updating employee:", error);

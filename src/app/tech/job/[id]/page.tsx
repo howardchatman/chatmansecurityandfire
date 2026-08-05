@@ -120,6 +120,8 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [noteType, setNoteType] = useState("general");
+  // Off by default: a note is internal unless the tech deliberately shares it.
+  const [noteVisibleToCustomer, setNoteVisibleToCustomer] = useState(false);
   const [completionNotes, setCompletionNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -190,9 +192,11 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           action: "add_note",
           note: noteText,
           note_type: noteType,
+          is_customer_visible: noteVisibleToCustomer,
         }),
       });
       setNoteText("");
+      setNoteVisibleToCustomer(false);
       setShowNoteModal(false);
       fetchJob();
     } catch (err) {
@@ -523,6 +527,22 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
               rows={4}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg mb-3 focus:outline-none focus:border-orange-500 resize-none"
             />
+            <label className={`flex items-start gap-3 p-3 mb-3 rounded-xl border cursor-pointer transition-colors ${
+              noteVisibleToCustomer ? "border-orange-500 bg-orange-50" : "border-gray-200"
+            }`}>
+              <input
+                type="checkbox"
+                checked={noteVisibleToCustomer}
+                onChange={(e) => setNoteVisibleToCustomer(e.target.checked)}
+                className="mt-0.5 accent-orange-600 w-4 h-4"
+              />
+              <span>
+                <span className="block text-sm font-medium text-gray-900">Share with the customer</span>
+                <span className="block text-xs text-gray-500">
+                  Shows on their portal under this project. Leave off for internal notes.
+                </span>
+              </span>
+            </label>
             <button
               onClick={handleAddNote}
               disabled={!noteText.trim() || submitting}

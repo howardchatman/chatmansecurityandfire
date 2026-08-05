@@ -14,6 +14,7 @@ import {
   Bell,
   Settings,
   Shield,
+  Wrench,
   LogOut,
   Menu,
   X,
@@ -23,6 +24,7 @@ import PortalAIAssistant from "@/components/portal/PortalAIAssistant";
 
 const navigation = [
   { name: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
+  { name: "My Projects", href: "/portal/projects", icon: Wrench },
   { name: "My Services", href: "/portal/services", icon: Shield },
   { name: "Invoices", href: "/portal/invoices", icon: FileText },
   { name: "Payments", href: "/portal/payments", icon: CreditCard },
