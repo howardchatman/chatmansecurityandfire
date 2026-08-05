@@ -132,9 +132,25 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: false, error: "id is required" }, { status: 400 });
     }
 
+    // Merge over the existing row rather than rebuilding from the body alone.
+    // buildRow fills every column, so a partial update — "mark inspected today"
+    // sends only id and a date — would otherwise blank out make, model,
+    // location, monitoring rate and everything else.
+    const { data: current, error: readError } = await supabaseAdmin
+      .from("customer_systems")
+      .select("*")
+      .eq("id", body.id)
+      .single();
+
+    if (readError || !current) {
+      return NextResponse.json({ success: false, error: "System not found" }, { status: 404 });
+    }
+
+    const merged = buildRow({ ...current, ...body });
+
     const { data, error } = await supabaseAdmin
       .from("customer_systems")
-      .update({ ...buildRow(body), updated_at: new Date().toISOString() })
+      .update({ ...merged, updated_at: new Date().toISOString() })
       .eq("id", body.id)
       .select()
       .single();
