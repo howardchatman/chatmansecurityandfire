@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import BrandHeader from "@/components/BrandHeader";
 import { Loader2, ShieldCheck, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
 
 interface Invite {
@@ -77,8 +78,8 @@ export default function WelcomeContent({ token }: { token: string }) {
   return (
     <div className="min-h-screen bg-[#0D1B2A] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <h1 className="text-white text-xl font-bold">Chatman Security &amp; Fire</h1>
+        <div className="flex justify-center mb-8">
+          <BrandHeader onDark size="h-14" />
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8">

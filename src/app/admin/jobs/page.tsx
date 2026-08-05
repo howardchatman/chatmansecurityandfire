@@ -21,7 +21,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import DeleteButton from "@/components/admin/DeleteButton";
-import { jobCalendarUrl } from "@/lib/calendar-link";
+import { jobCalendarUrl, jobOutlookUrl } from "@/lib/calendar-link";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 interface Team {
@@ -573,16 +573,28 @@ export default function JobsPage() {
                     >
                       <MoreHorizontal className="w-4 h-4" />
                     </button>
+                    {jobOutlookUrl(job) && (
+                      <a
+                        href={jobOutlookUrl(job)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                        title="Add to Outlook calendar"
+                      >
+                        <Calendar className="w-4 h-4" />
+                      </a>
+                    )}
                     {jobCalendarUrl(job) && (
                       <a
                         href={jobCalendarUrl(job)!}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                        className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded text-[10px] font-bold"
                         title="Add to Google Calendar"
                       >
-                        <Calendar className="w-4 h-4" />
+                        G
                       </a>
                     )}
                     <div onClick={(e) => e.preventDefault()}>

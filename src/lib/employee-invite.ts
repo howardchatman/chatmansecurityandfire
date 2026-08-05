@@ -11,11 +11,20 @@ export function inviteExpiry(): string {
   return new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
 }
 
-export function buildInviteUrl(token: string): string {
-  const base =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com";
-  return `${base.replace(/\/$/, "")}/welcome/${token}`;
+function siteBase(): string {
+  return (process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com").replace(
+    /\/$/,
+    ""
+  );
 }
+
+export function buildInviteUrl(token: string): string {
+  return `${siteBase()}/welcome/${token}`;
+}
+
+// Email images need an absolute, publicly reachable URL — a relative path
+// resolves against the mail client, not the site.
+const LOGO_URL = `${siteBase()}/csf_wide_logo.png`;
 
 const ROLE_BLURB: Record<string, string> = {
   technician: "You'll use it to see your assigned jobs, clock in and out, and upload job photos from your phone.",
@@ -35,8 +44,11 @@ export async function sendEmployeeInviteEmail(opts: {
   const blurb = ROLE_BLURB[opts.role] || "You'll use it to access the team portal.";
   const html = `
   <div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1f2937">
-    <div style="background:#0D1B2A;border-radius:12px;padding:24px;text-align:center">
-      <h1 style="color:#fff;margin:0;font-size:20px">Chatman Security &amp; Fire</h1>
+    <!-- Light band, not navy: email clients can't apply CSS filters, and the
+         logo's interior is opaque white, so it needs a light background. -->
+    <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;text-align:center">
+      <img src="${LOGO_URL}" alt="Chatman Security &amp; Fire" width="240"
+           style="width:240px;max-width:80%;height:auto;display:inline-block" />
     </div>
 
     <div style="padding:28px 4px">

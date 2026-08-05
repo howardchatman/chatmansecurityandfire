@@ -52,7 +52,72 @@ export function googleCalendarUrl(event: CalendarEvent): string {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
+/**
+ * Outlook / Microsoft 365 deep link.
+ *
+ * office.com is the work-account host (Microsoft 365, which is what this
+ * business runs on). Personal outlook.com accounts use outlook.live.com — if
+ * the link ever opens the wrong mailbox, that's the host to swap.
+ */
+export function outlookCalendarUrl(event: CalendarEvent): string {
+  const allDay = isDateOnly(event.start);
+
+  let end = event.end;
+  if (!end) {
+    if (allDay) {
+      const d = new Date(event.start + "T00:00:00");
+      d.setDate(d.getDate() + 1);
+      end = d.toISOString().slice(0, 10);
+    } else {
+      end = new Date(new Date(event.start).getTime() + 60 * 60 * 1000).toISOString();
+    }
+  }
+
+  // Outlook wants ISO 8601, unlike Google's compacted form.
+  const params = new URLSearchParams({
+    path: "/calendar/action/compose",
+    rru: "addevent",
+    subject: event.title,
+    startdt: allDay ? event.start : new Date(event.start).toISOString(),
+    enddt: allDay ? end : new Date(end).toISOString(),
+  });
+  if (allDay) params.set("allday", "true");
+  if (event.details) params.set("body", event.details);
+  if (event.location) params.set("location", event.location);
+
+  return `https://outlook.office.com/calendar/0/deeplink/compose?${params.toString()}`;
+}
+
 /** Convenience wrapper for a scheduled job. */
+function jobEvent(job: {
+  job_number: string;
+  job_type?: string | null;
+  customer_name?: string | null;
+  description?: string | null;
+  site_address?: string | null;
+  site_city?: string | null;
+  scheduled_date?: string | null;
+  scheduled_time_start?: string | null;
+}): CalendarEvent | null {
+  if (!job.scheduled_date) return null;
+  const start = job.scheduled_time_start
+    ? `${job.scheduled_date}T${job.scheduled_time_start}`
+    : job.scheduled_date;
+  const type = (job.job_type || "Service").replace(/_/g, " ");
+  return {
+    title: `${type} — ${job.customer_name || "Customer"} (${job.job_number})`,
+    details: [job.description, `Job ${job.job_number}`].filter(Boolean).join("\n"),
+    location: [job.site_address, job.site_city].filter(Boolean).join(", "),
+    start,
+  };
+}
+
+/** Outlook / Microsoft 365 link for a scheduled job. */
+export function jobOutlookUrl(job: Parameters<typeof jobEvent>[0]): string | null {
+  const e = jobEvent(job);
+  return e ? outlookCalendarUrl(e) : null;
+}
+
 export function jobCalendarUrl(job: {
   job_number: string;
   job_type?: string | null;
