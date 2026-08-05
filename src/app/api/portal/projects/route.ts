@@ -79,6 +79,8 @@ export async function GET(request: NextRequest) {
         progress: stage.progress,
         is_complete: stage.isComplete,
         is_on_hold: stage.isOnHold,
+        note: stage.note,
+        is_waiting_on_permit: stage.isWaitingOnPermit,
         updates: notesByJob[jb.id] || [],
       };
     });

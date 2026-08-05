@@ -21,6 +21,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { jobCalendarUrl } from "@/lib/calendar-link";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 interface Team {
@@ -89,7 +90,11 @@ const statusGroups = [
   },
   {
     label: "Pre-Work",
-    statuses: ["lead", "quoted", "approved", "pending", "scheduled"],
+    statuses: ["lead", "consultation_scheduled", "quoted", "agreement_sent", "approved", "pending", "scheduled"],
+  },
+  {
+    label: "Permitting",
+    statuses: ["permit_submitted", "permit_approved"],
   },
   {
     label: "In Field",
@@ -108,8 +113,12 @@ const statusGroups = [
 const statusLabels: Record<string, string> = {
   all: "All",
   lead: "Lead",
+  consultation_scheduled: "Consultation Scheduled",
   quoted: "Quoted",
+  agreement_sent: "Agreement Sent",
   approved: "Approved",
+  permit_submitted: "Permit Submitted",
+  permit_approved: "Permit Approved",
   pending: "Pending",
   scheduled: "Scheduled",
   in_progress: "In Progress",
@@ -126,8 +135,12 @@ const statusLabels: Record<string, string> = {
 
 const allLifecycleStatuses = [
   "lead",
+  "consultation_scheduled",
   "quoted",
+  "agreement_sent",
   "approved",
+  "permit_submitted",
+  "permit_approved",
   "pending",
   "scheduled",
   "in_progress",
@@ -560,6 +573,18 @@ export default function JobsPage() {
                     >
                       <MoreHorizontal className="w-4 h-4" />
                     </button>
+                    {jobCalendarUrl(job) && (
+                      <a
+                        href={jobCalendarUrl(job)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                        title="Add to Google Calendar"
+                      >
+                        <Calendar className="w-4 h-4" />
+                      </a>
+                    )}
                     <div onClick={(e) => e.preventDefault()}>
                       <DeleteButton
                         endpoint={`/api/jobs/${job.id}`}
