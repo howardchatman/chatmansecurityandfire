@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
+import type { ProposalDocument, ScopeLineItem } from "@/lib/proposal-doc";
 
 // Drafts a proposal from a plain-language job description, priced against the
 // real catalogue.
@@ -15,14 +16,24 @@ import { verifyAuth } from "@/lib/auth";
 const MODEL = "claude-sonnet-5";
 const TAX_RATE = 0.0825; // Harris County
 
-interface ProposalDraft {
+interface DraftScope {
   title?: string;
-  scope_summary?: string;
+  narrative?: string;
+  inclusions?: string[];
+  notes?: string[];
+  price_qualifier?: string;
   line_items?: DraftLine[];
-  assumptions?: string[];
+}
+
+interface ProposalDraft {
+  project_name?: string;
+  jurisdiction?: string;
+  occupancy?: string;
+  building_size?: string;
+  intro?: string;
+  scopes?: DraftScope[];
   exclusions?: string[];
   gaps?: string[];
-  code_notes?: string[];
 }
 
 interface DraftLine {
@@ -83,7 +94,7 @@ export async function POST(request: NextRequest) {
       supabaseAdmin.from("proposal_inventory").select("id, name, description, category, unit_cost, unit"),
       supabaseAdmin.from("proposal_procedures").select("name, category, steps, notes"),
       body.customer_id
-        ? supabaseAdmin.from("customers").select("name, company, address, city, state").eq("id", body.customer_id).maybeSingle()
+        ? supabaseAdmin.from("customers").select("name, company, email, phone, address, city, state").eq("id", body.customer_id).maybeSingle()
         : Promise.resolve({ data: null }),
     ]);
 
@@ -92,29 +103,44 @@ export async function POST(request: NextRequest) {
         `${i.id} | ${i.name} | ${i.category} | ${i.unit_cost > 0 ? "$" + i.unit_cost : "PRICED PER JOB"} ${i.unit || ""} | ${i.description || ""}`
     ).join("\n");
 
-    const systemPrompt = `You are writing a commercial fire and life safety proposal for Chatman Security & Fire, a licensed Houston contractor (est. 2009).
+    const systemPrompt = `You are writing a commercial fire and life safety agreement for Chatman Security & Fire, a licensed Houston contractor (est. 2009).
 
-Write the way an experienced estimator talks to a building owner or general contractor: direct, specific, no marketing fluff. Reference code by name where it matters (NFPA 72, NFPA 13, IFC, local AHJ) because that is what earns trust with this audience.
+Write the way an experienced estimator writes to a building owner or general contractor: direct, specific, no marketing language. Cite code by name and section where it drives the scope (NFPA 72, NFPA 13, IFC, NFPA 90A, local AHJ amendments) — that is what earns trust with this audience.
+
+Organise the work into SCOPES, one per discipline or system (for example: Fire Alarm System; Fire Sprinkler System — Aboveground Interior; Underground Fire Line). A small job may be a single scope.
 
 PRICE ONLY FROM THIS CATALOGUE. Each line is: id | name | category | price | description
 ${catalogue}
 
 Rules:
-- Choose items by their id. Never invent an item or a price.
-- If something the job needs is not in the catalogue, put it in "gaps" — do not guess a price.
-- Items marked PRICED PER JOB should still be included where relevant; quantity 1, and explain in the note.
-- Be realistic about quantities. A device count should follow from the described square footage, room count or scope.
-- Always include labor and a trip charge where the work is on site.
+- Choose catalogue items by id. Never invent an item or a price.
+- Assign every line item to the scope it belongs to.
+- The customer sees one all-inclusive price per scope, so write inclusions as work described in plain terms ("3-inch grooved wet-pipe riser assembly including alarm valve, OS&Y gate valve, check valve"), NOT as priced parts.
+- Inclusions should read like a specification: quantities, sizes, materials, and what is being commissioned.
+- Put anything needed that is not in the catalogue into "gaps" — never guess a price.
+- Use notes for code triggers, assumptions and cross-references between scopes.
+- Set price_qualifier only where the price genuinely depends on something outstanding, e.g. "ESTIMATED, Pending Flow Test".
+- Always include labor and a trip charge where work is on site.
 
 Reply with ONLY a JSON object, no prose and no code fence:
 {
-  "title": "short proposal title",
-  "scope_summary": "2-4 sentences describing the work in plain language",
-  "line_items": [{ "inventory_id": "uuid", "quantity": 12, "note": "optional short justification" }],
-  "assumptions": ["what you assumed about the building or existing conditions"],
+  "project_name": "the building or business name",
+  "jurisdiction": "e.g. City of Houston / IFC 2021",
+  "occupancy": "e.g. F-1 (Distillery Addendum — Sprinkler Required)",
+  "building_size": "e.g. ~3,500 SF Office/Warehouse",
+  "intro": "one paragraph: what Contractor will furnish, for whom, under which codes",
+  "scopes": [
+    {
+      "title": "Fire Alarm System",
+      "narrative": "2-4 sentences on what is installed and the codes it complies with",
+      "inclusions": ["specification-style bullets of the work"],
+      "notes": ["code triggers, assumptions, cross-references"],
+      "price_qualifier": "",
+      "line_items": [{ "inventory_id": "uuid", "quantity": 8, "note": "internal justification" }]
+    }
+  ],
   "exclusions": ["what is explicitly not included"],
-  "gaps": ["anything needed that is not in the catalogue and needs pricing"],
-  "code_notes": ["relevant code requirements driving this scope"]
+  "gaps": ["needed but not in the catalogue — internal only"]
 }`;
 
     const userPrompt = [
@@ -226,61 +252,72 @@ Reply with ONLY a JSON object, no prose and no code fence:
     }
 
     // ---- pricing happens here, not in the model ----
+    // Each scope's price is the sum of its catalogue lines. The customer sees
+    // only that total; the itemisation stays on the record so the number can be
+    // defended and adjusted later.
     const byId = new Map((inventory || []).map((i) => [i.id, i]));
-    const lines: {
-      name: string;
-      description: string | null;
-      unit: string | null;
-      quantity: number;
-      unit_cost: number;
-      total: number;
-      note?: string;
-      priced_per_job: boolean;
-    }[] = [];
     const dropped: string[] = [];
 
-    for (const li of draft.line_items || []) {
-      const item = li.inventory_id ? byId.get(li.inventory_id) : undefined;
-      if (!item) {
-        dropped.push(li.name || li.inventory_id || "unknown item");
-        continue;
-      }
-      const qty = Math.max(1, Math.round(Number(li.quantity) || 1));
-      const unitCost = Number(item.unit_cost) || 0;
-      lines.push({
-        name: item.name,
-        description: item.description,
-        unit: item.unit,
-        quantity: qty,
-        unit_cost: unitCost,
-        total: Math.round(unitCost * qty * 100) / 100,
-        note: li.note,
-        priced_per_job: unitCost === 0,
-      });
-    }
+    const scopes = (draft.scopes || []).map((sc) => {
+      const lines: ScopeLineItem[] = [];
 
-    const subtotal = Math.round(lines.reduce((s, l) => s + l.total, 0) * 100) / 100;
-    const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
-    const total = Math.round((subtotal + tax) * 100) / 100;
+      for (const li of sc.line_items || []) {
+        const item = li.inventory_id ? byId.get(li.inventory_id) : undefined;
+        if (!item) {
+          dropped.push(li.name || li.inventory_id || "unknown item");
+          continue;
+        }
+        const qty = Math.max(1, Math.round(Number(li.quantity) || 1));
+        const unitCost = Number(item.unit_cost) || 0;
+        lines.push({
+          name: item.name,
+          quantity: qty,
+          unit_cost: unitCost,
+          total: Math.round(unitCost * qty * 100) / 100,
+        });
+      }
+
+      const price = Math.round(lines.reduce((s2, l) => s2 + l.total, 0) * 100) / 100;
+
+      return {
+        title: sc.title || "Scope of Work",
+        narrative: sc.narrative || "",
+        inclusions: sc.inclusions || [],
+        notes: sc.notes || [],
+        price,
+        line_items: lines,
+        price_qualifier: sc.price_qualifier || undefined,
+      };
+    });
+
+    const total = Math.round(scopes.reduce((s2, sc) => s2 + sc.price, 0) * 100) / 100;
+
+    const document: ProposalDocument = {
+      project_name: draft.project_name || customer?.company || customer?.name || "Project",
+      project_address: [customer?.address, customer?.city, customer?.state].filter(Boolean).join(", ") || "To be confirmed",
+      jurisdiction: draft.jurisdiction || "City of Houston / IFC 2021",
+      occupancy: draft.occupancy || "To be confirmed",
+      building_size: draft.building_size || "To be confirmed",
+      client_name: customer?.name || draft.project_name || "Owner",
+      client_email: customer?.email || undefined,
+      client_phone: customer?.phone || undefined,
+      prepared_by: "Howard Chatman, Chatman Security & Fire",
+      date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+      intro: draft.intro || "",
+      scopes,
+      exclusions: draft.exclusions || [],
+      gaps: draft.gaps || [],
+      total,
+      validity_days: 30,
+    };
 
     return NextResponse.json({
       success: true,
       data: {
-        title: draft.title || "Fire & Life Safety Proposal",
-        scope_summary: draft.scope_summary || "",
-        line_items: lines,
-        assumptions: draft.assumptions || [],
-        exclusions: draft.exclusions || [],
-        gaps: draft.gaps || [],
-        code_notes: draft.code_notes || [],
-        subtotal,
-        tax_rate: TAX_RATE,
-        tax,
-        total,
+        document,
         // Surfaced so the estimator knows the draft is incomplete rather than
         // discovering a missing line after it has gone out.
         dropped_items: dropped,
-        // Visible so a run that needed retries is noticeable without being an error.
         attempts: attemptsUsed,
       },
     });

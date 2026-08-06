@@ -14,30 +14,13 @@ import {
 
 interface Customer { id: string; name: string; company: string | null; city: string | null }
 
-interface Line {
-  name: string;
-  description: string | null;
-  unit: string | null;
-  quantity: number;
-  unit_cost: number;
-  total: number;
-  note?: string;
-  priced_per_job: boolean;
-}
+import AgreementDocument from "@/components/proposal/AgreementDocument";
+import type { ProposalDocument } from "@/lib/proposal-doc";
 
 interface Draft {
-  title: string;
-  scope_summary: string;
-  line_items: Line[];
-  assumptions: string[];
-  exclusions: string[];
-  gaps: string[];
-  code_notes: string[];
-  subtotal: number;
-  tax_rate: number;
-  tax: number;
-  total: number;
+  document: ProposalDocument;
   dropped_items: string[];
+  attempts: number;
 }
 
 const usd = (n: number) =>
@@ -62,35 +45,6 @@ export default function ProposalsPage() {
       } catch { /* the picker just stays empty */ }
     })();
   }, []);
-
-  // Totals are recomputed here whenever a quantity is edited, so the figure on
-  // screen always matches the lines above it.
-  const recalc = (lines: Line[]): Draft => {
-    const subtotal = Math.round(lines.reduce((s, l) => s + l.total, 0) * 100) / 100;
-    const tax = Math.round(subtotal * (draft?.tax_rate ?? 0.0825) * 100) / 100;
-    return { ...(draft as Draft), line_items: lines, subtotal, tax, total: Math.round((subtotal + tax) * 100) / 100 };
-  };
-
-  const setQty = (i: number, qty: number) => {
-    if (!draft) return;
-    const lines = draft.line_items.map((l, idx) =>
-      idx === i ? { ...l, quantity: qty, total: Math.round(l.unit_cost * qty * 100) / 100 } : l
-    );
-    setDraft(recalc(lines));
-  };
-
-  const setPrice = (i: number, price: number) => {
-    if (!draft) return;
-    const lines = draft.line_items.map((l, idx) =>
-      idx === i ? { ...l, unit_cost: price, total: Math.round(price * l.quantity * 100) / 100 } : l
-    );
-    setDraft(recalc(lines));
-  };
-
-  const removeLine = (i: number) => {
-    if (!draft) return;
-    setDraft(recalc(draft.line_items.filter((_, idx) => idx !== i)));
-  };
 
   const generate = async () => {
     setError(""); setNotice(""); setGenerating(true); setDraft(null);
@@ -207,91 +161,72 @@ export default function ProposalsPage() {
         {notice && <div className="text-sm text-green-800 bg-green-50 rounded-lg px-3 py-2">{notice}</div>}
       </div>
 
-      {/* Draft */}
+      {/* The agreement, exactly as the customer will receive it */}
       {draft && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900">{draft.title}</h2>
-            <p className="text-gray-600 mt-2">{draft.scope_summary}</p>
-          </div>
-
-          {(draft.gaps?.length > 0 || draft.dropped_items?.length > 0) && (
-            <div className="px-6 py-4 bg-amber-50 border-b border-amber-200">
+        <>
+          {(draft.dropped_items.length > 0 || draft.document.gaps.length > 0) && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 no-print">
               <p className="text-sm font-medium text-amber-900 flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4" /> Needs your pricing
+                <AlertTriangle className="w-4 h-4" /> Before you send this — needs your pricing
               </p>
               <ul className="mt-1 text-sm text-amber-800 list-disc list-inside">
-                {draft.gaps?.map((g, i) => <li key={`g${i}`}>{g}</li>)}
-                {draft.dropped_items?.map((d, i) => (
+                {draft.document.gaps.map((g, i) => <li key={`g${i}`}>{g}</li>)}
+                {draft.dropped_items.map((d, i) => (
                   <li key={`d${i}`}>{d} — not in your catalogue, left off</li>
                 ))}
               </ul>
+              <p className="text-xs text-amber-700 mt-2">
+                These notes are for you. They are not printed on the agreement.
+              </p>
             </div>
           )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  {["Item", "Qty", "Unit price", "Total", ""].map((h) => (
-                    <th key={h} className={`px-4 py-3 text-xs font-semibold text-gray-500 uppercase ${h === "Item" ? "text-left" : "text-right"}`}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {draft.line_items.map((l, i) => (
-                  <tr key={i} className={l.priced_per_job ? "bg-amber-50/50" : ""}>
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">{l.name}</p>
-                      {l.note && <p className="text-xs text-gray-500">{l.note}</p>}
-                      {l.priced_per_job && <p className="text-xs text-amber-700 font-medium">Priced per job — enter an amount</p>}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <input
-                        type="number" min="1" value={l.quantity}
-                        onChange={(e) => setQty(i, Math.max(1, Number(e.target.value) || 1))}
-                        className="w-16 px-2 py-1 border border-gray-200 rounded text-right"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <input
-                        type="number" min="0" step="0.01" value={l.unit_cost}
-                        onChange={(e) => setPrice(i, Number(e.target.value) || 0)}
-                        className="w-28 px-2 py-1 border border-gray-200 rounded text-right"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-900">{usd(l.total)}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button onClick={() => removeLine(i)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-gray-50 border-t border-gray-200">
-                <tr><td colSpan={3} className="px-4 py-2 text-right text-gray-600">Subtotal</td><td className="px-4 py-2 text-right font-medium">{usd(draft.subtotal)}</td><td /></tr>
-                <tr><td colSpan={3} className="px-4 py-2 text-right text-gray-600">Tax ({(draft.tax_rate * 100).toFixed(2)}%)</td><td className="px-4 py-2 text-right font-medium">{usd(draft.tax)}</td><td /></tr>
-                <tr><td colSpan={3} className="px-4 py-3 text-right font-semibold text-gray-900">Total</td><td className="px-4 py-3 text-right text-lg font-bold text-gray-900">{usd(draft.total)}</td><td /></tr>
-              </tfoot>
-            </table>
+          <div className="flex items-center justify-between no-print">
+            <p className="text-sm text-gray-500">
+              {draft.document.scopes.length} scope{draft.document.scopes.length === 1 ? "" : "s"} ·{" "}
+              {usd(draft.document.total)} total
+              {draft.attempts > 1 ? ` · drafted on attempt ${draft.attempts}` : ""}
+            </p>
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#0D1B2A] hover:bg-[#16293d] text-white rounded-xl text-sm font-medium"
+            >
+              <FileText className="w-4 h-4" /> Print / Save as PDF
+            </button>
           </div>
 
-          <div className="p-6 grid md:grid-cols-3 gap-6 border-t border-gray-100">
-            {[
-              { label: "Code notes", items: draft.code_notes },
-              { label: "Assumptions", items: draft.assumptions },
-              { label: "Exclusions", items: draft.exclusions },
-            ].map((b) => b.items?.length ? (
-              <div key={b.label}>
-                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">{b.label}</p>
-                <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
-                  {b.items.map((x, i) => <li key={i}>{x}</li>)}
-                </ul>
-              </div>
-            ) : null)}
+          <div className="bg-gray-100 p-6 rounded-xl overflow-x-auto">
+            <AgreementDocument doc={draft.document} />
           </div>
-        </div>
+
+          {/* Internal build-up: how each scope price was reached. Never printed. */}
+          <details className="bg-white rounded-xl border border-gray-200 p-4 no-print">
+            <summary className="text-sm font-medium text-gray-700 cursor-pointer">
+              How these prices were built (internal — not shown to the customer)
+            </summary>
+            <div className="mt-3 space-y-4">
+              {draft.document.scopes.map((sc, i) => (
+                <div key={i}>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Scope {i + 1} — {sc.title}: {usd(sc.price)}
+                  </p>
+                  <table className="w-full text-xs mt-1">
+                    <tbody>
+                      {sc.line_items.map((l, k) => (
+                        <tr key={k} className="border-b border-gray-100">
+                          <td className="py-1 text-gray-700">{l.name}</td>
+                          <td className="py-1 text-right text-gray-500 w-16">{l.quantity}</td>
+                          <td className="py-1 text-right text-gray-500 w-24">{usd(l.unit_cost)}</td>
+                          <td className="py-1 text-right text-gray-900 w-28">{usd(l.total)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
+          </details>
+        </>
       )}
 
       {!draft && !generating && (
