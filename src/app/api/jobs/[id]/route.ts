@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
-import {
-  supabase,
+import { supabaseAdmin as supabase,
   getJobById,
   updateJob,
   getJobPhotos,
