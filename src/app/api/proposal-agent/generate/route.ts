@@ -151,7 +151,15 @@ Reply with ONLY a JSON object, no prose and no code fence:
     }
 
     const payload = await resp.json();
-    const raw: string = payload?.content?.[0]?.text ?? "";
+
+    // The reply is a list of content blocks and the first one is not
+    // necessarily the answer — this model can emit a thinking block ahead of
+    // the text. Reading content[0].text returned an empty string and lost every
+    // draft. Concatenate the text blocks instead.
+    const raw: string = (payload?.content ?? [])
+      .filter((b: { type?: string }) => b?.type === "text")
+      .map((b: { text?: string }) => b.text ?? "")
+      .join("");
 
     let draft: {
       title?: string;
@@ -181,7 +189,14 @@ Reply with ONLY a JSON object, no prose and no code fence:
               : "The draft came back in an unexpected format.",
           // Admin-only endpoint; showing the start of the reply turns a guess
           // into a diagnosis.
-          debug: { stop_reason: stopReason, length: raw.length, preview: raw.slice(0, 300) },
+          debug: {
+            stop_reason: stopReason,
+            length: raw.length,
+            preview: raw.slice(0, 300),
+            // Which block types came back, so an empty draft is immediately
+            // distinguishable from a malformed one.
+            block_types: (payload?.content ?? []).map((b: { type?: string }) => b?.type),
+          },
         },
         { status: 502 }
       );
