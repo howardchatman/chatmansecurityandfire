@@ -102,7 +102,7 @@ Reply with ONLY a JSON object, no prose and no code fence:
         // A full proposal with twenty-odd line items plus assumptions and code
         // notes runs well past 2000 tokens; truncating mid-JSON produced an
         // unparseable draft rather than a short one.
-        max_tokens: 8000,
+        max_tokens: 15000,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
       }),
