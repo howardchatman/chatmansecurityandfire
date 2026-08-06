@@ -15,11 +15,44 @@ import { verifyAuth } from "@/lib/auth";
 const MODEL = "claude-sonnet-5";
 const TAX_RATE = 0.0825; // Harris County
 
+interface ProposalDraft {
+  title?: string;
+  scope_summary?: string;
+  line_items?: DraftLine[];
+  assumptions?: string[];
+  exclusions?: string[];
+  gaps?: string[];
+  code_notes?: string[];
+}
+
 interface DraftLine {
   inventory_id?: string;
   name?: string;
   quantity?: number;
   note?: string;
+}
+
+
+/** Pull the outermost JSON object out of a reply that may carry a code fence or
+ *  a sentence of preamble. */
+function extractJson(raw: string): unknown | null {
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  const candidate = start >= 0 && end > start ? raw.slice(start, end + 1) : raw.trim();
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return null;
+  }
+}
+
+/** Concatenate the text blocks. The first block is not necessarily the answer —
+ *  this model can emit a thinking block ahead of the text. */
+function textFromReply(payload: { content?: { type?: string; text?: string }[] }): string {
+  return (payload?.content ?? [])
+    .filter((b) => b?.type === "text")
+    .map((b) => b.text ?? "")
+    .join("");
 }
 
 export async function POST(request: NextRequest) {
@@ -90,113 +123,103 @@ Reply with ONLY a JSON object, no prose and no code fence:
       procedures?.length ? `\nOur standard procedures:\n${procedures.map((p) => `- ${p.name}: ${p.steps}`).join("\n")}` : null,
     ].filter(Boolean).join("\n");
 
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        // A full proposal with twenty-odd line items plus assumptions and code
-        // notes runs well past 2000 tokens; truncating mid-JSON produced an
-        // unparseable draft rather than a short one.
-        max_tokens: 15000,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
-      }),
-    });
+    // The draft is asked for as raw JSON, and roughly one reply in three comes
+    // back with something around it that won't parse. Retrying is cheap and
+    // invisible; surfacing it made the estimator click the button twice.
+    const MAX_ATTEMPTS = 3;
+    let draft: ProposalDraft | null = null;
+    let lastFailure = "";
+    let attemptsUsed = 0;
 
-    if (!resp.ok) {
-      const detail = await resp.text();
-      console.error("Anthropic error:", resp.status, detail.slice(0, 400));
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      attemptsUsed = attempt;
 
-      // Pass the upstream reason through. It never contains the key, and
-      // without it a 401 is indistinguishable from a typo, a revoked key or an
-      // account with no credit.
-      let upstream = "";
-      try {
-        upstream = JSON.parse(detail)?.error?.message || "";
-      } catch {
-        upstream = detail.slice(0, 200);
-      }
-
-      // Describe the SHAPE of the stored key so a paste error can be spotted
-      // without revealing it. The prefix is public and four trailing characters
-      // are the standard way to match a key against the console listing.
-      let keyShape = "";
-      if (resp.status === 401) {
-        const trimmed = apiKey.trim();
-        keyShape =
-          ` [stored key: ${apiKey.length} chars` +
-          (trimmed.length !== apiKey.length ? `, HAS SURROUNDING WHITESPACE (${apiKey.length - trimmed.length} chars)` : "") +
-          `, starts "${trimmed.slice(0, 11)}", ends "${trimmed.slice(-4)}"]`;
-      }
-
-      const hint =
-        resp.status === 401
-          ? `The key reached Anthropic and was rejected, so this is the value itself — not the deployment.${keyShape}`
-          : resp.status === 429
-            ? "Rate limited or out of credit on the Anthropic account."
-            : "";
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Anthropic returned ${resp.status}${upstream ? `: ${upstream}` : ""}${hint ? ` — ${hint}` : ""}`,
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
         },
-        { status: 502 }
-      );
+        body: JSON.stringify({
+          model: MODEL,
+          // A full proposal with twenty-odd line items plus assumptions and
+          // code notes runs well past 2000 tokens; truncating mid-JSON
+          // produced an unparseable draft rather than a short one.
+          max_tokens: 15000,
+          system: systemPrompt,
+          messages: [{ role: "user", content: userPrompt }],
+        }),
+      });
+
+      if (!resp.ok) {
+        const detail = await resp.text();
+        console.error("Anthropic error:", resp.status, detail.slice(0, 400));
+
+        let upstream = "";
+        try {
+          upstream = JSON.parse(detail)?.error?.message || "";
+        } catch {
+          upstream = detail.slice(0, 200);
+        }
+
+        // A bad key or no credit will fail identically every time — retrying
+        // just makes the user wait three times as long for the same answer.
+        const permanent = resp.status === 401 || resp.status === 403;
+
+        let keyShape = "";
+        if (resp.status === 401) {
+          const trimmed = apiKey.trim();
+          keyShape =
+            ` [stored key: ${apiKey.length} chars` +
+            (trimmed.length !== apiKey.length
+              ? `, HAS SURROUNDING WHITESPACE (${apiKey.length - trimmed.length} chars)`
+              : "") +
+            `, starts "${trimmed.slice(0, 11)}", ends "${trimmed.slice(-4)}"]`;
+        }
+
+        const hint =
+          resp.status === 401
+            ? `The key reached Anthropic and was rejected, so this is the value itself — not the deployment.${keyShape}`
+            : resp.status === 429
+              ? "Rate limited or out of credit on the Anthropic account."
+              : "";
+
+        if (permanent || attempt === MAX_ATTEMPTS) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Anthropic returned ${resp.status}${upstream ? `: ${upstream}` : ""}${hint ? ` — ${hint}` : ""}`,
+            },
+            { status: 502 }
+          );
+        }
+        lastFailure = `${resp.status} ${upstream}`;
+        continue;
+      }
+
+      const payload = await resp.json();
+      const raw = textFromReply(payload);
+      const parsed = extractJson(raw);
+
+      if (parsed && typeof parsed === "object") {
+        draft = parsed as ProposalDraft;
+        break;
+      }
+
+      lastFailure =
+        payload?.stop_reason === "max_tokens"
+          ? "reply hit the length limit"
+          : `reply did not parse (${raw.length} chars, blocks: ${(payload?.content ?? []).map((b: { type?: string }) => b?.type).join(",")})`;
+      console.error(`Proposal attempt ${attempt}/${MAX_ATTEMPTS} failed: ${lastFailure}`);
     }
 
-    const payload = await resp.json();
-
-    // The reply is a list of content blocks and the first one is not
-    // necessarily the answer — this model can emit a thinking block ahead of
-    // the text. Reading content[0].text returned an empty string and lost every
-    // draft. Concatenate the text blocks instead.
-    const raw: string = (payload?.content ?? [])
-      .filter((b: { type?: string }) => b?.type === "text")
-      .map((b: { text?: string }) => b.text ?? "")
-      .join("");
-
-    let draft: {
-      title?: string;
-      scope_summary?: string;
-      line_items?: DraftLine[];
-      assumptions?: string[];
-      exclusions?: string[];
-      gaps?: string[];
-      code_notes?: string[];
-    };
-    try {
-      // Tolerate a code fence or a sentence of preamble by taking the outermost
-      // JSON object rather than assuming the reply is bare JSON.
-      const start = raw.indexOf("{");
-      const end = raw.lastIndexOf("}");
-      const json = start >= 0 && end > start ? raw.slice(start, end + 1) : raw.trim();
-      draft = JSON.parse(json);
-    } catch {
-      console.error("Could not parse proposal JSON:", raw.slice(0, 600));
-      const stopReason = payload?.stop_reason;
+    if (!draft) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            stopReason === "max_tokens"
-              ? "The draft ran past the length limit and came back incomplete. Try describing a smaller scope."
-              : "The draft came back in an unexpected format.",
-          // Admin-only endpoint; showing the start of the reply turns a guess
-          // into a diagnosis.
-          debug: {
-            stop_reason: stopReason,
-            length: raw.length,
-            preview: raw.slice(0, 300),
-            // Which block types came back, so an empty draft is immediately
-            // distinguishable from a malformed one.
-            block_types: (payload?.content ?? []).map((b: { type?: string }) => b?.type),
-          },
+          error: `Couldn't get a usable draft after ${MAX_ATTEMPTS} attempts. Try again, or describe a smaller scope.`,
+          debug: { last_failure: lastFailure },
         },
         { status: 502 }
       );
@@ -257,6 +280,8 @@ Reply with ONLY a JSON object, no prose and no code fence:
         // Surfaced so the estimator knows the draft is incomplete rather than
         // discovering a missing line after it has gone out.
         dropped_items: dropped,
+        // Visible so a run that needed retries is noticeable without being an error.
+        attempts: attemptsUsed,
       },
     });
   } catch (error) {
