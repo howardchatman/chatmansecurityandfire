@@ -46,6 +46,32 @@ function normalizePhone(raw?: string | null): string | undefined {
   return trimmed;
 }
 
+
+/**
+ * The phone already stored against this email, if any.
+ * Used so an upsert never replaces a working number with a worse one.
+ */
+async function findExistingPhone(email: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${BASE_URL}/contacts/?locationId=${LOCATION_ID}&query=${encodeURIComponent(email)}&limit=5`,
+      { headers: headers() }
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    const match = (json?.contacts ?? []).find(
+      (c: { email?: string; phone?: string }) =>
+        (c.email || "").toLowerCase() === email.toLowerCase() && c.phone
+    );
+    return match?.phone ?? null;
+  } catch (err) {
+    // A lookup failure must not stop the contact being saved; fall back to the
+    // previous behaviour of just writing what we have.
+    console.error("[GHL] phone lookup failed:", err);
+    return null;
+  }
+}
+
 /**
  * Create or update a contact in GoHighLevel and (optionally) attach a note
  * with the lead's message. Dedupes on email/phone via the upsert endpoint.
@@ -70,8 +96,25 @@ export async function upsertGhlContact(lead: GhlLead): Promise<string | null> {
     tags,
   };
   if (lead.email) payload.email = lead.email;
+
+  // Only set the phone when the contact doesn't already have one.
+  //
+  // The upsert matches on email, and GHL overwrites whatever it is given — so a
+  // later form submission with a typo, or a test with a placeholder, replaces a
+  // good mobile we already had. Worse, an unreachable number makes the carrier
+  // reject the send and GHL then flags the contact SMS Do-Not-Disturb, silently
+  // cutting off every future text to that customer.
   const phone = normalizePhone(lead.phone);
-  if (phone) payload.phone = phone;
+  if (phone) {
+    const existingPhone = lead.email ? await findExistingPhone(lead.email) : null;
+    if (!existingPhone) {
+      payload.phone = phone;
+    } else if (existingPhone !== phone) {
+      console.log(
+        `[GHL] keeping the phone already on ${lead.email} (${existingPhone}) rather than overwriting with ${phone}`
+      );
+    }
+  }
 
   const res = await fetch(`${BASE_URL}/contacts/upsert`, {
     method: "POST",
