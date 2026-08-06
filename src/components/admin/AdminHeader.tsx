@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import BrandHeader from "@/components/BrandHeader";
 import {
   Menu,
   Bell,
@@ -78,6 +79,12 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           >
             <Menu className="w-5 h-5" />
           </button>
+
+          {/* The sidebar (and its logo) is hidden on small screens, so the
+              brand would otherwise disappear entirely on a phone. */}
+          <Link href="/admin/dashboard" className="lg:hidden">
+            <BrandHeader size="h-7" />
+          </Link>
 
           {/* Breadcrumbs */}
           <nav className="hidden sm:flex items-center gap-2 text-sm">

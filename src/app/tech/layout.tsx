@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import BrandHeader from "@/components/BrandHeader";
 import {
   Briefcase,
   Calendar,
@@ -71,13 +72,12 @@ export default function TechPortalLayout({
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/tech" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-                <Briefcase className="w-5 h-5 text-white" />
-              </div>
-              <div className="hidden sm:block">
-                <p className="font-semibold">Chatman S&F</p>
-                <p className="text-xs text-gray-400">Tech Portal</p>
-              </div>
+              {/* Dark header, so the logo is inverted to white — the mark's
+                  interior is opaque and would otherwise show as a white block. */}
+              <BrandHeader onDark size="h-8" />
+              <span className="hidden sm:block text-xs text-gray-400 border-l border-white/20 pl-3">
+                Tech Portal
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
