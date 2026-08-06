@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
+import { sendSms, smsTemplates } from "@/lib/sms";
 import {
   getJobs,
   createJob,
@@ -194,6 +195,22 @@ export async function PATCH(request: NextRequest) {
     }
 
     const job = await updateJob(id, updates);
+
+    // Text the customer at the two moments they actually care about. Fire and
+    // forget — a failed text must never fail the status change itself.
+    if (updates.status && job?.customer_phone) {
+      const who = { name: job.customer_name || "Customer", phone: job.customer_phone, email: job.customer_email };
+      if (updates.status === "scheduled" && job.scheduled_date) {
+        const when = new Date(job.scheduled_date + "T12:00:00").toLocaleDateString("en-US", {
+          weekday: "long", month: "long", day: "numeric",
+        });
+        sendSms({ ...who, message: smsTemplates.jobScheduled(when) })
+          .catch((err) => console.error("job scheduled text failed:", err));
+      } else if (updates.status === "completed") {
+        sendSms({ ...who, message: smsTemplates.jobComplete() })
+          .catch((err) => console.error("job complete text failed:", err));
+      }
+    }
 
     return NextResponse.json({
       success: true,

@@ -7,6 +7,7 @@ import {
   formatAmount,
 } from "@/lib/stripe";
 import { sendInvoiceEmail } from "@/lib/email";
+import { sendSms, smsTemplates } from "@/lib/sms";
 
 // POST: Send invoice via Stripe + Email
 export async function POST(
@@ -94,15 +95,28 @@ export async function POST(
         ? new Date(invoice.due_date).toLocaleDateString()
         : "Upon Receipt";
 
+      const total = formatAmount(Math.round(invoice.total * 100));
+
       sendInvoiceEmail({
         customerEmail: invoice.customer.email,
         customerName: invoice.customer.name || invoice.customer.company || "Customer",
         invoiceNumber: invoice.invoice_number,
-        total: formatAmount(Math.round(invoice.total * 100)),
+        total,
         dueDate,
         description: `Invoice ${invoice.invoice_number}`,
         payUrl: stripeInvoice.hosted_invoice_url,
       }).catch((err) => console.error("Failed to send invoice email:", err));
+
+      // Text the pay link too. Invoices sit unread in email; a text with a link
+      // gets paid. Never awaited — a failed send must not fail the invoice.
+      if (invoice.customer.phone) {
+        sendSms({
+          name: invoice.customer.name || invoice.customer.company || "Customer",
+          phone: invoice.customer.phone,
+          email: invoice.customer.email,
+          message: smsTemplates.invoiceSent(invoice.invoice_number, total, stripeInvoice.hosted_invoice_url),
+        }).catch((err) => console.error("Failed to text the invoice:", err));
+      }
     }
 
     return NextResponse.json({

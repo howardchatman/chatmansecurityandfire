@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
+import { sendSms, smsTemplates } from "@/lib/sms";
 import { supabaseAdmin as supabase,
   getJobById,
   updateJob,
@@ -202,6 +203,25 @@ export async function PATCH(
           note_type: data.note_type || "general",
           is_customer_visible: data.is_customer_visible || false,
         });
+
+        // Only a note the crew deliberately shared gets texted. Internal notes
+        // must never leave the building.
+        if (data.is_customer_visible) {
+          const { data: jb } = await supabase
+            .from("jobs")
+            .select("customer_name, customer_phone, customer_email")
+            .eq("id", id)
+            .maybeSingle();
+          if (jb?.customer_phone) {
+            sendSms({
+              name: jb.customer_name || "Customer",
+              phone: jb.customer_phone,
+              email: jb.customer_email,
+              message: smsTemplates.jobUpdate(String(data.note).slice(0, 90)),
+            }).catch((err) => console.error("job update text failed:", err));
+          }
+        }
+
         return NextResponse.json({ success: true, data: note });
       }
 
