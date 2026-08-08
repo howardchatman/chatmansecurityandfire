@@ -260,15 +260,23 @@ Reply with ONLY a JSON object, no prose and no code fence:
 
     const scopes = (draft.scopes || []).map((sc) => {
       const lines: ScopeLineItem[] = [];
+      // Anything in this scope we could not put a number against. A scope with
+      // entries here has an incomplete price and must not read as final.
+      const unpriced: string[] = [];
 
       for (const li of sc.line_items || []) {
         const item = li.inventory_id ? byId.get(li.inventory_id) : undefined;
         if (!item) {
-          dropped.push(li.name || li.inventory_id || "unknown item");
+          const label = li.name || li.inventory_id || "unknown item";
+          dropped.push(label);
+          unpriced.push(`${label} — not in the catalogue`);
           continue;
         }
         const qty = Math.max(1, Math.round(Number(li.quantity) || 1));
         const unitCost = Number(item.unit_cost) || 0;
+        if (unitCost === 0) {
+          unpriced.push(`${item.name} — no rate set (priced per job)`);
+        }
         lines.push({
           name: item.name,
           quantity: qty,
@@ -287,6 +295,7 @@ Reply with ONLY a JSON object, no prose and no code fence:
         price,
         line_items: lines,
         price_qualifier: sc.price_qualifier || undefined,
+        unpriced,
       };
     });
 

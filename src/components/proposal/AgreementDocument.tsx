@@ -49,6 +49,12 @@ const Sheet = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function AgreementDocument({ doc }: { doc: ProposalDocument }) {
+  // A scope with unpriced work is not a finished number. Rather than print a
+  // clean total that happens to be short, the document says so on its face —
+  // so an incomplete agreement physically cannot go out looking final.
+  const incomplete = doc.scopes.some((s) => (s.unpriced?.length ?? 0) > 0);
+  const priceOrPending = (s: (typeof doc.scopes)[number]) =>
+    (s.unpriced?.length ?? 0) > 0 ? "PRICING INCOMPLETE" : usd(s.price);
   const meta: [string, string][] = [
     ["CLIENT / OWNER", doc.client_name],
     ["DATE", doc.date],
@@ -153,18 +159,30 @@ export default function AgreementDocument({ doc }: { doc: ProposalDocument }) {
                     {s.title}
                     {s.price_qualifier ? ` — ${s.price_qualifier}` : ""}
                   </td>
-                  <td className="px-3 py-2 text-right text-gray-900">{usd(s.price)}</td>
+                  <td className="px-3 py-2 text-right text-gray-900">{priceOrPending(s)}</td>
                 </tr>
               ))}
               <tr className="text-white font-bold" style={{ background: NAVY }}>
                 <td className="px-3 py-3">TOTAL AGREEMENT PRICE</td>
                 <td className="px-3 py-3">Scopes {doc.scopes.map((_, i) => i + 1).join(" + ")}</td>
                 <td className="px-3 py-3 text-right text-base" style={{ color: ORANGE }}>
-                  {usd(doc.total)}
+                  {incomplete ? "PRICING INCOMPLETE" : usd(doc.total)}
                 </td>
               </tr>
             </tbody>
           </table>
+
+          {incomplete && (
+            <div className="mt-3 border-2 border-red-400 bg-red-50 px-3 py-2">
+              <p className="text-[11px] font-bold text-red-800">
+                DRAFT — NOT FOR ISSUE
+              </p>
+              <p className="text-[10px] text-red-700 mt-0.5">
+                One or more scopes contain work that has not been priced. Complete the pricing before
+                this agreement is sent to a customer.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="mt-auto pt-6 text-center text-[10px] text-gray-400">
@@ -222,7 +240,7 @@ export default function AgreementDocument({ doc }: { doc: ProposalDocument }) {
                   <td className="px-3 py-2 text-gray-700">
                     Materials, Equipment, Labor, Permitting &amp; Commissioning — All Inclusive
                   </td>
-                  <td className="px-3 py-2 text-right text-gray-900">{usd(scope.price)}</td>
+                  <td className="px-3 py-2 text-right text-gray-900">{priceOrPending(scope)}</td>
                 </tr>
                 <tr className="text-white font-bold" style={{ background: NAVY }}>
                   <td className="px-3 py-2">
@@ -230,11 +248,22 @@ export default function AgreementDocument({ doc }: { doc: ProposalDocument }) {
                     {scope.price_qualifier ? ` — ${scope.price_qualifier}` : ""}
                   </td>
                   <td className="px-3 py-2 text-right" style={{ color: ORANGE }}>
-                    {usd(scope.price)}
+                    {priceOrPending(scope)}
                   </td>
                 </tr>
               </tbody>
             </table>
+
+            {(scope.unpriced?.length ?? 0) > 0 && (
+              <div className="mt-3 border-2 border-red-400 bg-red-50 px-3 py-2">
+                <p className="text-[10px] font-bold text-red-800">
+                  Not yet priced — {scope.unpriced.length} item{scope.unpriced.length === 1 ? "" : "s"}
+                </p>
+                {scope.unpriced.map((u, k) => (
+                  <p key={k} className="text-[10px] text-red-700">• {u}</p>
+                ))}
+              </div>
+            )}
 
             <PageFooter doc={doc} n={i + 2} />
           </div>
@@ -261,14 +290,14 @@ export default function AgreementDocument({ doc }: { doc: ProposalDocument }) {
                 <tr key={i} className="border-b border-gray-200">
                   <td className="px-3 py-2 text-gray-700">Scope {i + 1}</td>
                   <td className="px-3 py-2 text-gray-800">{s.title}</td>
-                  <td className="px-3 py-2 text-right text-gray-900">{usd(s.price)}</td>
+                  <td className="px-3 py-2 text-right text-gray-900">{priceOrPending(s)}</td>
                 </tr>
               ))}
               <tr className="text-white font-bold" style={{ background: NAVY }}>
                 <td className="px-3 py-3">TOTAL AGREEMENT PRICE</td>
                 <td className="px-3 py-3">Scopes {doc.scopes.map((_, i) => i + 1).join(" + ")}</td>
                 <td className="px-3 py-3 text-right text-base" style={{ color: ORANGE }}>
-                  {usd(doc.total)}
+                  {incomplete ? "PRICING INCOMPLETE" : usd(doc.total)}
                 </td>
               </tr>
             </tbody>
@@ -322,7 +351,11 @@ export default function AgreementDocument({ doc }: { doc: ProposalDocument }) {
                   {doc.scopes.map((s) => s.title).join(", ")}
                 </td>
                 <td className="px-3 py-3 text-right text-lg font-bold text-gray-900">
-                  {usd(doc.total)}
+                  {incomplete ? (
+                    <span className="text-red-700 text-sm">PRICING INCOMPLETE</span>
+                  ) : (
+                    usd(doc.total)
+                  )}
                 </td>
               </tr>
             </tbody>

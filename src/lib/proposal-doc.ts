@@ -30,6 +30,17 @@ export interface ProposalScope {
   line_items: ScopeLineItem[];
   /** Shown as "ESTIMATED, Pending Flow Test" style qualifier when set. */
   price_qualifier?: string;
+  /**
+   * Catalogue items priced at zero, or work the drafter couldn't price at all.
+   *
+   * A scope carrying these is NOT a finished number. On a real distillery job
+   * the drafter returned $32,997 against a true price of $58,942 because the
+   * pipe, bore, tap and backflow weren't in the catalogue — and the document
+   * still showed a clean total. The document refuses to present a scope like
+   * that as final, so an incomplete price cannot leave the building looking
+   * finished.
+   */
+  unpriced: string[];
 }
 
 export interface ProposalDocument {
