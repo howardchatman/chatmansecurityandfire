@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/api/", "/portal/", "/tech/", "/district-portal/"],
       },
     ],
-    sitemap: "https://chatmansecurityandfire.com/sitemap.xml",
+    // www, matching the canonical host and the sitemap's own URLs.
+    sitemap: "https://www.chatmansecurityandfire.com/sitemap.xml",
   };
 }

@@ -3,7 +3,10 @@ import { cities } from "@/lib/cities-data";
 import { catalogServiceSlugs } from "@/lib/service-catalog";
 import { ROLES } from "@/lib/careers";
 
-const BASE_URL = "https://chatmansecurityandfire.com";
+// Must match the canonical host in layout.tsx. A sitemap listing the non-www
+// host while every page canonicalises to www splits the ranking signals across
+// what Google treats as two separate sites.
+const BASE_URL = "https://www.chatmansecurityandfire.com";
 
 const serviceSlugs = [
   "fire-marshal-compliance",
