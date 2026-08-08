@@ -147,6 +147,7 @@ const navigation = [
   { name: "Services", href: "#services", hasDropdown: true },
   { name: "Financing", href: "/financing" },
   { name: "For Contractors", href: "/for-contractors" },
+  { name: "Careers", href: "/careers" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];

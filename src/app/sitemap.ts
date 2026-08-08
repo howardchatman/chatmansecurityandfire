@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { cities } from "@/lib/cities-data";
 import { catalogServiceSlugs } from "@/lib/service-catalog";
+import { ROLES } from "@/lib/careers";
 
 const BASE_URL = "https://chatmansecurityandfire.com";
 
@@ -37,9 +38,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/request-quote`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE_URL}/financing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/sell-your-accounts`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE_URL}/careers`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/privacy-policy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/terms-and-conditions`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
   ];
+
+  // Job pages get indexed individually so Google can surface them in the jobs
+  // panel, which is where trade candidates actually search.
+  const careerPages: MetadataRoute.Sitemap = ROLES.map((r) => ({
+    url: `${BASE_URL}/careers/${r.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
 
   const servicePages: MetadataRoute.Sitemap = serviceSlugs.map((slug) => ({
     url: `${BASE_URL}/services/${slug}`,
@@ -67,5 +78,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       }))
     );
 
-  return [...staticPages, ...servicePages, ...cityPages, ...serviceCityPages];
+  return [...staticPages, ...careerPages, ...servicePages, ...cityPages, ...serviceCityPages];
 }

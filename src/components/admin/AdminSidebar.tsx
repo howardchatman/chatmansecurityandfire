@@ -11,6 +11,7 @@ import {
   FileText,
   CreditCard,
   UserCog,
+  UserPlus,
   Clock,
   Settings,
   ChevronLeft,
@@ -63,7 +64,8 @@ const navigation = [
     items: [
       { name: "Quote Builder", href: "/admin/quote", icon: Calculator },
       { name: "Quotes", href: "/admin/quotes", icon: FileCheck },
-      { name: "Proposals", href: "/admin/proposals", icon: Sparkles },
+      { name: "Proposal Agent", href: "/admin/proposals", icon: FileText },
+      { name: "AI Draft", href: "/admin/proposals/draft", icon: Sparkles },
       { name: "Estimates", href: "/admin/estimates", icon: Calculator },
       { name: "Inventory", href: "/admin/inventory", icon: Package },
 
@@ -100,6 +102,7 @@ const navigation = [
     items: [
       { name: "Team Management", href: "/admin/team", icon: UsersRound },
       { name: "Employees", href: "/admin/employees", icon: UserCog },
+      { name: "Applications", href: "/admin/careers", icon: UserPlus },
       { name: "Time Tracking", href: "/admin/time", icon: Clock },
     ],
   },
