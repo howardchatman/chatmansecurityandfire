@@ -21,6 +21,7 @@ import {
   Trash2,
   Loader2,
   ClipboardList,
+  ClipboardCheck,
   DollarSign,
   Play,
   Pause,
@@ -728,14 +729,22 @@ export default function InspectionDetailPage({ params }: { params: Promise<{ id:
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
             <div className="space-y-2">
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+              {/* The NFPA 72 Inspection & Testing Form — the document the fire
+                  marshal actually asks for. Fill it in, then Print/PDF. */}
+              <Link
+                href={`/admin/inspections/${resolvedParams.id}/nfpa72`}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left rounded-lg transition-colors bg-orange-50 text-orange-800 hover:bg-orange-100 font-medium"
+              >
+                <ClipboardCheck className="w-5 h-5 text-orange-600" />
+                NFPA 72 Inspection &amp; Testing Report
+              </Link>
+              <Link
+                href={`/admin/inspections/${resolvedParams.id}/report`}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              >
                 <FileText className="w-5 h-5 text-gray-400" />
-                Generate Report PDF
-              </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                <Mail className="w-5 h-5 text-gray-400" />
-                Email Report to Customer
-              </button>
+                Deficiency Summary
+              </Link>
               {openDeficiencies > 0 && (
                 <button
                   onClick={handleGenerateQuote}
