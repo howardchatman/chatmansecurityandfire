@@ -9,24 +9,33 @@ import {
   Sparkles,
   Calendar,
   Users,
-  Ticket,
+  ClipboardCheck,
   DollarSign,
   Minimize2,
   Maximize2,
+  AlertTriangle,
+  Database,
 } from "lucide-react";
+import AssistantMarkdown from "./AssistantMarkdown";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  /** Which database tools produced this answer — shown so you can see it looked. */
+  tools?: string[];
+  isError?: boolean;
 }
+
+/** get_leads -> "leads". Just enough to show what it read. */
+const toolLabel = (t: string) => t.replace(/^get_/, "").replace(/_/g, " ");
 
 const quickPrompts = [
   { label: "Today's Schedule", prompt: "What do I have scheduled for today?", icon: Calendar },
   { label: "Hot Leads", prompt: "Which leads should I prioritize calling today?", icon: Users },
-  { label: "Open Tickets", prompt: "Show me the urgent and emergency tickets that need attention.", icon: Ticket },
-  { label: "Revenue Summary", prompt: "Give me a quick revenue summary for this month.", icon: DollarSign },
+  { label: "Money", prompt: "What is outstanding and what has been collected?", icon: DollarSign },
+  { label: "Inspections", prompt: "Which inspections still need their NFPA 72 report filled out?", icon: ClipboardCheck },
 ];
 
 export default function AdminAIAssistant() {
@@ -37,7 +46,7 @@ export default function AdminAIAssistant() {
       id: "1",
       role: "assistant",
       content:
-        "Hi! I'm your admin assistant. I can help you with scheduling, leads, tickets, invoices, and more. What would you like to know?",
+        "Hi Howard. I read your live data — leads, jobs, inspections, invoices, customers, and the crew. Ask me anything about it.\n\nI can't send anything or change records, only look.",
       timestamp: new Date(),
     },
   ]);
@@ -82,26 +91,33 @@ export default function AdminAIAssistant() {
 
       const data = await response.json();
 
-      if (data.success && data.response) {
-        const assistantMessage: Message = {
+      // Surface the real reason when it fails. The old widget replaced every
+      // error with "having trouble connecting", which hid a route that had
+      // never worked at all.
+      setMessages((prev) => [
+        ...prev,
+        {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: data.response,
+          content: data.success && data.response ? data.response : data.error || "No response came back.",
           timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-      } else {
-        throw new Error("Failed to get response");
-      }
+          tools: data.tools_used?.length ? [...new Set<string>(data.tools_used)] : undefined,
+          isError: !data.success,
+        },
+      ]);
     } catch (error) {
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content:
-          "I'm having trouble connecting right now. Please try again in a moment.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: `Could not reach the assistant: ${
+            error instanceof Error ? error.message : "network error"
+          }`,
+          timestamp: new Date(),
+          isError: true,
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +153,7 @@ export default function AdminAIAssistant() {
           </div>
           <div>
             <h3 className="font-semibold">Admin Assistant</h3>
-            <p className="text-xs text-gray-400">Powered by AI</p>
+            <p className="text-xs text-gray-400">Claude · reads your live data</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -191,13 +207,39 @@ export default function AdminAIAssistant() {
                     className={`p-3 rounded-2xl ${
                       message.role === "user"
                         ? "bg-orange-600 text-white rounded-tr-md"
+                        : message.isError
+                        ? "bg-red-50 text-red-800 rounded-tl-md border border-red-200"
                         : "bg-white text-gray-700 rounded-tl-md border border-gray-200"
                     }`}
                   >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {message.content}
-                    </p>
+                    {message.role === "user" ? (
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                        {message.content}
+                      </p>
+                    ) : message.isError ? (
+                      <p className="text-sm leading-relaxed flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                        <span>{message.content}</span>
+                      </p>
+                    ) : (
+                      <AssistantMarkdown content={message.content} />
+                    )}
                   </div>
+                  {message.tools && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      <span className="inline-flex items-center gap-1 text-[10px] text-gray-400">
+                        <Database className="w-3 h-3" /> read
+                      </span>
+                      {message.tools.map((t) => (
+                        <span
+                          key={t}
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500"
+                        >
+                          {toolLabel(t)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <span className="text-xs text-gray-400 mt-1 block">
                     {message.timestamp.toLocaleTimeString([], {
                       hour: "numeric",

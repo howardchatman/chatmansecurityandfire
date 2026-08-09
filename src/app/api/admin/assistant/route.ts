@@ -1,267 +1,164 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
+import {
+  ASSISTANT_TOOLS,
+  ASSISTANT_SYSTEM_PROMPT,
+  runAssistantTool,
+  houstonToday,
+} from "@/lib/assistant-tools";
 
-// Mock data for the assistant to reference
-// In production, this would query your Supabase database
-const getMockBusinessData = () => {
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+// The admin assistant.
+//
+// This route previously returned canned text built from a hardcoded
+// getMockBusinessData() — invented customers, invented technicians, and an
+// invented $48,250 in monthly revenue, presented as fact under a "Powered by
+// AI" badge. It also fired a Retell create-web-call on every message and threw
+// the response away. All of that is gone.
+//
+// What replaces it: Claude with read-only tools over the real database. The
+// model chooses which tool to call; the tools do every count and total. See
+// src/lib/assistant-tools.ts for why that split matters.
 
-  return {
-    today,
-    appointments: [
-      {
-        time: "9:00 AM",
-        title: "Fire alarm panel replacement",
-        customer: "ABC Corporation",
-        technician: "Mike Thompson",
-        address: "123 Business Park Dr, Austin",
-        status: "in_progress",
-      },
-      {
-        time: "10:30 AM",
-        title: "Motion sensor installation",
-        customer: "Smith Residence",
-        technician: "Sarah Chen",
-        address: "456 Oak Lane, Dallas",
-        status: "scheduled",
-      },
-      {
-        time: "1:00 PM",
-        title: "Annual system inspection",
-        customer: "Tech Solutions Inc",
-        technician: "David Rodriguez",
-        address: "789 Tech Blvd, Houston",
-        status: "scheduled",
-      },
-      {
-        time: "3:00 PM",
-        title: "Camera system upgrade",
-        customer: "Medical Center West",
-        technician: "Mike Thompson",
-        address: "321 Health Way, Fort Worth",
-        status: "scheduled",
-      },
-    ],
-    leads: [
-      { name: "John Smith", email: "john.smith@email.com", phone: "(555) 123-4567", source: "Website", status: "new", daysOld: 0 },
-      { name: "Sarah Johnson", email: "sarah.j@company.com", phone: "(555) 234-5678", source: "Referral", status: "contacted", daysOld: 1 },
-      { name: "Mike Davis", email: "mike.davis@business.com", phone: "(555) 345-6789", source: "Chad Chat", status: "qualified", daysOld: 2 },
-      { name: "Emily Brown", email: "emily.b@corp.com", phone: "(555) 456-7890", source: "Phone", status: "proposal", daysOld: 3 },
-      { name: "David Martinez", email: "d.martinez@company.com", phone: "(555) 789-0123", source: "Referral", status: "new", daysOld: 6 },
-    ],
-    tickets: [
-      { number: "TKT-2024-000123", title: "Fire alarm panel not responding", customer: "ABC Corporation", priority: "emergency", status: "in_progress" },
-      { number: "TKT-2024-000124", title: "Motion sensor false alarms", customer: "Smith Residence", priority: "urgent", status: "assigned" },
-      { number: "TKT-2024-000125", title: "Annual inspection due", customer: "Tech Solutions Inc", priority: "normal", status: "scheduled" },
-      { number: "TKT-2024-000126", title: "Keypad replacement request", customer: "Downtown Retail", priority: "low", status: "open" },
-      { number: "TKT-2024-000128", title: "Door sensor malfunction", customer: "Johnson Family", priority: "urgent", status: "open" },
-    ],
-    revenue: {
-      thisMonth: 48250,
-      lastMonth: 43100,
-      growth: 12,
-      outstanding: 12450,
-      overdueInvoices: 3,
-    },
-    technicians: [
-      { name: "Mike Thompson", status: "busy", jobsToday: 2 },
-      { name: "Sarah Chen", status: "busy", jobsToday: 1 },
-      { name: "David Rodriguez", status: "available", jobsToday: 1 },
-      { name: "James Wilson", status: "available", jobsToday: 0 },
-    ],
-  };
-};
+const MODEL = "claude-sonnet-5";
+const MAX_TOOL_ROUNDS = 5;
+const MAX_HISTORY = 12;
 
-const generateSystemPrompt = () => {
-  const data = getMockBusinessData();
+type ContentBlock =
+  | { type: "text"; text: string }
+  | { type: "thinking"; thinking: string }
+  | { type: "tool_use"; id: string; name: string; input: Record<string, unknown> }
+  | { type: "tool_result"; tool_use_id: string; content: string };
 
-  return `You are an AI assistant for the Security Platform admin dashboard. You help administrators manage their security and fire alarm business.
-
-CURRENT DATE: ${data.today}
-
-TODAY'S SCHEDULE (${data.appointments.length} appointments):
-${data.appointments.map((a) => `- ${a.time}: ${a.title} at ${a.customer} (${a.technician}) - ${a.status}`).join("\n")}
-
-LEADS REQUIRING ATTENTION:
-${data.leads.map((l) => `- ${l.name} (${l.status}) - ${l.source} - ${l.daysOld} days old - ${l.phone}`).join("\n")}
-
-OPEN/URGENT TICKETS:
-${data.tickets.map((t) => `- ${t.number}: ${t.title} - ${t.customer} - Priority: ${t.priority} - Status: ${t.status}`).join("\n")}
-
-REVENUE SUMMARY:
-- This Month: $${data.revenue.thisMonth.toLocaleString()}
-- Last Month: $${data.revenue.lastMonth.toLocaleString()}
-- Growth: ${data.revenue.growth}%
-- Outstanding: $${data.revenue.outstanding.toLocaleString()}
-- Overdue Invoices: ${data.revenue.overdueInvoices}
-
-TECHNICIAN STATUS:
-${data.technicians.map((t) => `- ${t.name}: ${t.status} (${t.jobsToday} jobs today)`).join("\n")}
-
-INSTRUCTIONS:
-- Be concise and helpful
-- Format responses clearly with bullet points when listing items
-- Prioritize urgent items when relevant
-- For lead recommendations, prioritize: 1) New leads (contact within 24hrs), 2) Referrals (highest conversion), 3) Qualified leads ready for proposals
-- For scheduling questions, mention the technician and location
-- Always be proactive in suggesting next steps
-- If asked about something not in the data, say you'd need to check the system and suggest they look at the relevant admin page`;
-};
-
-export async function POST(req: NextRequest) {
-  try {
-    const auth = await verifyAuth(req);
-    if (!auth || auth.role !== "admin") {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { messages } = await req.json();
-
-    // Use Retell API for chat completion
-    const RETELL_API_KEY = process.env.RETELL_API_KEY;
-
-    if (!RETELL_API_KEY) {
-      // Fallback to a simple response if no API key
-      return NextResponse.json({
-        success: true,
-        response: generateFallbackResponse(messages[messages.length - 1]?.content || ""),
-      });
-    }
-
-    // Try Retell chat API
-    const response = await fetch("https://api.retellai.com/v2/create-web-call", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${RETELL_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        agent_id: process.env.NEXT_PUBLIC_RETELL_CHAT_AGENT_ID,
-      }),
-    });
-
-    if (!response.ok) {
-      // If Retell fails, use fallback
-      return NextResponse.json({
-        success: true,
-        response: generateFallbackResponse(messages[messages.length - 1]?.content || ""),
-      });
-    }
-
-    // For now, use the intelligent fallback since we need proper Retell chat setup
-    return NextResponse.json({
-      success: true,
-      response: generateFallbackResponse(messages[messages.length - 1]?.content || ""),
-    });
-  } catch (error) {
-    console.error("Admin assistant error:", error);
-    return NextResponse.json({
-      success: true,
-      response: "I'm having trouble processing that request. Please try again.",
-    });
-  }
+interface AnthropicMessage {
+  role: "user" | "assistant";
+  content: string | ContentBlock[];
 }
 
-// Intelligent fallback that uses the business data
-function generateFallbackResponse(query: string): string {
-  const data = getMockBusinessData();
-  const lowerQuery = query.toLowerCase();
+async function callClaude(messages: AnthropicMessage[], apiKey: string) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 2000,
+      system: ASSISTANT_SYSTEM_PROMPT.replace("{{TODAY}}", houstonToday()),
+      tools: ASSISTANT_TOOLS,
+      messages,
+    }),
+  });
 
-  // Schedule queries
-  if (lowerQuery.includes("schedule") || lowerQuery.includes("today") || lowerQuery.includes("appointment")) {
-    const appts = data.appointments;
-    let response = `📅 **Today's Schedule (${data.today})**\n\nYou have ${appts.length} appointments:\n\n`;
-    appts.forEach((a) => {
-      const statusIcon = a.status === "in_progress" ? "🔄" : "⏰";
-      response += `${statusIcon} **${a.time}** - ${a.title}\n   📍 ${a.customer} (${a.address})\n   👷 ${a.technician}\n\n`;
-    });
-    response += `\n💡 *Mike Thompson has 2 jobs today and will be busy until late afternoon.*`;
-    return response;
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Anthropic ${res.status}: ${body.slice(0, 300)}`);
+  }
+  return (await res.json()) as { content: ContentBlock[]; stop_reason: string };
+}
+
+export async function POST(req: NextRequest) {
+  const auth = await verifyAuth(req);
+  if (!auth || !["admin", "manager"].includes(auth.role)) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  // Lead queries
-  if (lowerQuery.includes("lead") || lowerQuery.includes("call") || lowerQuery.includes("sales") || lowerQuery.includes("contact")) {
-    const newLeads = data.leads.filter((l) => l.status === "new");
-    const referrals = data.leads.filter((l) => l.source === "Referral");
-
-    let response = `📞 **Priority Leads to Contact**\n\n`;
-    response += `**🔥 Hot Leads (New - Contact Today):**\n`;
-    newLeads.forEach((l) => {
-      response += `• ${l.name} - ${l.phone}\n  Source: ${l.source} | ${l.daysOld === 0 ? "Just received" : `${l.daysOld} days old`}\n\n`;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({
+      success: false,
+      error:
+        "The assistant needs ANTHROPIC_API_KEY set in the environment. It is not configured on this deployment.",
     });
+  }
 
-    if (referrals.length > 0) {
-      response += `\n**⭐ Referral Leads (High Conversion):**\n`;
-      referrals.forEach((l) => {
-        response += `• ${l.name} - ${l.phone} (${l.status})\n`;
-      });
+  try {
+    const body = await req.json();
+    const incoming = Array.isArray(body?.messages) ? body.messages : [];
+
+    // Trim history so a long session doesn't grow the prompt without bound.
+    // The opening greeting is ours, not the model's, so drop any leading
+    // assistant turn — the API requires the conversation to start with a user.
+    const history: AnthropicMessage[] = incoming
+      .filter(
+        (m: { role?: string; content?: string }) =>
+          (m?.role === "user" || m?.role === "assistant") && typeof m.content === "string" && m.content.trim()
+      )
+      .slice(-MAX_HISTORY)
+      .map((m: { role: "user" | "assistant"; content: string }) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+    while (history.length && history[0].role !== "user") history.shift();
+
+    if (!history.length) {
+      return NextResponse.json({ success: false, error: "No message to answer." }, { status: 400 });
     }
 
-    response += `\n💡 *Tip: Referral leads convert at 2x the rate. Sarah Johnson was referred and has been contacted - follow up for qualification.*`;
-    return response;
-  }
+    const toolsUsed: string[] = [];
 
-  // Ticket queries
-  if (lowerQuery.includes("ticket") || lowerQuery.includes("urgent") || lowerQuery.includes("emergency") || lowerQuery.includes("service")) {
-    const urgent = data.tickets.filter((t) => t.priority === "emergency" || t.priority === "urgent");
-    const open = data.tickets.filter((t) => t.status === "open");
+    for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+      const reply = await callClaude(history, apiKey);
 
-    let response = `🎫 **Tickets Requiring Attention**\n\n`;
+      const toolCalls = reply.content.filter(
+        (b): b is Extract<ContentBlock, { type: "tool_use" }> => b.type === "tool_use"
+      );
 
-    if (urgent.length > 0) {
-      response += `**🚨 Urgent/Emergency (${urgent.length}):**\n`;
-      urgent.forEach((t) => {
-        const icon = t.priority === "emergency" ? "🔴" : "🟠";
-        response += `${icon} ${t.number}: ${t.title}\n   Customer: ${t.customer} | Status: ${t.status}\n\n`;
-      });
+      if (!toolCalls.length) {
+        // A thinking block can precede the text, so join text blocks rather
+        // than reading content[0] — that bug cost a day on the proposal agent.
+        const text = reply.content
+          .filter((b): b is Extract<ContentBlock, { type: "text" }> => b.type === "text")
+          .map((b) => b.text)
+          .join("")
+          .trim();
+
+        return NextResponse.json({
+          success: true,
+          response: text || "I could not find anything for that. Try rephrasing?",
+          tools_used: toolsUsed,
+        });
+      }
+
+      // Out of rounds but the model still wants data — say so rather than
+      // letting it answer from nothing.
+      if (round === MAX_TOOL_ROUNDS) {
+        return NextResponse.json({
+          success: true,
+          response:
+            "That needed more lookups than I can do in one go. Try asking about one thing at a time.",
+          tools_used: toolsUsed,
+        });
+      }
+
+      history.push({ role: "assistant", content: reply.content });
+
+      const results: ContentBlock[] = [];
+      for (const call of toolCalls) {
+        toolsUsed.push(call.name);
+        const out = await runAssistantTool(call.name, call.input ?? {});
+        results.push({
+          type: "tool_result",
+          tool_use_id: call.id,
+          content: JSON.stringify(out),
+        });
+      }
+      history.push({ role: "user", content: results });
     }
 
-    if (open.length > 0) {
-      response += `**📋 Unassigned/Open (${open.length}):**\n`;
-      open.forEach((t) => {
-        response += `• ${t.number}: ${t.title} (${t.customer})\n`;
-      });
-    }
-
-    response += `\n💡 *James Wilson is available and can be assigned to the open tickets.*`;
-    return response;
-  }
-
-  // Revenue queries
-  if (lowerQuery.includes("revenue") || lowerQuery.includes("money") || lowerQuery.includes("sales") || lowerQuery.includes("invoice") || lowerQuery.includes("financial")) {
-    const rev = data.revenue;
-    let response = `💰 **Revenue Summary**\n\n`;
-    response += `**This Month:** $${rev.thisMonth.toLocaleString()} (+${rev.growth}% from last month)\n`;
-    response += `**Last Month:** $${rev.lastMonth.toLocaleString()}\n\n`;
-    response += `**⚠️ Outstanding:** $${rev.outstanding.toLocaleString()}\n`;
-    response += `**Overdue Invoices:** ${rev.overdueInvoices}\n\n`;
-    response += `💡 *Consider following up on overdue invoices - Medical Center West has the largest outstanding balance.*`;
-    return response;
-  }
-
-  // Technician queries
-  if (lowerQuery.includes("technician") || lowerQuery.includes("tech") || lowerQuery.includes("available") || lowerQuery.includes("dispatch")) {
-    let response = `👷 **Technician Status**\n\n`;
-    data.technicians.forEach((t) => {
-      const statusIcon = t.status === "available" ? "🟢" : t.status === "busy" ? "🟡" : "⚫";
-      response += `${statusIcon} **${t.name}** - ${t.status}\n   Jobs today: ${t.jobsToday}\n\n`;
+    return NextResponse.json({ success: true, response: "Something went wrong. Try again?" });
+  } catch (error) {
+    console.error("[assistant]", error);
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    // Surface the real reason. "I'm having trouble" taught nobody anything the
+    // last time this route failed silently.
+    return NextResponse.json({
+      success: false,
+      error: /401|403|authentication|credit/i.test(msg)
+        ? "The assistant could not reach Claude — check ANTHROPIC_API_KEY and the account's credit balance."
+        : `The assistant hit an error: ${msg.slice(0, 200)}`,
     });
-    response += `💡 *James Wilson and David Rodriguez are available for new assignments.*`;
-    return response;
   }
-
-  // General help
-  return `I can help you with:\n
-• **📅 Schedule** - "What's on the schedule today?"
-• **📞 Leads** - "Which leads should I call?"
-• **🎫 Tickets** - "Show urgent tickets"
-• **💰 Revenue** - "How are we doing this month?"
-• **👷 Technicians** - "Who's available?"
-
-What would you like to know?`;
 }
