@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Fire Lane Marking & Striping Houston TX | Chatman Security & Fire",
     description:
       "New fire lane striping, curb painting, and code-compliant layout corrections for Houston commercial properties. Quick turnaround, inspection-ready.",
-    url: "https://chatmansecurityandfire.com/services/fire-lane-marking",
+    url: "https://www.chatmansecurityandfire.com/services/fire-lane-marking",
   },
 };
 

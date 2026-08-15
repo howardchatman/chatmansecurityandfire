@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Fire Extinguisher Service Houston TX | Chatman Security & Fire",
     description:
       "Annual fire extinguisher inspection, tagging, and sales for Houston businesses. Compliance-ready service. $50 trip + $25/unit. (832) 859-7009",
-    url: "https://chatmansecurityandfire.com/services/fire-extinguishers",
+    url: "https://www.chatmansecurityandfire.com/services/fire-extinguishers",
   },
 };
 

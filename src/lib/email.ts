@@ -71,7 +71,7 @@ export const emailTemplates = {
           </div>
           ` : ""}
           <div style="margin-top: 30px; text-align: center;">
-            <a href="https://chatmansecurityandfire.com/admin/leads"
+            <a href="https://www.chatmansecurityandfire.com/admin/leads"
                style="display: inline-block; background-color: #ea580c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
               View in Dashboard
             </a>
@@ -120,7 +120,7 @@ export const emailTemplates = {
           </div>
           ` : ""}
           <div style="margin-top: 30px; text-align: center;">
-            <a href="https://chatmansecurityandfire.com/admin/leads?source=account_request"
+            <a href="https://www.chatmansecurityandfire.com/admin/leads?source=account_request"
                style="display: inline-block; background-color: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
               Review Request
             </a>

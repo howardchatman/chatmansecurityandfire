@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "Commercial Security Cameras & Video Surveillance | Chatman Security & Fire",
     description:
       "HD/4K IP camera systems for Houston businesses — cloud or on-site recording, remote viewing, and monitoring integration.",
-    url: "https://chatmansecurityandfire.com/services/video-surveillance",
+    url: "https://www.chatmansecurityandfire.com/services/video-surveillance",
   },
 };
 

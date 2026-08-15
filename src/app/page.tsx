@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import RequestQuoteBanner from "@/components/RequestQuoteBanner";
@@ -11,6 +12,10 @@ import HowItWorks from "@/components/HowItWorks";
 import PersonalStory from "@/components/PersonalStory";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   return (

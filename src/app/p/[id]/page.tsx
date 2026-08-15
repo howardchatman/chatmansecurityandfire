@@ -392,7 +392,7 @@ export default function ProposalViewer({ params }: { params: Promise<{ id: strin
         <div style={{ textAlign: "center", padding: "20px 0 40px", color: "#9CA3AF", fontSize: 11 }}>
           <p>Chatman Security & Fire | Houston, TX</p>
           <p style={{ marginTop: 4 }}>
-            <a href="https://chatmansecurityandfire.com" style={{ color: O, textDecoration: "none" }}>chatmansecurityandfire.com</a>
+            <a href="https://www.chatmansecurityandfire.com" style={{ color: O, textDecoration: "none" }}>chatmansecurityandfire.com</a>
             {" | "}
             <a href="tel:+18328597009" style={{ color: O, textDecoration: "none" }}>(832) 859-7009</a>
           </p>

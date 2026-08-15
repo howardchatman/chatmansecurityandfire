@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "PA & Mass Notification Systems | Chatman Security & Fire",
     description:
       "Clear paging, intercom, background music, and emergency mass notification for Houston facilities — integrated with fire alarm voice evacuation.",
-    url: "https://chatmansecurityandfire.com/services/pa-systems",
+    url: "https://www.chatmansecurityandfire.com/services/pa-systems",
   },
 };
 

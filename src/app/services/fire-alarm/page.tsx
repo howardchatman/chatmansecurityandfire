@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Commercial Fire Alarm Systems | Chatman Security & Fire",
     description:
       "Licensed fire alarm installation, repair, and inspection correction for commercial properties across Houston and Texas. Available 24/7.",
-    url: "https://chatmansecurityandfire.com/services/fire-alarm",
+    url: "https://www.chatmansecurityandfire.com/services/fire-alarm",
   },
 };
 

@@ -158,7 +158,7 @@ export async function POST(
     if (payment_option !== "pay_later" && paymentAmount > 0) {
       try {
         const stripe = getStripe();
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://chatmansecurityandfire.com";
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com";
 
         // Create Stripe checkout session
         const session = await stripe.checkout.sessions.create({

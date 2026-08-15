@@ -67,7 +67,7 @@ export async function POST(
     }
 
     const stripe = getStripe();
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://chatmansecurityandfire.com";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com";
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "us_bank_account"],

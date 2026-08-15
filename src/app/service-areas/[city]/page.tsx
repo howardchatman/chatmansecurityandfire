@@ -22,6 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ city: str
   return {
     title: `Fire Protection Services in ${city.name}, TX | Chatman Security & Fire`,
     description: `Fire alarm, sprinkler, extinguisher, and life safety services in ${city.name}, TX. Chatman Security & Fire answers your fire protection questions and handles compliance. Call (832) 859-7009.`,
+    alternates: { canonical: `/service-areas/${city.slug}` },
   };
 }
 

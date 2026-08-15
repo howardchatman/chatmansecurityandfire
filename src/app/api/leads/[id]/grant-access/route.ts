@@ -82,7 +82,7 @@ export async function POST(
 
     // Generate portal access token
     const token = generateToken();
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://chatmansecurityandfire.com";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com";
     const portalUrl = `${baseUrl}/c/${token}`;
 
     // Calculate expiration (1 year for portal access)

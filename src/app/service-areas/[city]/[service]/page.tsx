@@ -45,7 +45,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${service.metaTitle} in ${city.name}, TX`,
       description,
-      url: `https://chatmansecurityandfire.com/service-areas/${city.slug}/${service.slug}`,
+      url: `https://www.chatmansecurityandfire.com/service-areas/${city.slug}/${service.slug}`,
     },
   };
 }
@@ -96,10 +96,10 @@ export default async function ServiceCityPage({
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://chatmansecurityandfire.com/" },
-      { "@type": "ListItem", position: 2, name: "Service Areas", item: "https://chatmansecurityandfire.com/service-areas" },
-      { "@type": "ListItem", position: 3, name: cityName, item: `https://chatmansecurityandfire.com/service-areas/${city.slug}` },
-      { "@type": "ListItem", position: 4, name: service.name, item: `https://chatmansecurityandfire.com/service-areas/${city.slug}/${service.slug}` },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.chatmansecurityandfire.com/" },
+      { "@type": "ListItem", position: 2, name: "Service Areas", item: "https://www.chatmansecurityandfire.com/service-areas" },
+      { "@type": "ListItem", position: 3, name: cityName, item: `https://www.chatmansecurityandfire.com/service-areas/${city.slug}` },
+      { "@type": "ListItem", position: 4, name: service.name, item: `https://www.chatmansecurityandfire.com/service-areas/${city.slug}/${service.slug}` },
     ],
   };
 

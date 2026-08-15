@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "Knox Box & Fire Department Access | Chatman Security & Fire",
     description:
       "Rapid-entry key box and fire department access installation for Houston commercial properties — wall boxes, gate Knox switches, and FD override, coordinated with your AHJ.",
-    url: "https://chatmansecurityandfire.com/services/fire-department-access",
+    url: "https://www.chatmansecurityandfire.com/services/fire-department-access",
   },
 };
 

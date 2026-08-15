@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Fire Marshal Inspection Corrections Houston TX | Chatman Security & Fire",
     description:
       "Failed a fire marshal inspection? We correct violations and get you reinspection-ready. Licensed commercial contractor serving Houston and Texas since 2009.",
-    url: "https://chatmansecurityandfire.com/services/fire-marshal-compliance",
+    url: "https://www.chatmansecurityandfire.com/services/fire-marshal-compliance",
   },
 };
 

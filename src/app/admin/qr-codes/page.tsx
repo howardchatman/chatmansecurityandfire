@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import QRCode from "qrcode";
 
-const BASE_URL = "https://chatmansecurityandfire.com";
+const BASE_URL = "https://www.chatmansecurityandfire.com";
 
 interface QrCodeRecord {
   id: string;
@@ -324,7 +324,7 @@ export default function QrCodesPage() {
                   type="url"
                   value={form.destination_url}
                   onChange={e => setForm({ ...form, destination_url: e.target.value })}
-                  placeholder="https://chatmansecurityandfire.com/start"
+                  placeholder="https://www.chatmansecurityandfire.com/start"
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                 />
               </div>

@@ -9,6 +9,7 @@ export const metadata = {
   title: "Fire Protection Service Areas in Texas | Chatman Security & Fire",
   description:
     "Chatman Security & Fire serves fire alarm, sprinkler, extinguisher, and life safety needs across Houston, Dallas, San Antonio, Austin, Fort Worth, Waco, Denton, College Station, and Lufkin, TX.",
+  alternates: { canonical: "/service-areas" },
 };
 
 const whyUs = [

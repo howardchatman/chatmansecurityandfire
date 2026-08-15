@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
           quoteNumber: data.quoteNumber,
           total: data.total,
           description: data.description || "Fire & Life Safety Services",
-          viewUrl: data.viewUrl || `https://chatmansecurityandfire.com/c/quotes/${data.quoteNumber}`,
+          viewUrl: data.viewUrl || `https://www.chatmansecurityandfire.com/c/quotes/${data.quoteNumber}`,
         });
         break;
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
           total: data.total,
           dueDate: data.dueDate,
           description: data.description || "Fire & Life Safety Services",
-          payUrl: data.payUrl || `https://chatmansecurityandfire.com/c/invoices/${data.invoiceNumber}`,
+          payUrl: data.payUrl || `https://www.chatmansecurityandfire.com/c/invoices/${data.invoiceNumber}`,
         });
         break;
 

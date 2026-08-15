@@ -2,17 +2,17 @@ export default function LocalBusinessSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": "https://chatmansecurityandfire.com/#business",
+    "@id": "https://www.chatmansecurityandfire.com/#business",
     name: "Chatman Security & Fire",
     description:
       "Commercial fire protection and security services in Houston, TX and throughout Texas. Fire alarms, sprinkler systems, extinguishers, fire marshal compliance, emergency lighting, fire lane markings, and Brinks security systems.",
-    url: "https://chatmansecurityandfire.com",
+    url: "https://www.chatmansecurityandfire.com",
     telephone: "+18328597009",
     email: "info@chatmansecurityandfire.com",
     foundingDate: "2009",
     priceRange: "$$",
-    image: "https://chatmansecurityandfire.com/csf_wide_logo.png",
-    logo: "https://chatmansecurityandfire.com/logo_only.png",
+    image: "https://www.chatmansecurityandfire.com/csf_wide_logo.png",
+    logo: "https://www.chatmansecurityandfire.com/logo_only.png",
     address: {
       "@type": "PostalAddress",
       streetAddress: "3403 West TC Jester Blvd, #1112",

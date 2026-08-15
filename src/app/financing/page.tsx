@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "Financing for Fire & Security Projects | Chatman Security & Fire",
     description:
       "Do the work now, pay monthly. Compare offers from 12+ lenders — up to $100,000, rates as low as 6% APR. Checking your rate won't affect your credit.",
-    url: "https://chatmansecurityandfire.com/financing",
+    url: "https://www.chatmansecurityandfire.com/financing",
   },
 };
 

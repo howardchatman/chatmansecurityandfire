@@ -2015,7 +2015,7 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
       });
       // QR Code on cover page
       try {
-        const qrUrl = `https://chatmansecurityandfire.com/qr/p-${shareToken}`;
+        const qrUrl = `https://www.chatmansecurityandfire.com/qr/p-${shareToken}`;
         const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 200, margin: 1, color: { dark: "#333333", light: "#ffffff" } });
         const qrSize = 72;
         const qrX = PW - M - qrSize;
@@ -2490,7 +2490,7 @@ When helping with proposals, reference ACTUAL inventory items and pricing from t
       fetch("/api/proposal-agent/proposals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newProposal) }).catch(console.error);
 
       // Auto-create QR code for this proposal
-      fetch("/api/qr-codes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug: `p-${shareToken}`, label: `Proposal - ${cName}`, destination_url: `https://chatmansecurityandfire.com/p/${shareToken}`, qr_type: "proposal" }) }).catch(console.error);
+      fetch("/api/qr-codes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug: `p-${shareToken}`, label: `Proposal - ${cName}`, destination_url: `https://www.chatmansecurityandfire.com/p/${shareToken}`, qr_type: "proposal" }) }).catch(console.error);
 
       setMessages(prev => [...prev, { role: "assistant", content: `✅ Proposal generated: ${fn}\nTotal: $${total.toLocaleString()} | Deposit: $${deposit.toLocaleString()}\nType: ${isVE ? "Voice Evac + Fire Alarm" : "Standard Fire Alarm"}\n📱 QR Code embedded — client can scan to chat with AI\nSaved to history.` }]);
     } catch (err) {

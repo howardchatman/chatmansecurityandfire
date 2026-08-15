@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Fire Sprinkler Systems Houston TX | Chatman Security & Fire",
     description:
       "Licensed fire sprinkler installation, repair, and NFPA 13 compliance for commercial properties across Houston and Texas. Available 24/7.",
-    url: "https://chatmansecurityandfire.com/services/fire-sprinkler",
+    url: "https://www.chatmansecurityandfire.com/services/fire-sprinkler",
   },
 };
 

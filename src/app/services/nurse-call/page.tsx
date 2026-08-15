@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "Nurse Call Systems | Chatman Security & Fire",
     description:
       "Reliable nurse call systems for Houston assisted living, senior care, and healthcare facilities — call stations, dome lights, and reporting built to UL 1069.",
-    url: "https://chatmansecurityandfire.com/services/nurse-call",
+    url: "https://www.chatmansecurityandfire.com/services/nurse-call",
   },
 };
 

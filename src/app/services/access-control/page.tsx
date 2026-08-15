@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "Commercial Access Control Systems | Chatman Security & Fire",
     description:
       "Key fob, keypad, and mobile-credential door access for Houston businesses — cloud-managed, with audit trails and fire-code-compliant egress.",
-    url: "https://chatmansecurityandfire.com/services/access-control",
+    url: "https://www.chatmansecurityandfire.com/services/access-control",
   },
 };
 

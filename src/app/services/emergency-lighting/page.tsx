@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Emergency Lighting & Exit Signs Houston TX | Chatman Security & Fire",
     description:
       "Emergency lighting and exit sign installation, repair, and inspection corrections for Houston commercial properties. Fast turnaround on compliance corrections.",
-    url: "https://chatmansecurityandfire.com/services/emergency-lighting",
+    url: "https://www.chatmansecurityandfire.com/services/emergency-lighting",
   },
 };
 

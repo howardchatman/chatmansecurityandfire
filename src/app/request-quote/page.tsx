@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: "Request a Quote | Chatman Security & Fire",
     description:
       "Tell us about your project and get a detailed quote for fire protection and low-voltage work across Houston and Texas.",
-    url: "https://chatmansecurityandfire.com/request-quote",
+    url: "https://www.chatmansecurityandfire.com/request-quote",
   },
 };
 

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Brinks Home Security Houston TX | Chatman Security & Fire",
     description:
       "Authorized Brinks dealer in Houston, TX. Home and commercial security with 24/7 professional monitoring. Expert local installation.",
-    url: "https://chatmansecurityandfire.com/services/security-alarm",
+    url: "https://www.chatmansecurityandfire.com/services/security-alarm",
   },
 };
 

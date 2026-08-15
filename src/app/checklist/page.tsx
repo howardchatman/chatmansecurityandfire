@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Free Commercial Fire Safety Self-Inspection Checklist | Chatman Security & Fire",
     description: "Catch the most common fire marshal violations before your inspection. Free checklist covering alarms, sprinklers, extinguishers, exit signs, and more.",
-    url: "https://chatmansecurityandfire.com/checklist",
+    url: "https://www.chatmansecurityandfire.com/checklist",
   },
 };
 

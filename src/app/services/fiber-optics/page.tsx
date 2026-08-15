@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Fiber Optic Cabling & Installation | Chatman Security & Fire",
     description:
       "Commercial fiber optic and structured cabling installation for buildings across Houston and Texas. New construction, retrofits, and low-voltage infrastructure.",
-    url: "https://chatmansecurityandfire.com/services/fiber-optics",
+    url: "https://www.chatmansecurityandfire.com/services/fiber-optics",
   },
 };
 

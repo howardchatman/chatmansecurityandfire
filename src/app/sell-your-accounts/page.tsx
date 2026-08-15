@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Sell Your Fire & Security Accounts | Chatman Security & Fire",
     description:
       "A direct, local buyer for your fire alarm, monitoring, inspection, and security accounts. Fair RMR multiples, fast close, customers cared for.",
-    url: "https://chatmansecurityandfire.com/sell-your-accounts",
+    url: "https://www.chatmansecurityandfire.com/sell-your-accounts",
   },
 };
 

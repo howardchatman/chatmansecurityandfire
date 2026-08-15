@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build the full URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://chatmansecurityandfire.com";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com";
     const portalUrl = `${baseUrl}/c/${token}`;
 
     // TODO: Send email if requested

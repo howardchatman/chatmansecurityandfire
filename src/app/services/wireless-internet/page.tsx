@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Commercial WiFi & Wireless Internet | Chatman Security & Fire",
     description:
       "Business-grade wireless internet and WiFi installation for offices, warehouses, and multi-building sites across Houston and Texas.",
-    url: "https://chatmansecurityandfire.com/services/wireless-internet",
+    url: "https://www.chatmansecurityandfire.com/services/wireless-internet",
   },
 };
 

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "Gate Entry Systems & Keypads | Chatman Security & Fire",
     description:
       "Automated commercial gate operators, keypads, call boxes, and telephone entry for Houston properties — with mobile access and fire department override.",
-    url: "https://chatmansecurityandfire.com/services/gate-entry",
+    url: "https://www.chatmansecurityandfire.com/services/gate-entry",
   },
 };
 
