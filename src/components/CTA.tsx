@@ -7,7 +7,7 @@ import { Phone, ArrowRight } from "lucide-react";
 
 export default function CTA() {
   return (
-    <section className="relative py-28 bg-[#0D1B2A] overflow-hidden">
+    <section className="relative py-28 bg-[#0E2148] overflow-hidden">
       {/* Embers background */}
       <div className="absolute inset-0">
         <Image
@@ -17,7 +17,7 @@ export default function CTA() {
           className="object-cover opacity-70"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0D1B2A] via-transparent to-[#0D1B2A]/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0E2148] via-transparent to-[#0E2148]/60" />
       </div>
 
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

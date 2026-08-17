@@ -67,8 +67,8 @@ export default function ServiceLanding({ data }: { data: ServiceLandingData }) {
       <Navbar />
       <main className="pt-20">
         {/* Hero */}
-        <section className="relative py-16 lg:py-24" style={{ backgroundImage: `url('${data.bgImage}')`, backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0D1B2A" }}>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B2A] via-[#0D1B2A]/80 to-[#0D1B2A]/40" />
+        <section className="relative py-16 lg:py-24" style={{ backgroundImage: `url('${data.bgImage}')`, backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0E2148" }}>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0E2148] via-[#0E2148]/80 to-[#0E2148]/40" />
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <Link href="/" className="inline-flex items-center gap-2 text-white/80 hover:text-orange-400 mb-8 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -174,7 +174,7 @@ export default function ServiceLanding({ data }: { data: ServiceLandingData }) {
             </motion.section>
 
             {/* Why Chatman */}
-            <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-[#0D1B2A] rounded-3xl p-8 sm:p-10">
+            <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-[#0E2148] rounded-3xl p-8 sm:p-10">
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Why choose Chatman Security &amp; Fire</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 {[

@@ -75,7 +75,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       <main className="pt-20">
         {/* Hero */}
         <section className="relative py-16 lg:py-24 bg-neutral-950 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(234,88,12,0.18)_0%,_transparent_55%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(196, 35, 50,0.18)_0%,_transparent_55%)]" />
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <Link
               href="/service-areas"

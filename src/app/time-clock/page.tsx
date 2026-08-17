@@ -159,7 +159,7 @@ export default function TimeClockPage() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-[#0D1B2A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0E2148] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
       </div>
     );
@@ -168,7 +168,7 @@ export default function TimeClockPage() {
   // Signed out: compact mobile sign-in
   if (!me) {
     return (
-      <div className="min-h-screen bg-[#0D1B2A] flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-[#0E2148] flex flex-col items-center justify-center p-6">
         <img src="/csf_wide_logo.png" alt="Chatman Security & Fire" className="h-12 w-auto mb-8 brightness-0 invert" />
         <div className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-xl">
           <h1 className="text-xl font-bold text-gray-900 mb-1">Time Clock</h1>
@@ -206,7 +206,7 @@ export default function TimeClockPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D1B2A] flex flex-col items-center p-6 pt-10">
+    <div className="min-h-screen bg-[#0E2148] flex flex-col items-center p-6 pt-10">
       <img src="/csf_wide_logo.png" alt="Chatman Security & Fire" className="h-10 w-auto mb-6 brightness-0 invert" />
 
       {/* Live clock + status */}

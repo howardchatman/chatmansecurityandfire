@@ -140,7 +140,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0D1B2A] to-[#1a2f45] p-6 sm:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0E2148] to-[#1a2f45] p-6 sm:p-8">
         <div className="absolute -right-8 -top-8 w-48 h-48 bg-orange-500/10 rounded-full blur-2xl" />
         <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>

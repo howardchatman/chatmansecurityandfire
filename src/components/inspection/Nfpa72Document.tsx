@@ -17,8 +17,8 @@ import {
 // seven-page document a fire marshal expects. No PDF library, and what the
 // tech sees on screen is exactly what prints.
 
-const NAVY = "#0D1B2A";
-const ORANGE = "#E85D04";
+const NAVY = "#0E2148";
+const ORANGE = "#C42332";
 
 const PAGES = 7;
 

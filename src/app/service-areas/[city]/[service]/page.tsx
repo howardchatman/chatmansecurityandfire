@@ -114,7 +114,7 @@ export default async function ServiceCityPage({
       <Navbar />
       <main className="pt-20">
         {/* Hero */}
-        <section className="relative py-16 bg-[#0D1B2A]">
+        <section className="relative py-16 bg-[#0E2148]">
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-white/50 mb-6 flex-wrap">
@@ -244,7 +244,7 @@ export default async function ServiceCityPage({
               <a href="tel:+18328597009" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                 <Phone className="w-5 h-5" /> (832) 859-7009
               </a>
-              <Link href="/request-quote" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#0D1B2A] hover:bg-[#1a2f45] text-white font-semibold rounded-full transition-colors">
+              <Link href="/request-quote" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#0E2148] hover:bg-[#1a2f45] text-white font-semibold rounded-full transition-colors">
                 Request a Quote <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

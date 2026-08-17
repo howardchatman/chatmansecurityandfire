@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, use } from "react";
 import { RetellWebClient } from "retell-client-js-sdk";
 
-const O = "#EA580C";
+const O = "#C42332";
 const OL = "#FFF7ED";
 
 interface ProposalData {

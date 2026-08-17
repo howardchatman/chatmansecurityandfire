@@ -29,7 +29,7 @@ export default function FinancingBanner() {
                 <CreditCard className="w-3.5 h-3.5" />
                 Financing Available
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#0D1B2A] leading-tight mb-4">
+              <h2 className="text-3xl sm:text-4xl font-bold text-[#0E2148] leading-tight mb-4">
                 Do the work now. <span className="text-orange-600">Pay monthly.</span>
               </h2>
               <p className="text-lg text-gray-700 mb-6">

@@ -145,7 +145,7 @@ export default function PortalSupportPage() {
       )}
 
       {/* Emergency / contact strip */}
-      <div className="bg-[#0D1B2A] rounded-xl p-5 text-white">
+      <div className="bg-[#0E2148] rounded-xl p-5 text-white">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />

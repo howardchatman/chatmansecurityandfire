@@ -63,7 +63,7 @@ export async function sendEmployeeInviteEmail(opts: {
 
       <div style="text-align:center;margin:28px 0">
         <a href="${opts.inviteUrl}"
-           style="background:#E85D04;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;display:inline-block">
+           style="background:#C42332;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;display:inline-block">
           Set up my login
         </a>
       </div>

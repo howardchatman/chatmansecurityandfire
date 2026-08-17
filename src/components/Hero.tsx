@@ -83,7 +83,7 @@ export default function Hero() {
       {/* Video hero. Desktop: tall pin container drives scroll-scrub.
           Mobile: short, normal-flow, autoplaying loop. */}
       <div ref={pinRef} className="relative h-[60vh] lg:h-[220vh]">
-        <div className="relative lg:sticky top-0 h-[60vh] lg:h-screen overflow-hidden bg-[#0D1B2A]">
+        <div className="relative lg:sticky top-0 h-[60vh] lg:h-screen overflow-hidden bg-[#0E2148]">
           <motion.div
             className="absolute inset-0"
             style={isDesktop ? undefined : { scale: mobileScale, y: mobileY }}
@@ -100,7 +100,7 @@ export default function Hero() {
             </video>
           </motion.div>
           {/* Blend the bottom of the video into the section below */}
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0E2148] to-transparent" />
 
           {/* Scroll hint — desktop only (mobile video autoplays) */}
           <motion.div
@@ -114,7 +114,7 @@ export default function Hero() {
       </div>
 
       {/* Message below the picture */}
-      <section className="relative bg-[#0D1B2A]">
+      <section className="relative bg-[#0E2148]">
         <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 pt-10 lg:pt-4 pb-16">
           <div className="max-w-3xl">
             <motion.h1

@@ -37,7 +37,7 @@ export default function ReviewContent() {
               ))}
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold text-[#0D1B2A] mb-4">
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#0E2148] mb-4">
               How did we do?
             </h1>
             <p className="text-lg text-gray-600 mb-8">

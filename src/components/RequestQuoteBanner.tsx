@@ -19,7 +19,7 @@ export default function RequestQuoteBanner() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-3xl bg-[#0D1B2A] px-8 py-12 sm:px-12 lg:px-16"
+          className="relative overflow-hidden rounded-3xl bg-[#0E2148] px-8 py-12 sm:px-12 lg:px-16"
         >
           {/* Accent glow */}
           <div className="absolute -top-24 -right-24 w-72 h-72 bg-orange-600/20 rounded-full blur-3xl" />

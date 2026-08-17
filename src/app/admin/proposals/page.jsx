@@ -6,7 +6,7 @@ const LOGO_B64 = "iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAB15UlEQVR42ux9eZ
 const LOGO_URI = "data:image/png;base64," + LOGO_B64;
 
 // ── Colors ──
-const O = "#EA580C", OL = "#FFF7ED", OD = "#C2410C";
+const O = "#C42332", OL = "#FFF7ED", OD = "#A21C29";
 const D = "#F9FAFB", D2 = "#F3F4F6", D3 = "#FFFFFF", D4 = "#E5E7EB";
 const G = "#6B7280", W = "#111827", GR = "#22C55E", RD = "#EF4444", YL = "#F59E0B", BL = "#3B82F6";
 
@@ -134,7 +134,7 @@ function StepIndicator({ steps, currentStep }) {
             <div style={{
               width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 12, fontWeight: 600,
-              background: i < currentStep ? "#22C55E" : i === currentStep ? "#EA580C" : "#E5E7EB",
+              background: i < currentStep ? "#22C55E" : i === currentStep ? "#C42332" : "#E5E7EB",
               color: i <= currentStep ? "#FFF" : "#6B7280"
             }}>
               {i < currentStep ? "✓" : i + 1}
@@ -301,7 +301,7 @@ function DashboardPage({ inventory, procedures, clients, proposals, setPage }) {
 
         {/* Workflow Action Cards */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
-          <div onClick={() => setPage("docanalysis")} style={{ ...cardS, cursor: "pointer", borderLeft: "4px solid #EA580C", transition: "all 0.15s" }} onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+          <div onClick={() => setPage("docanalysis")} style={{ ...cardS, cursor: "pointer", borderLeft: "4px solid #C42332", transition: "all 0.15s" }} onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>📝</div>
             <div style={{ fontSize: 16, fontWeight: 600, color: W, marginBottom: 4 }}>Analyze Document</div>
             <div style={{ fontSize: 13, color: G }}>Upload an inspection report, fire marshal checklist, or violation notice for AI-powered compliance analysis</div>
@@ -640,7 +640,7 @@ function ClientModal({ client, onSave, onClose }) {
 // ═══════════════════════════════════════
 const DEVICE_TYPES = {
   smoke_detector: { icon: "🔴", label: "Smoke Detector", color: "#EF4444", code: "NFPA 72 §17.7.3" },
-  heat_detector: { icon: "🟠", label: "Heat Detector", color: "#F97316", code: "NFPA 72 §17.6" },
+  heat_detector: { icon: "🟠", label: "Heat Detector", color: "#D03D4B", code: "NFPA 72 §17.6" },
   pull_station: { icon: "🟥", label: "Pull Station", color: "#DC2626", code: "NFPA 72 §17.14 / IFC §907.4.2" },
   horn_strobe: { icon: "🔔", label: "Horn/Strobe", color: "#EAB308", code: "NFPA 72 §18.4" },
   sprinkler_head: { icon: "💧", label: "Sprinkler Head", color: "#3B82F6", code: "NFPA 13 / IFC §903" },
@@ -650,7 +650,7 @@ const DEVICE_TYPES = {
   camera: { icon: "📷", label: "Camera", color: "#8B5CF6", code: "Site security plan" },
   card_reader: { icon: "🔐", label: "Access Reader", color: "#06B6D4", code: "Access control plan" },
   motion_sensor: { icon: "📡", label: "Motion Sensor", color: "#EC4899", code: "Security plan" },
-  duct_detector: { icon: "🌀", label: "Duct Detector", color: "#FB923C", code: "NFPA 72 §17.7.5 / IMC §606" },
+  duct_detector: { icon: "🌀", label: "Duct Detector", color: "#DB646F", code: "NFPA 72 §17.7.5 / IMC §606" },
 };
 
 const FLOORPLAN_SYSTEM_PROMPT = `You are a fire & life safety code compliance expert for Chatman Security & Fire. You analyze floor plans and determine device placement per NFPA 72 (National Fire Alarm and Signaling Code) and IFC Chapter 9 (Fire Protection and Life Safety Systems).

@@ -10,7 +10,7 @@ export default function RequestQuoteContent() {
       <Navbar />
       <main className="pt-20 bg-gray-50 min-h-screen">
         {/* Hero */}
-        <section className="bg-[#0D1B2A] py-14">
+        <section className="bg-[#0E2148] py-14">
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
             <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-orange-400 mb-6 transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />

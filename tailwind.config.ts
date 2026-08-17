@@ -9,19 +9,42 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Orange and Gray theme - Chatman Security and Fire
+        // 2026 rebrand — navy shield, sky blue, crimson. The whole codebase
+        // was written against Tailwind's `orange` scale (1,600+ usages), so
+        // rather than touch every file, `orange` itself is remapped to the
+        // brand red ramp below. Writing bg-orange-600 now paints brand red;
+        // the class names are legacy, the colors are current.
+        orange: {
+          50: "#FCF3F4",
+          100: "#F9E4E6",
+          200: "#F2C6CA",
+          300: "#E89AA1",
+          400: "#DB646F",
+          500: "#D03D4B",
+          600: "#C42332", // primary CTA — the logo's crimson
+          700: "#A21C29",
+          800: "#861821",
+          900: "#70161D",
+          950: "#3E0B10",
+          DEFAULT: "#C42332",
+        },
+        brand: {
+          navy: "#0E2148", // the logo's shield-background navy
+          blue: "#5B9CD6", // the logo's sky blue
+          red: "#C42332",
+        },
         primary: {
-          50: "#fff7ed",
-          100: "#ffedd5",
-          200: "#fed7aa",
-          300: "#fdba74",
-          400: "#fb923c",
-          500: "#f97316",
-          600: "#ea580c",
-          700: "#c2410c",
-          800: "#9a3412",
-          900: "#7c2d12",
-          DEFAULT: "#ea580c",  // Main orange from logo
+          50: "#FCF3F4",
+          100: "#F9E4E6",
+          200: "#F2C6CA",
+          300: "#E89AA1",
+          400: "#DB646F",
+          500: "#D03D4B",
+          600: "#C42332",
+          700: "#A21C29",
+          800: "#861821",
+          900: "#70161D",
+          DEFAULT: "#C42332",
         },
         secondary: {
           50: "#f9fafb",
@@ -38,17 +61,17 @@ export default {
           DEFAULT: "#6b7280",  // Gray from logo
         },
         accent: {
-          50: "#fff7ed",
-          100: "#ffedd5",
-          200: "#fed7aa",
-          300: "#fdba74",
-          400: "#fb923c",
-          500: "#f97316",
-          600: "#ea580c",
-          700: "#c2410c",
-          800: "#9a3412",
-          900: "#7c2d12",
-          DEFAULT: "#f97316",
+          50: "#F2F7FC",
+          100: "#E3EEF8",
+          200: "#C5DCF0",
+          300: "#9FC6E6",
+          400: "#7BB0DD",
+          500: "#5B9CD6", // the logo's sky blue
+          600: "#3F82C2",
+          700: "#30689D",
+          800: "#295680",
+          900: "#244864",
+          DEFAULT: "#5B9CD6",
         },
         success: {
           DEFAULT: "#10b981",

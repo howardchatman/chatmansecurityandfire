@@ -189,7 +189,7 @@ export default function ProposalsPage() {
             </p>
             <button
               onClick={() => window.print()}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#0D1B2A] hover:bg-[#16293d] text-white rounded-xl text-sm font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#0E2148] hover:bg-[#16293d] text-white rounded-xl text-sm font-medium"
             >
               <FileText className="w-4 h-4" /> Print / Save as PDF
             </button>

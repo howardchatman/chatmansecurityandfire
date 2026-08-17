@@ -15,7 +15,7 @@ export default function LegalPage({
       <Navbar />
       <main className="pt-20 bg-gray-50 min-h-screen">
         {/* Header */}
-        <section className="bg-[#0D1B2A] py-14">
+        <section className="bg-[#0E2148] py-14">
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-3xl sm:text-4xl font-bold text-white">{title}</h1>
             <p className="text-gray-400 mt-2 text-sm">Last Updated: {lastUpdated}</p>

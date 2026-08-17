@@ -13,8 +13,8 @@ import {
 // belong so "Save as PDF" from the browser produces the finished document —
 // no PDF library, and what you see on screen is what prints.
 
-const NAVY = "#0D1B2A";
-const ORANGE = "#E85D04";
+const NAVY = "#0E2148";
+const ORANGE = "#C42332";
 
 function PageHeader({ page }: { page: string }) {
   return (

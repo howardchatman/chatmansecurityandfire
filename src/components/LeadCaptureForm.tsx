@@ -86,7 +86,7 @@ export default function LeadCaptureForm({
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
-        <h3 className="text-xl font-bold text-[#0D1B2A] mb-2">Got it. I&apos;ll be in touch.</h3>
+        <h3 className="text-xl font-bold text-[#0E2148] mb-2">Got it. I&apos;ll be in touch.</h3>
         <p className="text-gray-500">You&apos;ll hear from me within one business day. For urgent needs, call (832) 859-7009.</p>
       </div>
     );
@@ -106,12 +106,12 @@ export default function LeadCaptureForm({
           placeholder="Your email"
           value={formData.email}
           onChange={handleChange}
-          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E85D04]"
+          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#C42332]"
         />
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="px-4 py-2.5 bg-[#E85D04] hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold rounded-lg text-sm transition-colors"
+          className="px-4 py-2.5 bg-[#C42332] hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold rounded-lg text-sm transition-colors"
         >
           {status === "submitting" ? "..." : "Go"}
         </button>
@@ -122,7 +122,7 @@ export default function LeadCaptureForm({
   if (isSidebar) {
     return (
       <div className="bg-gray-50 rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-[#0D1B2A] mb-1">{heading}</h3>
+        <h3 className="text-lg font-bold text-[#0E2148] mb-1">{heading}</h3>
         {subtext && <p className="text-sm text-gray-500 mb-4">{subtext}</p>}
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
@@ -132,7 +132,7 @@ export default function LeadCaptureForm({
             placeholder="Your Name *"
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#E85D04]"
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C42332]"
           />
           <input
             type="email"
@@ -141,12 +141,12 @@ export default function LeadCaptureForm({
             placeholder="Email Address *"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#E85D04]"
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C42332]"
           />
           <button
             type="submit"
             disabled={status === "submitting"}
-            className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#E85D04] hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold rounded-lg text-sm transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#C42332] hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold rounded-lg text-sm transition-colors"
           >
             {status === "submitting" ? "Sending..." : "Get in Touch"}
             {status !== "submitting" && <ArrowRight className="w-4 h-4" />}
@@ -160,7 +160,7 @@ export default function LeadCaptureForm({
   }
 
   return (
-    <section className="py-16 bg-[#0D1B2A]">
+    <section className="py-16 bg-[#0E2148]">
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">{heading}</h2>
@@ -175,7 +175,7 @@ export default function LeadCaptureForm({
                 placeholder="Your Name *"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#E85D04]"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#C42332]"
               />
               <input
                 type="tel"
@@ -184,7 +184,7 @@ export default function LeadCaptureForm({
                 placeholder="Phone Number *"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#E85D04]"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#C42332]"
               />
             </div>
 
@@ -194,7 +194,7 @@ export default function LeadCaptureForm({
               placeholder="Email Address (optional)"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#E85D04]"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#C42332]"
             />
 
             {showAllFields && (
@@ -204,7 +204,7 @@ export default function LeadCaptureForm({
                     name="buildingType"
                     value={formData.buildingType}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm focus:outline-none focus:border-[#E85D04] text-white [&>option]:text-gray-900 appearance-none"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm focus:outline-none focus:border-[#C42332] text-white [&>option]:text-gray-900 appearance-none"
                   >
                     <option value="">Building Type</option>
                     {buildingTypes.map((t) => (
@@ -216,7 +216,7 @@ export default function LeadCaptureForm({
                     name="serviceNeed"
                     value={formData.serviceNeed}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm focus:outline-none focus:border-[#E85D04] text-white [&>option]:text-gray-900 appearance-none"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm focus:outline-none focus:border-[#C42332] text-white [&>option]:text-gray-900 appearance-none"
                   >
                     <option value="">What Do You Need?</option>
                     {serviceNeeds.map((s) => (
@@ -231,7 +231,7 @@ export default function LeadCaptureForm({
                   value={formData.description}
                   onChange={handleChange}
                   rows={3}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#E85D04] resize-none"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-[#C42332] resize-none"
                 />
               </>
             )}
@@ -239,7 +239,7 @@ export default function LeadCaptureForm({
             <button
               type="submit"
               disabled={status === "submitting"}
-              className="w-full flex items-center justify-center gap-2 py-4 bg-[#E85D04] hover:bg-orange-700 disabled:bg-orange-400 text-white font-bold rounded-xl text-sm transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-4 bg-[#C42332] hover:bg-orange-700 disabled:bg-orange-400 text-white font-bold rounded-xl text-sm transition-colors"
             >
               {status === "submitting" ? (
                 <>

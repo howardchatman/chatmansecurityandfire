@@ -97,7 +97,7 @@ export default function FinancingContent() {
       <Navbar />
       <main className="pt-20">
         {/* Hero */}
-        <section className="relative py-20 bg-[#0D1B2A] overflow-hidden">
+        <section className="relative py-20 bg-[#0E2148] overflow-hidden">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl" />
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-orange-400 mb-8 transition-colors text-sm">
@@ -174,7 +174,7 @@ export default function FinancingContent() {
             <div className="grid md:grid-cols-3 gap-6">
               {examples.map((ex) => (
                 <div key={ex.job} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                  <div className="bg-[#0D1B2A] p-5 text-center">
+                  <div className="bg-[#0E2148] p-5 text-center">
                     <p className="text-sm text-gray-400 uppercase tracking-wide">Project</p>
                     <p className="text-3xl font-bold text-white">{ex.job}</p>
                   </div>
@@ -248,7 +248,7 @@ export default function FinancingContent() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 bg-[#0D1B2A]">
+        <section className="py-16 bg-[#0E2148]">
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Ready to get started?</h2>
             <p className="text-gray-300 mb-8 max-w-xl mx-auto">

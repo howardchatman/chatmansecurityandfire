@@ -239,7 +239,7 @@ export default function PortalDashboard() {
       </div>
 
       {/* Help */}
-      <div className="bg-[#0D1B2A] rounded-xl p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="bg-[#0E2148] rounded-xl p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="font-semibold">Need something looked at?</p>
           <p className="text-white/70 text-sm">Submit a request, or call us if it&apos;s urgent.</p>

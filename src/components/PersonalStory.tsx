@@ -33,7 +33,7 @@ export default function PersonalStory() {
             transition={{ delay: 0.1 }}
             className="md:w-2/3"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#0D1B2A] mb-5">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0E2148] mb-5">
               Why I Started This Company
             </h2>
             <p className="text-gray-700 leading-relaxed mb-4">
@@ -49,7 +49,7 @@ export default function PersonalStory() {
             </p>
             <Link
               href="/about"
-              className="inline-block mt-5 text-[#E85D04] font-semibold hover:underline"
+              className="inline-block mt-5 text-[#C42332] font-semibold hover:underline"
             >
               Learn more about us →
             </Link>

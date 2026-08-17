@@ -60,7 +60,7 @@ export default function CareersPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchema) }} />
 
       <main className="pt-24 pb-20 bg-white">
-        <section className="bg-[#0D1B2A] text-white py-16">
+        <section className="bg-[#0E2148] text-white py-16">
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
             <h1 className="text-3xl sm:text-5xl font-bold">Work With Us</h1>
             <p className="mt-4 text-lg text-white/80 leading-relaxed">
@@ -92,7 +92,7 @@ export default function CareersPage() {
               if (!roles.length) return null;
               return (
                 <div key={g.key}>
-                  <h2 className="text-2xl font-bold text-[#0D1B2A]">
+                  <h2 className="text-2xl font-bold text-[#0E2148]">
                     {CATEGORY_LABELS[g.key]} Roles
                   </h2>
                   <p className="text-gray-600 mt-1">{g.blurb}</p>
@@ -105,7 +105,7 @@ export default function CareersPage() {
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h3 className="text-lg font-semibold text-[#0D1B2A] group-hover:text-orange-600">
+                            <h3 className="text-lg font-semibold text-[#0E2148] group-hover:text-orange-600">
                               {r.title}
                             </h3>
                             {r.discipline && (
@@ -128,7 +128,7 @@ export default function CareersPage() {
             })}
 
             <div className="rounded-2xl bg-gray-50 border border-gray-200 p-6">
-              <h2 className="text-lg font-bold text-[#0D1B2A]">Don&apos;t see your trade?</h2>
+              <h2 className="text-lg font-bold text-[#0E2148]">Don&apos;t see your trade?</h2>
               <p className="text-gray-600 mt-1">
                 Send your résumé anyway. We keep good people on file and reach out when something opens
                 up.

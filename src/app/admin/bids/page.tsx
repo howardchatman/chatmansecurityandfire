@@ -200,7 +200,7 @@ export default function BidsPage() {
                         href={bid.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0D1B2A] hover:bg-[#1a2f45] text-white rounded-lg text-xs font-semibold transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0E2148] hover:bg-[#1a2f45] text-white rounded-lg text-xs font-semibold transition-colors"
                       >
                         View <ExternalLink className="w-3 h-3" />
                       </a>

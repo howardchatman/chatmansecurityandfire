@@ -45,7 +45,7 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
     <>
       <Navbar />
       <main className="pt-24 pb-20 bg-white">
-        <section className="bg-[#0D1B2A] text-white py-12">
+        <section className="bg-[#0E2148] text-white py-12">
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
             <a href="/careers" className="text-white/60 text-sm hover:text-white">
               ← All openings
@@ -66,7 +66,7 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
           {role && (
             <>
               <div>
-                <h2 className="text-xl font-bold text-[#0D1B2A]">What you&apos;ll do</h2>
+                <h2 className="text-xl font-bold text-[#0E2148]">What you&apos;ll do</h2>
                 <ul className="mt-3 space-y-2">
                   {role.responsibilities.map((r, i) => (
                     <li key={i} className="flex gap-3 text-gray-700 leading-relaxed">
@@ -78,7 +78,7 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#0D1B2A]">What we need from you</h2>
+                <h2 className="text-xl font-bold text-[#0E2148]">What we need from you</h2>
                 <ul className="mt-3 space-y-2">
                   {role.requirements.map((r, i) => (
                     <li key={i} className="flex gap-3 text-gray-700 leading-relaxed">
@@ -91,7 +91,7 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
 
               {role.niceToHave?.length ? (
                 <div>
-                  <h2 className="text-xl font-bold text-[#0D1B2A]">Helps, but not required</h2>
+                  <h2 className="text-xl font-bold text-[#0E2148]">Helps, but not required</h2>
                   <ul className="mt-3 space-y-2">
                     {role.niceToHave.map((r, i) => (
                       <li key={i} className="flex gap-3 text-gray-600 leading-relaxed">
@@ -106,7 +106,7 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
           )}
 
           <div id="apply" className="rounded-2xl border border-gray-200 p-6 sm:p-8">
-            <h2 className="text-xl font-bold text-[#0D1B2A]">Apply</h2>
+            <h2 className="text-xl font-bold text-[#0E2148]">Apply</h2>
             <p className="text-gray-600 mt-1">
               Takes two minutes. A résumé helps but isn&apos;t required — if you&apos;ve got the
               experience, tell us and we&apos;ll call.

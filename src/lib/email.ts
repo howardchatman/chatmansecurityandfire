@@ -13,7 +13,7 @@ const EMAIL_LOGO_URL = `${SITE_URL}/csf_wide_logo.png`;
 
 function emailHeader(title: string) {
   return `
-        <div style="background-color:#ffffff;padding:20px;text-align:center;border-bottom:3px solid #E85D04;">
+        <div style="background-color:#ffffff;padding:20px;text-align:center;border-bottom:3px solid #C42332;">
           <img src="${EMAIL_LOGO_URL}" alt="Chatman Security &amp; Fire" width="220" style="width:220px;max-width:75%;height:auto;display:inline-block;" />
         </div>
         <div style="background-color:#111827;padding:14px 20px;text-align:center;">
@@ -48,14 +48,14 @@ export const emailTemplates = {
             <tr>
               <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; font-weight: bold;">Email:</td>
               <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">
-                <a href="mailto:${lead.email}" style="color: #ea580c;">${lead.email}</a>
+                <a href="mailto:${lead.email}" style="color: #C42332;">${lead.email}</a>
               </td>
             </tr>
             ${lead.phone ? `
             <tr>
               <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; font-weight: bold;">Phone:</td>
               <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">
-                <a href="tel:${lead.phone}" style="color: #ea580c;">${lead.phone}</a>
+                <a href="tel:${lead.phone}" style="color: #C42332;">${lead.phone}</a>
               </td>
             </tr>
             ` : ""}
@@ -72,7 +72,7 @@ export const emailTemplates = {
           ` : ""}
           <div style="margin-top: 30px; text-align: center;">
             <a href="https://www.chatmansecurityandfire.com/admin/leads"
-               style="display: inline-block; background-color: #ea580c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+               style="display: inline-block; background-color: #C42332; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
               View in Dashboard
             </a>
           </div>
@@ -162,13 +162,13 @@ export const emailTemplates = {
               </tr>
               <tr>
                 <td style="color: #6b7280; padding-top: 10px; font-size: 18px;">Total:</td>
-                <td style="text-align: right; padding-top: 10px; font-size: 24px; font-weight: bold; color: #ea580c;">${data.total}</td>
+                <td style="text-align: right; padding-top: 10px; font-size: 24px; font-weight: bold; color: #C42332;">${data.total}</td>
               </tr>
             </table>
           </div>
           <div style="text-align: center;">
             <a href="${data.viewUrl}"
-               style="display: inline-block; background-color: #ea580c; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+               style="display: inline-block; background-color: #C42332; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
               View & Accept Quote
             </a>
           </div>
@@ -260,7 +260,7 @@ export const emailTemplates = {
           <div style="background-color: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;">
             <p style="color: #374151; font-size: 14px; margin: 0 0 10px 0;"><strong>Need immediate help?</strong></p>
             <p style="color: #374151; font-size: 14px; margin: 0;">
-              Call us directly at <a href="tel:+18328597009" style="color: #ea580c; font-weight: bold;">(832) 859-7009</a>
+              Call us directly at <a href="tel:+18328597009" style="color: #C42332; font-weight: bold;">(832) 859-7009</a>
             </p>
             <p style="color: #6b7280; font-size: 13px; margin: 10px 0 0 0;">
               We offer 24/7 emergency service for urgent fire safety needs.
@@ -268,7 +268,7 @@ export const emailTemplates = {
           </div>
           <div style="text-align: center; margin-top: 20px;">
             <a href="https://www.chatmansecurityandfire.com"
-               style="display: inline-block; background-color: #ea580c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+               style="display: inline-block; background-color: #C42332; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
               Visit Our Website
             </a>
           </div>
@@ -300,14 +300,14 @@ export const emailTemplates = {
           </p>
           <div style="text-align: center; margin: 30px 0;">
             <a href="${data.portalUrl}"
-               style="display: inline-block; background-color: #ea580c; color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px;">
+               style="display: inline-block; background-color: #C42332; color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px;">
               Access Your Portal
             </a>
           </div>
           <div style="background-color: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;">
             <p style="color: #6b7280; font-size: 14px; margin: 0;">
               <strong>Your portal link:</strong><br>
-              <a href="${data.portalUrl}" style="color: #ea580c; word-break: break-all;">${data.portalUrl}</a>
+              <a href="${data.portalUrl}" style="color: #C42332; word-break: break-all;">${data.portalUrl}</a>
             </p>
             <p style="color: #6b7280; font-size: 12px; margin-top: 10px; margin-bottom: 0;">
               Save this link - it's your personal access to the portal.

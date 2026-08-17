@@ -63,7 +63,7 @@ export default function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D1B2A] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0E2148] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <BrandHeader onDark size="h-14" />

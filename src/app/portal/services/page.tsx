@@ -215,7 +215,7 @@ export default function PortalServicesPage() {
         </>
       )}
 
-      <div className="bg-[#0D1B2A] rounded-xl p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="bg-[#0E2148] rounded-xl p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="font-semibold">Need an inspection scheduled or something added?</p>
           <p className="text-white/70 text-sm">Send us a request and we&apos;ll get it on the calendar.</p>

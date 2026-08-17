@@ -132,9 +132,9 @@ export default function SellAccountsContent() {
         {/* Hero */}
         <section
           className="relative py-20 lg:py-28"
-          style={{ backgroundImage: "url('/acquire_hero.webp')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0D1B2A" }}
+          style={{ backgroundImage: "url('/acquire_hero.webp')", backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0E2148" }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B2A] via-[#0D1B2A]/85 to-[#0D1B2A]/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0E2148] via-[#0E2148]/85 to-[#0E2148]/40" />
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-orange-400 mb-8 transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -221,7 +221,7 @@ export default function SellAccountsContent() {
         </section>
 
         {/* Valuation */}
-        <section className="py-16 bg-[#0D1B2A]">
+        <section className="py-16 bg-[#0E2148]">
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div>

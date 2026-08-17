@@ -231,7 +231,7 @@ export default function PortalProjectsPage() {
         </>
       )}
 
-      <div className="bg-[#0D1B2A] rounded-xl p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="bg-[#0E2148] rounded-xl p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="font-semibold">Question about a project?</p>
           <p className="text-white/70 text-sm">Call and ask for Howard — you&apos;ll get a straight answer.</p>

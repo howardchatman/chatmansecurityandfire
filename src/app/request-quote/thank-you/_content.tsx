@@ -27,7 +27,7 @@ export default function ThankYouContent() {
               <CheckCircle2 className="w-11 h-11 text-green-600" />
             </motion.div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold text-[#0D1B2A] mb-4">
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#0E2148] mb-4">
               Thank you — request received!
             </h1>
             <p className="text-lg text-gray-600 mb-2">

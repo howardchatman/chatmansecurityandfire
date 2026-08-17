@@ -100,7 +100,7 @@ export default function TimePage() {
         <a
           href="/time-clock"
           target="_blank"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#0D1B2A] hover:bg-[#1a2f45] text-white text-sm font-semibold rounded-xl transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#0E2148] hover:bg-[#1a2f45] text-white text-sm font-semibold rounded-xl transition-colors"
         >
           <Smartphone className="w-4 h-4" />
           Employee Time Clock
