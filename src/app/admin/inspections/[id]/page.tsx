@@ -3,6 +3,8 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
+import DocumentsCard from "@/components/DocumentsCard";
 import {
   ArrowLeft,
   Calendar,
@@ -532,10 +534,7 @@ export default function InspectionDetailPage({ params }: { params: Promise<{ id:
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Photos</h2>
-              <button className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700">
-                <Camera className="w-4 h-4" />
-                Add Photo
-              </button>
+              <PhotoUploadButton inspectionId={resolvedParams.id} onUploaded={fetchInspection} />
             </div>
 
             {!inspection.photos || inspection.photos.length === 0 ? (
@@ -562,6 +561,9 @@ export default function InspectionDetailPage({ params }: { params: Promise<{ id:
               </div>
             )}
           </div>
+
+          {/* Forms & documents uploaded from the field */}
+          <DocumentsCard inspectionId={resolvedParams.id} />
 
           {/* Notes */}
           {(inspection.notes || inspection.internal_notes || inspection.fire_marshal_notes) && (

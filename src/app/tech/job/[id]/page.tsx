@@ -2,6 +2,8 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
+import DocumentsCard from "@/components/DocumentsCard";
 import {
   ArrowLeft,
   MapPin,
@@ -424,13 +426,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-gray-900">Photos</h3>
-          <button
-            onClick={() => {/* TODO: Photo upload */}}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200"
-          >
-            <Camera className="w-4 h-4" />
-            Add Photo
-          </button>
+          <PhotoUploadButton jobId={id} onUploaded={fetchJob} />
         </div>
         {job.photos.length > 0 ? (
           <div className="grid grid-cols-3 gap-2">
@@ -451,6 +447,9 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           </div>
         )}
       </div>
+
+      {/* Forms & documents — backflow test forms, signed paperwork, scans */}
+      <DocumentsCard jobId={id} />
 
       {/* Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-30">

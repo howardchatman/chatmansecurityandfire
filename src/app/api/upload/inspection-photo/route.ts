@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, addInspectionPhoto } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
+import { EMPLOYEE_ROLES } from "@/lib/uploads";
 
 export async function POST(request: NextRequest) {
   try {
     const user = await verifyAuth(request);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    // Employees only. A customer login could reach this route before — the
+    // portal has no upload UI, but the API is the boundary, not the UI.
+    if (!EMPLOYEE_ROLES.includes(user.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const formData = await request.formData();
@@ -63,7 +69,11 @@ export async function POST(request: NextRequest) {
     if (uploadError) {
       console.error("Storage upload error:", uploadError);
       return NextResponse.json(
-        { error: "Failed to upload file to storage" },
+        {
+          error: /bucket/i.test(uploadError.message)
+            ? "The inspection-photos storage bucket does not exist yet. Run the 20260817_uploads migration."
+            : "Failed to upload file to storage",
+        },
         { status: 500 }
       );
     }
