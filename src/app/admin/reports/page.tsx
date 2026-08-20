@@ -1,339 +1,329 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
   DollarSign,
   Users,
-  Ticket,
-  Calendar,
-  Download,
-  Filter,
-  FileText,
-  PieChart,
-  Activity,
+  Briefcase,
+  ClipboardCheck,
+  Loader2,
+  AlertTriangle,
+  Clock,
 } from "lucide-react";
 
-interface ReportCard {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  icon: React.ElementType;
+// Reports, from the database. The page this replaces rendered $48,250 of
+// monthly revenue, +12% growth, and technician leaderboards — all hardcoded,
+// none of it true. Every number here arrives computed from /api/admin/reports;
+// this file only lays them out. When the business is small the numbers are
+// small, and that is the report.
+
+interface ReportData {
+  money: {
+    billed: number;
+    collected: number;
+    collected_this_month: number;
+    outstanding: number;
+    overdue_count: number;
+    overdue_amount: number;
+    invoice_count: number;
+    monthly: { key: string; label: string; billed: number }[];
+  };
+  jobs: { total: number; open: number; by_status: Record<string, number> };
+  leads: {
+    total: number;
+    by_status: Record<string, number>;
+    by_source: Record<string, number>;
+    weekly_intake: { label: string; count: number }[];
+  };
+  customers: { total: number };
+  inspections: { total: number; missing_report: number; overdue: number };
+  crew_hours_30d: { name: string; hours: number }[];
 }
 
-const reportCards: ReportCard[] = [
-  {
-    id: "revenue",
-    name: "Revenue Report",
-    description: "Monthly and annual revenue breakdown",
-    category: "Finance",
-    icon: DollarSign,
-  },
-  {
-    id: "sales",
-    name: "Sales Pipeline",
-    description: "Lead conversion and sales funnel analysis",
-    category: "Sales",
-    icon: TrendingUp,
-  },
-  {
-    id: "customers",
-    name: "Customer Report",
-    description: "Customer acquisition and retention metrics",
-    category: "CRM",
-    icon: Users,
-  },
-  {
-    id: "service",
-    name: "Service Report",
-    description: "Ticket resolution and response times",
-    category: "Operations",
-    icon: Ticket,
-  },
-  {
-    id: "technician",
-    name: "Technician Performance",
-    description: "Work order completion and efficiency",
-    category: "Operations",
-    icon: Activity,
-  },
-  {
-    id: "inventory",
-    name: "Inventory Report",
-    description: "Stock levels and usage trends",
-    category: "Inventory",
-    icon: PieChart,
-  },
-];
+const usd = (n: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n || 0);
 
-export default function ReportsPage() {
-  const [dateRange, setDateRange] = useState("this_month");
-
-  const stats = [
-    {
-      name: "Total Revenue",
-      value: "$48,250",
-      change: "+12%",
-      trend: "up",
-      icon: DollarSign,
-      color: "bg-green-100 text-green-600",
-    },
-    {
-      name: "New Customers",
-      value: "24",
-      change: "+8%",
-      trend: "up",
-      icon: Users,
-      color: "bg-blue-100 text-blue-600",
-    },
-    {
-      name: "Tickets Resolved",
-      value: "156",
-      change: "+15%",
-      trend: "up",
-      icon: Ticket,
-      color: "bg-purple-100 text-purple-600",
-    },
-    {
-      name: "Avg Response Time",
-      value: "2.4h",
-      change: "-18%",
-      trend: "down",
-      icon: Calendar,
-      color: "bg-orange-100 text-orange-600",
-    },
-  ];
-
-  const monthlyData = [
-    { month: "Jan", revenue: 32000, leads: 45, tickets: 120 },
-    { month: "Feb", revenue: 35000, leads: 52, tickets: 135 },
-    { month: "Mar", revenue: 41000, leads: 48, tickets: 142 },
-    { month: "Apr", revenue: 38000, leads: 55, tickets: 128 },
-    { month: "May", revenue: 44000, leads: 62, tickets: 145 },
-    { month: "Jun", revenue: 48250, leads: 68, tickets: 156 },
-  ];
-
-  const maxRevenue = Math.max(...monthlyData.map((d) => d.revenue));
-
+/** KPI tile — a number with its name, no invented trend arrows. */
+function Stat({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  alert,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  icon: React.ElementType;
+  alert?: boolean;
+}) {
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-          <p className="text-gray-600 mt-1">
-            Track performance and business metrics
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          >
-            <option value="today">Today</option>
-            <option value="this_week">This Week</option>
-            <option value="this_month">This Month</option>
-            <option value="this_quarter">This Quarter</option>
-            <option value="this_year">This Year</option>
-            <option value="custom">Custom Range</option>
-          </select>
-          <button className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download className="w-5 h-5 text-gray-500" />
-            Export
-          </button>
-        </div>
+    <div className="bg-white rounded-xl border border-gray-200 p-5">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</span>
+        <Icon className={`w-4 h-4 ${alert ? "text-orange-600" : "text-gray-300"}`} />
       </div>
+      <p className={`mt-2 text-2xl font-bold ${alert ? "text-orange-700" : "text-gray-900"}`}>
+        {value}
+      </p>
+      {sub && <p className="mt-1 text-xs text-gray-500">{sub}</p>}
+    </div>
+  );
+}
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.name}
-              className="bg-white rounded-xl border border-gray-200 p-4"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`p-2 rounded-lg ${stat.color}`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <span className="text-sm text-gray-500">{stat.name}</span>
-              </div>
-              <div className="flex items-end justify-between">
-                <span className="text-2xl font-bold text-gray-900">
-                  {stat.value}
-                </span>
-                <span
-                  className={`inline-flex items-center text-sm font-medium ${
-                    stat.trend === "up" ? "text-green-600" : "text-orange-600"
-                  }`}
-                >
-                  {stat.trend === "up" ? (
-                    <TrendingUp className="w-4 h-4 mr-1" />
-                  ) : (
-                    <TrendingDown className="w-4 h-4 mr-1" />
-                  )}
-                  {stat.change}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Revenue Chart */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Revenue Overview
-            </h2>
-            <p className="text-sm text-gray-500">Monthly revenue for 2024</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-orange-500 rounded" />
-              <span className="text-sm text-gray-600">Revenue</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Simple Bar Chart */}
-        <div className="flex items-end justify-between gap-2 h-64">
-          {monthlyData.map((data) => (
-            <div
-              key={data.month}
-              className="flex-1 flex flex-col items-center gap-2"
-            >
-              <div className="w-full flex flex-col items-center">
-                <span className="text-xs text-gray-500 mb-1">
-                  ${(data.revenue / 1000).toFixed(0)}k
-                </span>
-                <div
-                  className="w-full bg-orange-500 rounded-t-lg transition-all hover:bg-orange-600"
-                  style={{
-                    height: `${(data.revenue / maxRevenue) * 200}px`,
-                  }}
-                />
-              </div>
-              <span className="text-sm text-gray-600">{data.month}</span>
+/**
+ * Single-series column chart in plain CSS. One hue per chart (sequential —
+ * magnitude is the job), every bar value-labeled, 4px rounded top, bars grown
+ * from a shared baseline. A same-height table lives in the DOM for screen
+ * readers.
+ */
+function Columns({
+  data,
+  color,
+  format,
+  title,
+}: {
+  data: { label: string; value: number }[];
+  color: string;
+  format: (n: number) => string;
+  title: string;
+}) {
+  const max = Math.max(...data.map((d) => d.value), 1);
+  const allZero = data.every((d) => d.value === 0);
+  return (
+    <div>
+      {allZero ? (
+        <p className="text-sm text-gray-400 text-center py-10">Nothing in this window yet</p>
+      ) : (
+        <div className="flex items-end gap-2 h-40" role="img" aria-label={title}>
+          {data.map((d) => (
+            <div key={d.label} className="flex-1 flex flex-col items-center justify-end min-w-0 h-full">
+              <span className="text-[10px] text-gray-600 font-medium mb-1">
+                {d.value > 0 ? format(d.value) : ""}
+              </span>
+              <div
+                className="w-full max-w-[24px] rounded-t-[4px]"
+                style={{
+                  background: color,
+                  height: `${Math.max((d.value / max) * 100, d.value > 0 ? 4 : 0)}%`,
+                  minHeight: d.value > 0 ? 4 : 0,
+                }}
+              />
             </div>
           ))}
         </div>
+      )}
+      <div className="flex gap-2 mt-1.5 border-t border-gray-100 pt-1.5">
+        {data.map((d) => (
+          <span key={d.label} className="flex-1 text-center text-[10px] text-gray-400 truncate">
+            {d.label}
+          </span>
+        ))}
       </div>
+      {/* screen-reader table */}
+      <table className="sr-only">
+        <caption>{title}</caption>
+        <tbody>
+          {data.map((d) => (
+            <tr key={d.label}>
+              <td>{d.label}</td>
+              <td>{format(d.value)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
-      {/* Report Cards Grid */}
+/** Horizontal count list — for status/source breakdowns. */
+function Breakdown({ counts, linkBase }: { counts: Record<string, number>; linkBase?: string }) {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(...entries.map(([, n]) => n), 1);
+  if (!entries.length) return <p className="text-sm text-gray-400 py-4 text-center">None yet</p>;
+  return (
+    <ul className="space-y-2">
+      {entries.map(([label, n]) => (
+        <li key={label} className="flex items-center gap-3 text-sm">
+          <span className="w-32 shrink-0 text-gray-600 capitalize truncate">
+            {label.replace(/_/g, " ")}
+          </span>
+          <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${(n / max) * 100}%`, background: "#3F82C2" }}
+            />
+          </div>
+          <span className="w-8 text-right font-semibold text-gray-900">{n}</span>
+        </li>
+      ))}
+      {linkBase && (
+        <li className="pt-1">
+          <Link href={linkBase} className="text-xs text-orange-600 font-medium hover:underline">
+            Open list →
+          </Link>
+        </li>
+      )}
+    </ul>
+  );
+}
+
+export default function ReportsPage() {
+  const [data, setData] = useState<ReportData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/reports");
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Could not load reports");
+        setData(json.data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Could not load reports");
+      }
+    })();
+  }, []);
+
+  if (error) {
+    return (
+      <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <AlertTriangle className="w-4 h-4 mt-0.5" /> {error}
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <div className="flex justify-center py-24 text-gray-300">
+        <Loader2 className="w-6 h-6 animate-spin" />
+      </div>
+    );
+  }
+
+  const m = data.money;
+
+  return (
+    <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Available Reports
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {reportCards.map((report) => {
-            const Icon = report.icon;
-            return (
-              <div
-                key={report.id}
-                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-orange-100 rounded-xl group-hover:bg-orange-200 transition-colors">
-                    <Icon className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      {report.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-2">
-                      {report.description}
-                    </p>
-                    <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded">
-                      {report.category}
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <button className="text-sm text-orange-600 hover:text-orange-700 font-medium">
-                    View Report
-                  </button>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <Download className="w-4 h-4 text-gray-400" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+        <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
+        <p className="text-gray-600 mt-1">
+          Live from the database — every figure is computed, none are projections
+        </p>
+      </div>
+
+      {/* money */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat
+          label="Collected"
+          value={usd(m.collected)}
+          sub={`${usd(m.collected_this_month)} this month · ${m.invoice_count} invoice${m.invoice_count === 1 ? "" : "s"}`}
+          icon={DollarSign}
+        />
+        <Stat
+          label="Outstanding"
+          value={usd(m.outstanding)}
+          sub={
+            m.overdue_count > 0
+              ? `${m.overdue_count} overdue totaling ${usd(m.overdue_amount)}`
+              : "Nothing overdue"
+          }
+          icon={DollarSign}
+          alert={m.overdue_count > 0}
+        />
+        <Stat
+          label="Open Jobs"
+          value={String(data.jobs.open)}
+          sub={`${data.jobs.total} total on record`}
+          icon={Briefcase}
+        />
+        <Stat
+          label="Inspections"
+          value={String(data.inspections.total)}
+          sub={
+            data.inspections.missing_report > 0
+              ? `${data.inspections.missing_report} still need an NFPA 72 report`
+              : "All reports filed"
+          }
+          icon={ClipboardCheck}
+          alert={data.inspections.missing_report > 0 || data.inspections.overdue > 0}
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 className="font-semibold text-gray-900 mb-4">Billed by month</h3>
+          <Columns
+            title="Invoices billed by month, last six months"
+            data={m.monthly.map((x) => ({ label: x.label, value: x.billed }))}
+            color="#C42332"
+            format={usd}
+          />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 className="font-semibold text-gray-900 mb-4">Lead intake by week</h3>
+          <Columns
+            title="New leads per week, last eight weeks"
+            data={data.leads.weekly_intake.map((x) => ({ label: x.label, value: x.count }))}
+            color="#3F82C2"
+            format={(n) => String(n)}
+          />
         </div>
       </div>
 
-      {/* Quick Metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Performers */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Top Technicians
-          </h2>
-          <div className="space-y-4">
-            {[
-              { name: "Mike Johnson", jobs: 45, rating: 4.9 },
-              { name: "Sarah Williams", jobs: 42, rating: 4.8 },
-              { name: "Tom Davis", jobs: 38, rating: 4.7 },
-              { name: "Emily Chen", jobs: 35, rating: 4.9 },
-            ].map((tech, idx) => (
-              <div
-                key={tech.name}
-                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
-                    {idx + 1}
-                  </span>
-                  <span className="font-medium text-gray-900">{tech.name}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-500">{tech.jobs} jobs</span>
-                  <span className="text-sm font-medium text-yellow-600">
-                    ★ {tech.rating}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Leads by status <span className="text-gray-400 font-normal">({data.leads.total})</span>
+          </h3>
+          <Breakdown counts={data.leads.by_status} linkBase="/admin/leads" />
         </div>
-
-        {/* Service Categories */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Revenue by Service
-          </h2>
-          <div className="space-y-4">
-            {[
-              { name: "Installations", value: 45, amount: "$21,712" },
-              { name: "Monitoring", value: 30, amount: "$14,475" },
-              { name: "Repairs", value: 15, amount: "$7,237" },
-              { name: "Maintenance", value: 10, amount: "$4,825" },
-            ].map((service) => (
-              <div key={service.name}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">
-                    {service.name}
-                  </span>
-                  <span className="text-sm text-gray-500">{service.amount}</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div
-                    className="bg-orange-500 h-2 rounded-full transition-all"
-                    style={{ width: `${service.value}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 className="font-semibold text-gray-900 mb-4">Leads by source</h3>
+          <Breakdown counts={data.leads.by_source} />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Jobs by status <span className="text-gray-400 font-normal">({data.jobs.total})</span>
+          </h3>
+          <Breakdown counts={data.jobs.by_status} linkBase="/admin/jobs" />
         </div>
       </div>
+
+      {/* crew hours */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="w-4 h-4 text-gray-400" />
+          <h3 className="font-semibold text-gray-900">Crew hours — last 30 days</h3>
+        </div>
+        {data.crew_hours_30d.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-4">
+            No time clocked in the last 30 days
+          </p>
+        ) : (
+          <ul className="divide-y divide-gray-100">
+            {data.crew_hours_30d.map((c) => (
+              <li key={c.name} className="py-2 flex justify-between text-sm">
+                <span className="text-gray-700">{c.name}</span>
+                <span className="font-semibold text-gray-900">{c.hours} hrs</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Link href="/admin/time" className="inline-block mt-3 text-xs text-orange-600 font-medium hover:underline">
+          Time entries →
+        </Link>
+      </div>
+
+      <p className="text-xs text-gray-400 flex items-center gap-1.5">
+        <Users className="w-3.5 h-3.5" />
+        {data.customers.total} customers on record · figures computed server-side from invoices,
+        jobs, leads, and time entries
+      </p>
     </div>
   );
 }
