@@ -156,7 +156,7 @@ function Breakdown({ counts, linkBase }: { counts: Record<string, number>; linkB
           <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full"
-              style={{ width: `${(n / max) * 100}%`, background: "#3F82C2" }}
+              style={{ width: `${(n / max) * 100}%`, background: "#2563EB" }}
             />
           </div>
           <span className="w-8 text-right font-semibold text-gray-900">{n}</span>
@@ -260,7 +260,7 @@ export default function ReportsPage() {
           <Columns
             title="Invoices billed by month, last six months"
             data={m.monthly.map((x) => ({ label: x.label, value: x.billed }))}
-            color="#C42332"
+            color="#EA580C"
             format={usd}
           />
         </div>
@@ -269,7 +269,7 @@ export default function ReportsPage() {
           <Columns
             title="New leads per week, last eight weeks"
             data={data.leads.weekly_intake.map((x) => ({ label: x.label, value: x.count }))}
-            color="#3F82C2"
+            color="#2563EB"
             format={(n) => String(n)}
           />
         </div>

@@ -32,7 +32,7 @@ interface QrCodeRecord {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  marketing: "#C42332",
+  marketing: "#EA580C",
   portal: "#3B82F6",
   proposal: "#22C55E",
   custom: "#8B5CF6",

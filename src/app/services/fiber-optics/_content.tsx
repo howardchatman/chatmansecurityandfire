@@ -115,7 +115,7 @@ export default function FiberOpticsContent() {
             backgroundImage: "url('/fiber_optic_wide.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            backgroundColor: "#0E2148",
+            backgroundColor: "#0D1B2A",
           }}
         >
           <div className="absolute inset-0 bg-black/55" />
