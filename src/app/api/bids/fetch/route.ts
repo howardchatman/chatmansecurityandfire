@@ -90,38 +90,94 @@ interface FitResult {
   reason: string;
 }
 
+const SERVICE_MATCHES = [
+  "fire_alarm",
+  "fire_sprinkler",
+  "fire_extinguisher",
+  "emergency_lighting",
+  "fire_lane",
+  "security",
+  "fiber_optics",
+  "wireless",
+  "multi",
+  "other",
+];
+
+// Structured output schema — the API guarantees the response parses to this
+// shape, so no "looks like JSON" parsing. Numeric range isn't enforceable in
+// the schema; the clamp happens in code below.
+const FIT_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["results"],
+  properties: {
+    results: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["external_id", "fit_score", "service_match", "reason"],
+        properties: {
+          external_id: { type: "string" },
+          fit_score: { type: "integer", description: "0-100, 100 = exactly our trade and size" },
+          service_match: { type: "string", enum: SERVICE_MATCHES },
+          reason: { type: "string", description: "one short sentence" },
+        },
+      },
+    },
+  },
+};
+
 async function scoreFit(
   opps: { external_id: string; title: string; agency: string }[]
 ): Promise<Map<string, FitResult>> {
   const results = new Map<string, FitResult>();
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey || opps.length === 0) return results;
 
   try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        temperature: 0.1,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: `${SERVICE_PROFILE}\n\nScore each opportunity 0-100 for how well it fits what we do (100 = exactly our trade and size). Respond with JSON: {"results":[{"external_id":"...","fit_score":0-100,"service_match":"fire_alarm|fire_sprinkler|fire_extinguisher|emergency_lighting|fire_lane|security|fiber_optics|wireless|multi|other","reason":"one short sentence"}]}`,
-          },
-          { role: "user", content: JSON.stringify(opps) },
-        ],
+        model: "claude-opus-5",
+        max_tokens: 8000,
+        // Scoring titles is routine work — low effort keeps it fast and cheap.
+        output_config: {
+          effort: "low",
+          format: { type: "json_schema", schema: FIT_SCHEMA },
+        },
+        system: `${SERVICE_PROFILE}\n\nScore each opportunity 0-100 for how well it fits what we do (100 = exactly our trade and size).`,
+        messages: [{ role: "user", content: JSON.stringify(opps) }],
       }),
     });
-    if (!res.ok) return results;
-    const data = await res.json();
-    const parsed = JSON.parse(data.choices?.[0]?.message?.content || "{}");
-    for (const r of parsed.results || []) {
-      if (r.external_id) results.set(r.external_id, r);
+    if (!res.ok) {
+      console.error("[bids] scoring failed:", res.status, (await res.text()).slice(0, 200));
+      return results;
     }
-  } catch {
+    const data = await res.json();
+    // Guard before reading content — a refusal returns 200 with empty content.
+    if (data.stop_reason === "refusal") return results;
+
+    const raw: string = (data.content ?? [])
+      .filter((b: { type?: string }) => b?.type === "text")
+      .map((b: { text?: string }) => b.text ?? "")
+      .join("");
+    const parsed = JSON.parse(raw || "{}");
+    for (const r of parsed.results || []) {
+      if (!r.external_id) continue;
+      results.set(r.external_id, {
+        ...r,
+        fit_score: Math.max(0, Math.min(100, Math.round(r.fit_score ?? 0))),
+      });
+    }
+  } catch (e) {
     // scoring is best-effort; opportunities still get saved
+    console.error("[bids] scoring error:", e);
   }
   return results;
 }
