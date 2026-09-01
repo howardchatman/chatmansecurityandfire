@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase";
 import Stripe from "stripe";
 
 // Lazy initialization to avoid build errors when STRIPE_SECRET_KEY is not set
