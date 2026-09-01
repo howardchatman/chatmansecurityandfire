@@ -150,8 +150,8 @@ export default function LoginContent() {
             </p>
             <p>
               Forgot your password? Call{" "}
-              <a href="tel:8328597009" className="text-orange-600 font-medium">
-                (832) 859-7009
+              <a href="tel:3468525540" className="text-orange-600 font-medium">
+                (346) 852-5540
               </a>{" "}
               and we&apos;ll send you a new setup link.
             </p>
@@ -159,7 +159,7 @@ export default function LoginContent() {
         </div>
 
         <p className="text-center text-white/50 text-xs mt-6 flex items-center justify-center gap-1">
-          <Phone className="w-3 h-3" /> (832) 859-7009
+          <Phone className="w-3 h-3" /> (346) 852-5540
         </p>
       </div>
     </div>

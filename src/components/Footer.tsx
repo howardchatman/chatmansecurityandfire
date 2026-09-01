@@ -30,7 +30,7 @@ const footerLinks = {
     { name: "Contact Us", href: "/contact" },
     { name: "Request a Quote", href: "/request-quote" },
     { name: "Financing", href: "/financing" },
-    { name: "24/7 Dispatch", href: "tel:+18328597009" },
+    { name: "24/7 Dispatch", href: "tel:+13468525540" },
   ],
   legal: [
     { name: "Privacy Policy", href: "/privacy-policy" },
@@ -78,7 +78,7 @@ export default function Footer() {
 
             <div className="space-y-3">
               <a
-                href="tel:+18328597009"
+                href="tel:+13468525540"
                 className="flex items-center gap-3 text-neutral-400 hover:text-white transition-colors"
               >
                 <Phone className="w-5 h-5 text-orange-500" />

@@ -123,8 +123,8 @@ export default function FinancingContent() {
                 <a href={ACORN_APPLY_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-full transition-all shadow-lg shadow-orange-600/30">
                   Check Your Rate <ArrowRight className="w-5 h-5" />
                 </a>
-                <a href="tel:+18328597009" className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/25 hover:border-white/60 hover:bg-white/5 text-white font-semibold rounded-full transition-all">
-                  <Phone className="w-5 h-5" /> (832) 859-7009
+                <a href="tel:+13468525540" className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/25 hover:border-white/60 hover:bg-white/5 text-white font-semibold rounded-full transition-all">
+                  <Phone className="w-5 h-5" /> (346) 852-5540
                 </a>
               </div>
               <p className="text-xs text-white/50 mt-4 flex items-center gap-1.5">

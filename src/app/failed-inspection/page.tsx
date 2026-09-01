@@ -116,11 +116,11 @@ export default function FailedInspectionPage() {
               </p>
 
               <a
-                href="tel:+18328597009"
+                href="tel:+13468525540"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
               >
                 <Phone className="w-5 h-5" />
-                Call (832) 859-7009
+                Call (346) 852-5540
               </a>
             </motion.div>
           </div>
@@ -215,11 +215,11 @@ export default function FailedInspectionPage() {
                     We understand deadlines. Call now and we'll get started right away.
                   </p>
                   <a
-                    href="tel:+18328597009"
+                    href="tel:+13468525540"
                     className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-gray-100 text-red-600 font-semibold rounded-full transition-colors"
                   >
                     <Phone className="w-5 h-5" />
-                    Call (832) 859-7009
+                    Call (346) 852-5540
                   </a>
                 </div>
               </motion.div>

@@ -31,8 +31,8 @@ const contactMethods = [
   {
     title: "Call Us",
     description: "Speak directly with our team",
-    value: "(832) 859-7009",
-    href: "tel:+18328597009",
+    value: "(346) 852-5540",
+    href: "tel:+13468525540",
     icon: Phone,
     color: "bg-green-500",
     available: "Mon-Fri 7AM-6PM, Sat 8AM-2PM",
@@ -40,8 +40,8 @@ const contactMethods = [
   {
     title: "Text Us",
     description: "Quick questions via SMS",
-    value: "(832) 859-7009",
-    href: "sms:+18328597009",
+    value: "(346) 852-5540",
+    href: "sms:+13468525540",
     icon: MessageCircle,
     color: "bg-blue-500",
     available: "Responses within 30 min",
@@ -58,8 +58,8 @@ const contactMethods = [
   {
     title: "Emergency Line",
     description: "24/7 urgent service",
-    value: "(832) 859-7009",
-    href: "tel:+18328597009",
+    value: "(346) 852-5540",
+    href: "tel:+13468525540",
     icon: Zap,
     color: "bg-red-500",
     available: "Available 24/7/365",
@@ -585,11 +585,11 @@ export default function ContactPage() {
                     urgent inspection corrections.
                   </p>
                   <a
-                    href="tel:+18328597009"
+                    href="tel:+13468525540"
                     className="flex items-center justify-center gap-2 w-full py-3 bg-white text-orange-600 font-semibold rounded-xl hover:bg-orange-50 transition-colors"
                   >
                     <Phone className="w-5 h-5" />
-                    (832) 859-7009
+                    (346) 852-5540
                   </a>
                 </div>
               </motion.div>

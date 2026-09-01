@@ -129,11 +129,11 @@ export default function PayPage() {
           <h1 className="text-xl font-bold text-gray-900 mb-2">Unable to Load</h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <a
-            href="tel:+18328597009"
+            href="tel:+13468525540"
             className="inline-flex items-center gap-2 bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-orange-700 transition-colors"
           >
             <Phone className="w-4 h-4" />
-            Call (832) 859-7009
+            Call (346) 852-5540
           </a>
         </div>
       </div>
@@ -179,11 +179,11 @@ export default function PayPage() {
             className="h-8 w-auto"
           />
           <a
-            href="tel:+18328597009"
+            href="tel:+13468525540"
             className="flex items-center gap-2 text-gray-600 hover:text-orange-600 text-sm font-medium"
           >
             <Phone className="w-4 h-4" />
-            (832) 859-7009
+            (346) 852-5540
           </a>
         </div>
       </header>
@@ -332,8 +332,8 @@ export default function PayPage() {
         {/* Contact */}
         <div className="mt-6 text-center text-sm text-gray-500">
           Questions about your invoice?{" "}
-          <a href="tel:+18328597009" className="text-orange-600 font-medium hover:underline">
-            Call (832) 859-7009
+          <a href="tel:+13468525540" className="text-orange-600 font-medium hover:underline">
+            Call (346) 852-5540
           </a>{" "}
           or{" "}
           <a href="mailto:info@chatmansecurityandfire.com" className="text-orange-600 font-medium hover:underline">

@@ -28,8 +28,8 @@ export default function RequestQuoteContent() {
             <p className="text-gray-300 max-w-2xl">
               Fill out the form below and we&apos;ll get back to you within one business day with next steps.
               Prefer to talk? Call{" "}
-              <a href="tel:+18328597009" className="text-orange-400 font-semibold hover:underline">
-                (832) 859-7009
+              <a href="tel:+13468525540" className="text-orange-400 font-semibold hover:underline">
+                (346) 852-5540
               </a>.
             </p>
           </div>
@@ -60,9 +60,9 @@ export default function RequestQuoteContent() {
 
             {/* Fallback call CTA */}
             <div className="max-w-2xl mx-auto mt-6 text-center">
-              <a href="tel:+18328597009" className="inline-flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium transition-colors">
+              <a href="tel:+13468525540" className="inline-flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium transition-colors">
                 <Phone className="w-4 h-4" />
-                Or call us directly: (832) 859-7009
+                Or call us directly: (346) 852-5540
               </a>
             </div>
           </div>

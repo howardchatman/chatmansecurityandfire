@@ -37,7 +37,7 @@ export default function ApplyForm({ roleSlug, roleTitle }: { roleSlug: string; r
       }
       setDone(true);
     } catch {
-      setError("Couldn't submit. Please call (832) 859-7009.");
+      setError("Couldn't submit. Please call (346) 852-5540.");
     } finally {
       setSubmitting(false);
     }
@@ -52,7 +52,7 @@ export default function ApplyForm({ roleSlug, roleTitle }: { roleSlug: string; r
           We read every one. If it&apos;s a fit, you&apos;ll hear from us — usually within a few days.
         </p>
         <p className="text-sm text-green-700 mt-3">
-          Can&apos;t wait? Call <a href="tel:8328597009" className="font-semibold underline">(832) 859-7009</a>.
+          Can&apos;t wait? Call <a href="tel:3468525540" className="font-semibold underline">(346) 852-5540</a>.
         </p>
       </div>
     );

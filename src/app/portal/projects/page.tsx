@@ -237,10 +237,10 @@ export default function PortalProjectsPage() {
           <p className="text-white/70 text-sm">Call and ask for Howard — you&apos;ll get a straight answer.</p>
         </div>
         <a
-          href="tel:8328597009"
+          href="tel:3468525540"
           className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg font-medium text-sm flex-shrink-0"
         >
-          <Phone className="w-4 h-4" /> (832) 859-7009
+          <Phone className="w-4 h-4" /> (346) 852-5540
         </a>
       </div>
     </div>

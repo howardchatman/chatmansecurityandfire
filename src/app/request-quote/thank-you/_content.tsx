@@ -41,11 +41,11 @@ export default function ThankYouContent() {
             <div className="bg-gray-50 rounded-2xl p-5 mb-8">
               <p className="text-sm text-gray-600 mb-3">Need something urgent? Reach us directly:</p>
               <a
-                href="tel:+18328597009"
+                href="tel:+13468525540"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
               >
                 <Phone className="w-5 h-5" />
-                (832) 859-7009
+                (346) 852-5540
               </a>
             </div>
 

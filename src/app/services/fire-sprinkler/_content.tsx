@@ -42,9 +42,9 @@ export default function FireSprinklerContent() {
               <p className="text-xl text-white/90 mb-8">
                 Sprinkler issues are one of the most common causes of failed inspections during tenant finish-outs and remodels.
               </p>
-              <a href="tel:+18328597009" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+              <a href="tel:+13468525540" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                 <Phone className="w-5 h-5" />
-                Call (832) 859-7009
+                Call (346) 852-5540
               </a>
             </motion.div>
           </div>
@@ -69,9 +69,9 @@ export default function FireSprinklerContent() {
                 </div>
                 <div className="bg-gray-900 rounded-2xl p-8 text-center">
                   <h3 className="text-2xl font-bold text-white mb-4">Need sprinkler service in Houston?</h3>
-                  <a href="tel:+18328597009" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+                  <a href="tel:+13468525540" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                     <Phone className="w-5 h-5" />
-                    Call (832) 859-7009
+                    Call (346) 852-5540
                   </a>
                 </div>
               </motion.div>

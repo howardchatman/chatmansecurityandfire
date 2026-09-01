@@ -41,9 +41,9 @@ export default function EmergencyLightingContent() {
               <p className="text-xl text-white/90 mb-8">
                 Non-working emergency lights and exit signs are fast inspection failures — we correct them fast.
               </p>
-              <a href="tel:+18328597009" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+              <a href="tel:+13468525540" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                 <Phone className="w-5 h-5" />
-                Call (832) 859-7009
+                Call (346) 852-5540
               </a>
             </motion.div>
           </div>
@@ -68,9 +68,9 @@ export default function EmergencyLightingContent() {
                 </div>
                 <div className="bg-gray-900 rounded-2xl p-8 text-center">
                   <h3 className="text-2xl font-bold text-white mb-4">Need emergency lighting fixed in Houston?</h3>
-                  <a href="tel:+18328597009" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+                  <a href="tel:+13468525540" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                     <Phone className="w-5 h-5" />
-                    Call (832) 859-7009
+                    Call (346) 852-5540
                   </a>
                 </div>
               </motion.div>

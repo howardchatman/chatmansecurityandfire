@@ -179,11 +179,11 @@ export default function ChecklistContent() {
                   Print Checklist
                 </button>
                 <a
-                  href="tel:+18328597009"
+                  href="tel:+13468525540"
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full text-sm transition-colors"
                 >
                   <Phone className="w-4 h-4" />
-                  Talk to a Tech — (832) 859-7009
+                  Talk to a Tech — (346) 852-5540
                 </a>
               </div>
             </div>
@@ -273,11 +273,11 @@ export default function ChecklistContent() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <a
-                    href="tel:+18328597009"
+                    href="tel:+13468525540"
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full text-sm transition-colors"
                   >
                     <Phone className="w-4 h-4" />
-                    Call (832) 859-7009
+                    Call (346) 852-5540
                   </a>
                   <Link
                     href="/contact"
@@ -316,7 +316,7 @@ export default function ChecklistContent() {
                 <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
                   <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <p className="font-semibold text-green-900">Got it — we'll be in touch shortly!</p>
-                  <p className="text-sm text-green-700 mt-1">In the meantime, use the checklist above or call us at (832) 859-7009.</p>
+                  <p className="text-sm text-green-700 mt-1">In the meantime, use the checklist above or call us at (346) 852-5540.</p>
                 </div>
               )}
             </div>

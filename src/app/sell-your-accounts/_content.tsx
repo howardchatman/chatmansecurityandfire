@@ -117,9 +117,9 @@ export default function SellAccountsContent() {
         }),
       });
       const data = await res.json();
-      if (!data.success) { setError(data.error || "Something went wrong. Please call (832) 859-7009."); setSubmitting(false); return; }
+      if (!data.success) { setError(data.error || "Something went wrong. Please call (346) 852-5540."); setSubmitting(false); return; }
       setDone(true);
-    } catch { setError("Something went wrong. Please call (832) 859-7009."); setSubmitting(false); }
+    } catch { setError("Something went wrong. Please call (346) 852-5540."); setSubmitting(false); }
   };
 
   const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500";
@@ -155,8 +155,8 @@ export default function SellAccountsContent() {
                 <a href="#inquire" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-full transition-all shadow-lg shadow-orange-600/30">
                   Get a Confidential Valuation <ArrowRight className="w-5 h-5" />
                 </a>
-                <a href="tel:+18328597009" className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/25 hover:border-white/60 hover:bg-white/5 text-white font-semibold rounded-full transition-all">
-                  <Phone className="w-5 h-5" /> (832) 859-7009
+                <a href="tel:+13468525540" className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/25 hover:border-white/60 hover:bg-white/5 text-white font-semibold rounded-full transition-all">
+                  <Phone className="w-5 h-5" /> (346) 852-5540
                 </a>
               </div>
             </motion.div>
@@ -275,8 +275,8 @@ export default function SellAccountsContent() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank you — we&apos;ll be in touch.</h3>
                 <p className="text-gray-600 mb-6">We&apos;ve received your inquiry and will follow up confidentially within one business day. For anything urgent, call us directly.</p>
-                <a href="tel:+18328597009" className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
-                  <Phone className="w-5 h-5" /> (832) 859-7009
+                <a href="tel:+13468525540" className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+                  <Phone className="w-5 h-5" /> (346) 852-5540
                 </a>
               </div>
             ) : (

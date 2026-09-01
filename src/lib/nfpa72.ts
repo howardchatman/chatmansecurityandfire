@@ -286,7 +286,7 @@ export const SERVICE_ORG_DEFAULTS = {
   address: "",
   representative: "Howard Chatman",
   license_no: "",
-  telephone: "832-859-7009",
+  telephone: "346-852-5540",
 };
 
 const device = (label: string): DeviceRow => ({

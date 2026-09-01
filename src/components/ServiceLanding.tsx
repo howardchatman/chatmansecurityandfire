@@ -82,8 +82,8 @@ export default function ServiceLanding({ data }: { data: ServiceLandingData }) {
               <p className="text-lg text-white/90 mb-4 max-w-3xl">{data.intro}</p>
               {data.subIntro && <p className="text-base text-white/75 mb-8 max-w-3xl">{data.subIntro}</p>}
               <div className="flex flex-wrap gap-3">
-                <a href="tel:+18328597009" className="inline-flex items-center gap-2 px-7 py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
-                  <Phone className="w-5 h-5" /> Call (832) 859-7009
+                <a href="tel:+13468525540" className="inline-flex items-center gap-2 px-7 py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+                  <Phone className="w-5 h-5" /> Call (346) 852-5540
                 </a>
                 <Link href="/request-quote" className="inline-flex items-center gap-2 px-7 py-3.5 bg-white/15 hover:bg-white/25 text-white font-semibold rounded-full transition-colors">
                   Request a Quote <ArrowRight className="w-4 h-4" />

@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ city: str
   if (!city) return {};
   return {
     title: `Fire Protection Services in ${city.name}, TX | Chatman Security & Fire`,
-    description: `Fire alarm, sprinkler, extinguisher, and life safety services in ${city.name}, TX. Chatman Security & Fire answers your fire protection questions and handles compliance. Call (832) 859-7009.`,
+    description: `Fire alarm, sprinkler, extinguisher, and life safety services in ${city.name}, TX. Chatman Security & Fire answers your fire protection questions and handles compliance. Call (346) 852-5540.`,
     alternates: { canonical: `/service-areas/${city.slug}` },
   };
 }
@@ -99,11 +99,11 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="tel:+18328597009"
+                  href="tel:+13468525540"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                 >
                   <Phone className="w-5 h-5" />
-                  Call (832) 859-7009
+                  Call (346) 852-5540
                 </a>
                 <a
                   href="/contact"
@@ -249,10 +249,10 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                   Tell us your property type and we'll schedule a no-cost site walk in {city.name}. No obligation, no pressure.
                 </p>
                 <a
-                  href="tel:+18328597009"
+                  href="tel:+13468525540"
                   className="block w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-colors text-center mb-3"
                 >
-                  Call (832) 859-7009
+                  Call (346) 852-5540
                 </a>
                 <a
                   href="/contact"

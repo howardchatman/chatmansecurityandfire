@@ -38,10 +38,10 @@ export default function ServiceLeadForm({
       if (res.ok) {
         setDone(true);
       } else {
-        setError("Something went wrong. Please call us at (832) 859-7009.");
+        setError("Something went wrong. Please call us at (346) 852-5540.");
       }
     } catch {
-      setError("Something went wrong. Please call us at (832) 859-7009.");
+      setError("Something went wrong. Please call us at (346) 852-5540.");
     } finally {
       setSubmitting(false);
     }
@@ -57,7 +57,7 @@ export default function ServiceLeadForm({
                 <CheckCircle className="w-8 h-8 text-green-400" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-2">We got it — thanks!</h3>
-              <p className="text-neutral-400">Expect a call or text within a few hours. For urgent needs call <a href="tel:+18328597009" className="text-orange-400 font-semibold">(832) 859-7009</a>.</p>
+              <p className="text-neutral-400">Expect a call or text within a few hours. For urgent needs call <a href="tel:+13468525540" className="text-orange-400 font-semibold">(346) 852-5540</a>.</p>
             </div>
           ) : (
             <>
@@ -115,11 +115,11 @@ export default function ServiceLeadForm({
                     )}
                   </button>
                   <a
-                    href="tel:+18328597009"
+                    href="tel:+13468525540"
                     className="inline-flex items-center justify-center gap-2 px-6 py-3.5 border border-neutral-700 hover:border-orange-500 text-white font-semibold rounded-xl transition-colors text-sm"
                   >
                     <Phone className="w-4 h-4" />
-                    (832) 859-7009
+                    (346) 852-5540
                   </a>
                 </div>
 

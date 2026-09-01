@@ -110,7 +110,7 @@ export default function PortalSupportPage() {
       setShowNew(false);
       load();
     } catch {
-      setError("Couldn't submit your request. Please call us at (832) 859-7009.");
+      setError("Couldn't submit your request. Please call us at (346) 852-5540.");
     } finally {
       setSubmitting(false);
     }
@@ -155,8 +155,8 @@ export default function PortalSupportPage() {
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <a href="tel:8328597009" className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg font-medium text-sm">
-              <Phone className="w-4 h-4" /> (832) 859-7009
+            <a href="tel:3468525540" className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg font-medium text-sm">
+              <Phone className="w-4 h-4" /> (346) 852-5540
             </a>
             <a href="mailto:info@chatmansecurityandfire.com" className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium text-sm">
               <Mail className="w-4 h-4" /> Email us

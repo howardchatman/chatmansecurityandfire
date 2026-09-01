@@ -132,8 +132,8 @@ export default function PortalPaymentsPage() {
               </Link>
               <span className="text-sm text-gray-500">
                 Prefer to pay by check or over the phone? Call{" "}
-                <a href="tel:8328597009" className="text-orange-600 font-medium">
-                  (832) 859-7009
+                <a href="tel:3468525540" className="text-orange-600 font-medium">
+                  (346) 852-5540
                 </a>
               </span>
             </div>

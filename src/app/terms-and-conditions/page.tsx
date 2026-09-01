@@ -166,7 +166,7 @@ export default function TermsPage() {
         <strong>Chatman Security &amp; Fire, Inc.</strong><br />
         3403 West TC Jester Blvd #1112<br />
         Houston, TX 77018<br />
-        Phone: <a href="tel:+18328597009" className="text-orange-600 font-medium hover:underline">(832) 859-7009</a><br />
+        Phone: <a href="tel:+13468525540" className="text-orange-600 font-medium hover:underline">(346) 852-5540</a><br />
         Email: <a href="mailto:info@chatmansecurityandfire.com" className="text-orange-600 font-medium hover:underline">info@chatmansecurityandfire.com</a><br />
         Web: <a href="https://www.chatmansecurityandfire.com" className="text-orange-600 font-medium hover:underline">chatmansecurityandfire.com</a>
       </div>

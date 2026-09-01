@@ -7,7 +7,7 @@ export default function LocalBusinessSchema() {
     description:
       "Commercial fire protection and security services in Houston, TX and throughout Texas. Fire alarms, sprinkler systems, extinguishers, fire marshal compliance, emergency lighting, fire lane markings, and Brinks security systems.",
     url: "https://www.chatmansecurityandfire.com",
-    telephone: "+18328597009",
+    telephone: "+13468525540",
     email: "info@chatmansecurityandfire.com",
     foundingDate: "2009",
     priceRange: "$$",

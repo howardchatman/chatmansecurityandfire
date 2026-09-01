@@ -53,9 +53,9 @@ export default function SecurityAlarmContent() {
                   As an authorized Brinks dealer in Houston, TX, we bring professional-grade home and business security with expert installation and ongoing support.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <a href="tel:+18328597009" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+                  <a href="tel:+13468525540" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                     <Phone className="w-5 h-5" />
-                    Call (832) 859-7009
+                    Call (346) 852-5540
                   </a>
                   <a href="/Equipment Lineup.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold rounded-full transition-colors">
                     <FileText className="w-5 h-5" />
@@ -149,9 +149,9 @@ export default function SecurityAlarmContent() {
                 <span className="text-orange-400 font-semibold text-lg">Ecko Steadman — Brinks Sales</span>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="tel:+18328597009" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+                <a href="tel:+13468525540" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                   <Phone className="w-5 h-5" />
-                  Call (832) 859-7009
+                  Call (346) 852-5540
                 </a>
                 <Link href="/start" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold rounded-full transition-colors">
                   Request a Quote

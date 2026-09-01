@@ -78,11 +78,11 @@ export default function HowItWorks() {
               Failed inspection. Deadline looming. We prioritize urgent calls.
             </p>
             <a
-              href="tel:+18328597009"
+              href="tel:+13468525540"
               className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg rounded-full transition-colors"
             >
               <Phone className="w-6 h-6" />
-              (832) 859-7009
+              (346) 852-5540
             </a>
           </div>
         </motion.div>

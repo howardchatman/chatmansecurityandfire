@@ -158,10 +158,10 @@ export default function PortalAlertsPage() {
           sounding, call us — don&apos;t wait on a notification.
         </p>
         <a
-          href="tel:8328597009"
+          href="tel:3468525540"
           className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium text-sm flex-shrink-0"
         >
-          <Phone className="w-4 h-4" /> (832) 859-7009
+          <Phone className="w-4 h-4" /> (346) 852-5540
         </a>
       </div>
     </div>

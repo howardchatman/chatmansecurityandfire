@@ -59,11 +59,11 @@ export default function ReviewContent() {
             <div className="mt-8 pt-6 border-t border-gray-100">
               <p className="text-sm text-gray-500 mb-2">Something wasn&apos;t right? We want to make it right.</p>
               <a
-                href="tel:+18328597009"
+                href="tel:+13468525540"
                 className="inline-flex items-center gap-2 text-gray-700 hover:text-orange-600 font-medium transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                Call us directly: (832) 859-7009
+                Call us directly: (346) 852-5540
               </a>
             </div>
           </motion.div>

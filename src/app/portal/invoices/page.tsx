@@ -134,8 +134,8 @@ export default function PortalInvoicesPage() {
           </p>
           <p className="text-sm text-gray-500 mt-4">
             Questions about billing? Call{" "}
-            <a href="tel:8328597009" className="text-orange-600 font-medium">
-              (832) 859-7009
+            <a href="tel:3468525540" className="text-orange-600 font-medium">
+              (346) 852-5540
             </a>
           </p>
         </div>
@@ -215,7 +215,7 @@ export default function PortalInvoicesPage() {
                           )}
                           {payable && !invoice.stripe_hosted_url && (
                             <a
-                              href="tel:8328597009"
+                              href="tel:3468525540"
                               className="text-sm text-orange-600 font-medium hover:underline"
                             >
                               Call to pay

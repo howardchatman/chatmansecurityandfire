@@ -41,9 +41,9 @@ export default function FireExtinguishersContent() {
               <p className="text-xl text-white/90 mb-8">
                 Proper extinguisher placement, tagging, and condition matter during inspections.
               </p>
-              <a href="tel:+18328597009" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+              <a href="tel:+13468525540" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                 <Phone className="w-5 h-5" />
-                Call (832) 859-7009
+                Call (346) 852-5540
               </a>
             </motion.div>
           </div>
@@ -76,7 +76,7 @@ export default function FireExtinguishersContent() {
                     </div>
                     <p className="text-sm text-gray-500 mb-4">Discounts available for 5+ extinguishers</p>
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <a href="tel:+18328597009" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors text-sm">
+                      <a href="tel:+13468525540" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors text-sm">
                         <Phone className="w-4 h-4" />
                         Call Now
                       </a>
@@ -88,9 +88,9 @@ export default function FireExtinguishersContent() {
                 </div>
                 <div className="bg-gray-900 rounded-2xl p-8 text-center">
                   <h3 className="text-2xl font-bold text-white mb-4">Need extinguisher service in Houston?</h3>
-                  <a href="tel:+18328597009" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+                  <a href="tel:+13468525540" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
                     <Phone className="w-5 h-5" />
-                    Call (832) 859-7009
+                    Call (346) 852-5540
                   </a>
                 </div>
               </motion.div>

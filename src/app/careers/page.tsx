@@ -141,10 +141,10 @@ export default function CareersPage() {
                   Send a résumé <ArrowRight className="w-4 h-4" />
                 </Link>
                 <a
-                  href="tel:8328597009"
+                  href="tel:3468525540"
                   className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-white"
                 >
-                  <Phone className="w-4 h-4" /> (832) 859-7009
+                  <Phone className="w-4 h-4" /> (346) 852-5540
                 </a>
               </div>
             </div>

@@ -67,7 +67,7 @@ export default async function ServiceCityPage({
   const faqs = [
     {
       question: `Do you provide ${service.noun} in ${cityName}, TX?`,
-      answer: `Yes. Chatman Security & Fire provides ${service.noun} for commercial properties throughout ${cityName} and the greater Houston metro. We coordinate with ${ahj} on permitting, inspection, and sign-off. Call (832) 859-7009 for a free assessment.`,
+      answer: `Yes. Chatman Security & Fire provides ${service.noun} for commercial properties throughout ${cityName} and the greater Houston metro. We coordinate with ${ahj} on permitting, inspection, and sign-off. Call (346) 852-5540 for a free assessment.`,
     },
     {
       question: `Who is the fire marshal / AHJ for ${cityName}?`,
@@ -75,7 +75,7 @@ export default async function ServiceCityPage({
     },
     {
       question: `How do I get started with ${service.noun} in ${cityName}?`,
-      answer: `Call (832) 859-7009 or request a quote online. We schedule a free on-site assessment of your ${cityName} property, provide a written scope and price, and complete the work on your timeline.`,
+      answer: `Call (346) 852-5540 or request a quote online. We schedule a free on-site assessment of your ${cityName} property, provide a written scope and price, and complete the work on your timeline.`,
     },
   ];
 
@@ -88,7 +88,7 @@ export default async function ServiceCityPage({
     "@context": "https://schema.org",
     "@type": "Service",
     serviceType: service.name,
-    provider: { "@type": "LocalBusiness", name: "Chatman Security & Fire", telephone: "+18328597009" },
+    provider: { "@type": "LocalBusiness", name: "Chatman Security & Fire", telephone: "+13468525540" },
     areaServed: { "@type": "City", name: `${cityName}, TX` },
     description: f(service.blurb),
   };
@@ -135,8 +135,8 @@ export default async function ServiceCityPage({
               </h1>
               <p className="text-lg text-gray-300 mb-8">{f(service.blurb)}</p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <a href="tel:+18328597009" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-full transition-colors">
-                  <Phone className="w-5 h-5" /> Call (832) 859-7009
+                <a href="tel:+13468525540" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-full transition-colors">
+                  <Phone className="w-5 h-5" /> Call (346) 852-5540
                 </a>
                 <Link href="/request-quote" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-white/25 hover:border-white/60 text-white font-semibold rounded-full transition-colors">
                   Request a Quote <ArrowRight className="w-4 h-4" />
@@ -241,8 +241,8 @@ export default async function ServiceCityPage({
               Free on-site assessment. Fast, code-compliant work. Call now or request a quote.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="tel:+18328597009" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
-                <Phone className="w-5 h-5" /> (832) 859-7009
+              <a href="tel:+13468525540" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors">
+                <Phone className="w-5 h-5" /> (346) 852-5540
               </a>
               <Link href="/request-quote" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#0D1B2A] hover:bg-[#1a2f45] text-white font-semibold rounded-full transition-colors">
                 Request a Quote <ArrowRight className="w-4 h-4" />

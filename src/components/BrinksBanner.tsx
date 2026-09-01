@@ -45,11 +45,11 @@ export default function BrinksBanner() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <a
-                href="tel:+18328597009"
+                href="tel:+13468525540"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-full transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                (832) 859-7009
+                (346) 852-5540
               </a>
             </div>
           </motion.div>
