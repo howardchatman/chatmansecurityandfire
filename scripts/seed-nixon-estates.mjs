@@ -1,9 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  "https://vzbgnroovkvdttctxjcd.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6Ymducm9vdmt2ZHR0Y3R4amNkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTExMDU2OSwiZXhwIjoyMDg0Njg2NTY5fQ.-g5eNGYsEJ7KhQmlHmHj0Y_wcD7hUhr62NjA2TCJA9A"
-);
+// Never hard-code the service_role key. A prior version committed it as a
+// literal here, and because this repo is public it leaked into git history and
+// had to be rotated. Read it from the environment instead — run with:
+//   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/seed-nixon-estates.mjs
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!supabaseUrl || !serviceKey) {
+  console.error("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in the environment first.");
+  process.exit(1);
+}
+const supabase = createClient(supabaseUrl, serviceKey);
 
 async function seed() {
   console.log("Seeding Nixon Estates project...\n");
