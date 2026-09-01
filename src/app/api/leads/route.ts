@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
 import { upsertGhlContact } from "@/lib/gohighlevel";
+import { notifyOwnerOfLead } from "@/lib/sms";
 import { verifyAuth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
@@ -87,6 +88,15 @@ export async function POST(request: NextRequest) {
       message: lead.message || undefined,
       source: lead.source || "website",
     }).catch((err) => console.error("Failed to send lead notification:", err));
+
+    // Text the owner too — email to iCloud gets spam-filtered, a text doesn't.
+    notifyOwnerOfLead({
+      name: lead.name,
+      phone: lead.phone,
+      email: lead.email,
+      source: lead.source,
+      message: lead.message,
+    }).catch((err) => console.error("Failed to text owner about lead:", err));
 
     // Send confirmation to customer only if they provided an email
     if (lead.email) {

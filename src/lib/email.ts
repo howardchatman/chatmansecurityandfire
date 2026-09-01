@@ -5,6 +5,18 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.FROM_EMAIL || "Chatman Security & Fire <notifications@chatmansecurityandfire.com>";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "howardchatman@icloud.com";
 
+// Lead alerts go to every address here, not just one. iCloud filters mail from
+// newer sending domains hard, and a single filtering inbox was silently eating
+// the notifications. Sending to a second, reliable inbox (Gmail) as well means
+// one inbox's spam filter can't make a lead disappear. Comma-separated override
+// via LEAD_ALERT_EMAILS.
+const LEAD_ALERT_EMAILS = (
+  process.env.LEAD_ALERT_EMAILS || "howardchatman@icloud.com,howard.chatman@gmail.com"
+)
+  .split(",")
+  .map((e) => e.trim())
+  .filter(Boolean);
+
 // Email clients need an absolute URL — a relative path resolves against the
 // mail client, not the site. The band behind it is light because the logo's
 // shield has an opaque white interior and email cannot apply CSS filters.
@@ -381,7 +393,7 @@ export async function sendLeadNotification(lead: {
 }) {
   const template = emailTemplates.newLeadNotification(lead);
   return sendEmail({
-    to: ADMIN_EMAIL,
+    to: LEAD_ALERT_EMAILS,
     subject: template.subject,
     html: template.html,
     replyTo: validReplyTo(lead.email),

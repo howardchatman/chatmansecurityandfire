@@ -78,3 +78,35 @@ export async function sendSms(opts: {
 }
 
 export { smsTemplates } from "@/lib/gohighlevel";
+
+/**
+ * Text the owner the moment a lead comes in.
+ *
+ * Email to iCloud gets spam-filtered; a text does not. Routes through the same
+ * abstraction above — Twilio directly if configured (clean, no CRM contact),
+ * otherwise GoHighLevel. Set OWNER_ALERT_PHONE to change where alerts land; it
+ * defaults to the business cell.
+ *
+ * Fire-and-forget: a failed alert must never stop a lead being saved. Callers
+ * still .catch().
+ */
+export async function notifyOwnerOfLead(lead: {
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  source?: string | null;
+  message?: string | null;
+}): Promise<SmsResult> {
+  const to = process.env.OWNER_ALERT_PHONE || "+13468525540";
+  const parts = [
+    `New lead: ${lead.name}`,
+    lead.phone ? `📞 ${lead.phone}` : "no phone",
+    lead.source ? `via ${lead.source}` : null,
+  ].filter(Boolean);
+  let body = parts.join(" · ");
+  if (lead.message) body += `\n"${lead.message.slice(0, 120)}"`;
+
+  // name/email identify the alert destination (the owner), not the lead — kept
+  // distinct so a GHL fallback doesn't file the alert under the lead's contact.
+  return sendSms({ name: "CSF Lead Alert", phone: to, message: body });
+}
