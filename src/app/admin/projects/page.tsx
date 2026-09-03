@@ -76,7 +76,7 @@ export default function ProjectsPage() {
     const matchType = typeFilter === "all" || j.job_type === typeFilter;
     const q = search.toLowerCase();
     const matchSearch = !q || (
-      j.customer_name.toLowerCase().includes(q) ||
+      (j.customer_name || "").toLowerCase().includes(q) ||
       (j.site_address || "").toLowerCase().includes(q) ||
       (j.notes || "").toLowerCase().includes(q)
     );

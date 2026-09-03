@@ -81,8 +81,8 @@ export default function NewEstimatePage() {
   // Filter inventory items
   const filteredItems = inventoryItems.filter((item) => {
     const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.sku.toLowerCase().includes(searchTerm.toLowerCase());
+      (item.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.sku || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });

@@ -76,13 +76,18 @@ export default function PipelinePage() {
     return stageOrder[idx + 1];
   };
 
-  const getLeadsByStage = (stageId: string) =>
-    leads.filter(
+  const getLeadsByStage = (stageId: string) => {
+    const q = searchTerm.toLowerCase();
+    // Phone-only leads (e.g. missed-call entries) can have a null name — guard
+    // it, or one such lead crashes the whole page with a toLowerCase-on-null.
+    return leads.filter(
       (l) =>
         l.status === stageId &&
-        (l.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (l.email || "").toLowerCase().includes(searchTerm.toLowerCase()))
+        ((l.name || "").toLowerCase().includes(q) ||
+          (l.email || "").toLowerCase().includes(q) ||
+          (l.phone || "").toLowerCase().includes(q))
     );
+  };
 
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });

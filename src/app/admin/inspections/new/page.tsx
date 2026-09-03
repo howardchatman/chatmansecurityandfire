@@ -145,7 +145,7 @@ export default function NewInspectionPage() {
   };
 
   const filteredCustomers = customers.filter((c) =>
-    c.name.toLowerCase().includes(customerSearch.toLowerCase())
+    (c.name || "").toLowerCase().includes(customerSearch.toLowerCase())
   );
 
   return (
