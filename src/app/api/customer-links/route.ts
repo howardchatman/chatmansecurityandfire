@@ -157,6 +157,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generating a signable link IS sending the quote. Move it out of "draft",
+    // or the customer's e-sign is rejected: the accept route only allows
+    // signing when the quote is "sent" or "viewed", and nothing else ever
+    // transitions it out of draft — so without this, no quote could be signed.
+    if (quote_id && link_type === "quote_approval") {
+      await supabase
+        .from("quotes")
+        .update({ status: "sent", updated_at: new Date().toISOString() })
+        .eq("id", quote_id)
+        .eq("status", "draft");
+    }
+
     // Build the full URL
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com";
     const portalUrl = `${baseUrl}/c/${token}`;
