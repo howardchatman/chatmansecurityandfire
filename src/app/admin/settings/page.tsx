@@ -1,9 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { User, Bell, Shield, Palette, Database } from "lucide-react";
+import { User, Bell, Shield, Palette, Database, CalendarSync } from "lucide-react";
 
 const settingSections = [
+  {
+    title: "Integrations",
+    description: "Google Calendar, Twilio, and more",
+    icon: CalendarSync,
+    href: "/admin/settings/integrations",
+  },
   {
     title: "Profile Settings",
     description: "Manage your account information",

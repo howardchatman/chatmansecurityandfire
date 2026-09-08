@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
 import { sendSms, smsTemplates } from "@/lib/sms";
+import { syncJobToCalendar } from "@/lib/google-calendar";
 import {
   getJobs,
   createJob,
@@ -146,6 +147,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Push the new job onto the connected Google Calendar (no-op if not
+    // connected). Fire-and-forget — a calendar hiccup must not fail creation.
+    syncJobToCalendar(job).catch((err) =>
+      console.error("Failed to sync job to Google Calendar:", err)
+    );
+
     return NextResponse.json({
       success: true,
       data: job,
@@ -211,6 +218,12 @@ export async function PATCH(request: NextRequest) {
           .catch((err) => console.error("job complete text failed:", err));
       }
     }
+
+    // Keep the Google Calendar event in step with a reschedule (no-op if the
+    // calendar isn't connected). Fire-and-forget.
+    syncJobToCalendar(job).catch((err) =>
+      console.error("Failed to sync job to Google Calendar:", err)
+    );
 
     return NextResponse.json({
       success: true,

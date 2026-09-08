@@ -6,6 +6,7 @@ import {
   InspectionStatus,
 } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
+import { syncInspectionToCalendar } from "@/lib/google-calendar";
 
 export async function GET(request: NextRequest) {
   try {
@@ -67,6 +68,11 @@ export async function POST(request: NextRequest) {
       created_by: user.id,
       status: body.status || "scheduled",
     });
+
+    // Push onto the connected Google Calendar (no-op if not connected).
+    syncInspectionToCalendar(inspection).catch((err) =>
+      console.error("Failed to sync inspection to Google Calendar:", err)
+    );
 
     return NextResponse.json({ data: inspection }, { status: 201 });
   } catch (error) {
