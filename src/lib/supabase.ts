@@ -1422,7 +1422,13 @@ export async function createJobEvent(event: Omit<JobEvent, "id" | "created_at">)
 // INSPECTION & DEFICIENCY TYPES
 // ============================================
 
-export type InspectionType = "fire_alarm" | "sprinkler_monitoring" | "reinspection" | "fire_marshal_pre";
+export type InspectionType =
+  | "fire_alarm"
+  | "sprinkler_monitoring"
+  | "fire_extinguisher"
+  | "kitchen_hood"
+  | "reinspection"
+  | "fire_marshal_pre";
 export type InspectionStatus = "scheduled" | "in_progress" | "completed" | "cancelled";
 export type DeficiencySeverity = "minor" | "major" | "critical";
 export type DeficiencyStatus = "open" | "quoted" | "approved" | "in_progress" | "completed";
@@ -1469,6 +1475,9 @@ export interface Inspection {
   internal_notes?: string;
   fire_marshal_notes?: string;
   checklist_results?: ChecklistResult[];
+  /** Per-device rows (extinguishers). Shape: EquipmentRow in src/lib/inspection-report.ts. */
+  equipment?: unknown[];
+  nfpa72_form?: unknown;
   job_id?: string;
   quote_id?: string;
   created_by?: string;

@@ -7,6 +7,9 @@ interface PhotoCaptureProps {
   inspectionId: string;
   deficiencyId?: string;
   photoType?: "general" | "deficiency" | "before" | "after" | "panel" | "device";
+  /** Ties the photo to a unit in the equipment log (its tag number). */
+  deviceTag?: string;
+  defaultLocation?: string;
   onPhotoUploaded: (photo: UploadedPhoto) => void;
   onClose?: () => void;
 }
@@ -22,13 +25,15 @@ export default function PhotoCapture({
   inspectionId,
   deficiencyId,
   photoType = "general",
+  deviceTag,
+  defaultLocation = "",
   onPhotoUploaded,
   onClose,
 }: PhotoCaptureProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(defaultLocation);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -62,6 +67,9 @@ export default function PhotoCapture({
       }
       if (location) {
         formData.append("location", location);
+      }
+      if (deviceTag) {
+        formData.append("device_tag", deviceTag);
       }
 
       const response = await fetch("/api/upload/inspection-photo", {

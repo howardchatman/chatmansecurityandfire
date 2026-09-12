@@ -354,6 +354,8 @@ export default function NewInspectionPage() {
               >
                 <option value="fire_alarm">Fire Alarm Inspection</option>
                 <option value="sprinkler_monitoring">Sprinkler Monitoring Inspection</option>
+                <option value="fire_extinguisher">Fire Extinguisher Inspection</option>
+                <option value="kitchen_hood">Kitchen Hood Suppression Inspection</option>
                 <option value="reinspection">Reinspection</option>
                 <option value="fire_marshal_pre">Fire Marshal Pre-Inspection</option>
               </select>

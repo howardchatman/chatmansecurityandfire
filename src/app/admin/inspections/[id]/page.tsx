@@ -93,6 +93,8 @@ interface ChecklistResult {
 const inspectionTypeLabels: Record<string, string> = {
   fire_alarm: "Fire Alarm",
   sprinkler_monitoring: "Sprinkler Monitoring",
+  fire_extinguisher: "Fire Extinguisher",
+  kitchen_hood: "Kitchen Hood Suppression",
   reinspection: "Reinspection",
   fire_marshal_pre: "Fire Marshal Pre-Inspection",
 };
@@ -731,22 +733,26 @@ export default function InspectionDetailPage({ params }: { params: Promise<{ id:
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
             <div className="space-y-2">
-              {/* The NFPA 72 Inspection & Testing Form — the document the fire
-                  marshal actually asks for. Fill it in, then Print/PDF. */}
-              <Link
-                href={`/admin/inspections/${resolvedParams.id}/nfpa72`}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-left rounded-lg transition-colors bg-orange-50 text-orange-800 hover:bg-orange-100 font-medium"
-              >
-                <ClipboardCheck className="w-5 h-5 text-orange-600" />
-                NFPA 72 Inspection &amp; Testing Report
-              </Link>
+              {/* The customer-facing report: cover with site map, summary,
+                  device log or checklist, photos, conclusion. Print/PDF. */}
               <Link
                 href={`/admin/inspections/${resolvedParams.id}/report`}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left rounded-lg transition-colors bg-orange-50 text-orange-800 hover:bg-orange-100 font-medium"
               >
-                <FileText className="w-5 h-5 text-gray-400" />
-                Deficiency Summary
+                <FileText className="w-5 h-5 text-orange-600" />
+                Inspection Report (Print / PDF)
               </Link>
+              {/* The NFPA 72 Inspection & Testing Form — the document the fire
+                  marshal asks for on alarm systems. */}
+              {inspection.inspection_type === "fire_alarm" && (
+                <Link
+                  href={`/admin/inspections/${resolvedParams.id}/nfpa72`}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  <ClipboardCheck className="w-5 h-5 text-gray-400" />
+                  NFPA 72 Inspection &amp; Testing Form
+                </Link>
+              )}
               {openDeficiencies > 0 && (
                 <button
                   onClick={handleGenerateQuote}

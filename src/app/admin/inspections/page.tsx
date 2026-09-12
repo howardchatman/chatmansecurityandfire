@@ -41,6 +41,8 @@ interface Inspection {
 const inspectionTypeLabels: Record<string, string> = {
   fire_alarm: "Fire Alarm",
   sprinkler_monitoring: "Sprinkler Monitoring",
+  fire_extinguisher: "Fire Extinguisher",
+  kitchen_hood: "Kitchen Hood Suppression",
   reinspection: "Reinspection",
   fire_marshal_pre: "Fire Marshal Pre-Inspection",
 };

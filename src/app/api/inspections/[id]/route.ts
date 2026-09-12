@@ -65,6 +65,7 @@ export async function PATCH(
             notes: body.notes,
             fire_marshal_notes: body.fire_marshal_notes,
             checklist_results: body.checklist_results,
+            ...(Array.isArray(body.equipment) ? { equipment: body.equipment } : {}),
           });
           return NextResponse.json({ data: completedInspection });
 

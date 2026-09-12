@@ -23,6 +23,13 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import EquipmentLog from "@/components/inspection/EquipmentLog";
+import {
+  EquipmentRow,
+  hydrateEquipment,
+  INSPECTION_TYPE_LABELS,
+  usesEquipmentLog,
+} from "@/lib/inspection-report";
 
 interface Deficiency {
   id: string;
@@ -76,14 +83,11 @@ interface Inspection {
   notes?: string;
   checklist_results?: ChecklistResult[];
   deficiencies?: Deficiency[];
+  photos?: Array<{ id: string; device_tag?: string }>;
+  equipment?: unknown;
 }
 
-const inspectionTypeLabels: Record<string, string> = {
-  fire_alarm: "Fire Alarm Inspection",
-  sprinkler_monitoring: "Sprinkler Monitoring",
-  reinspection: "Reinspection",
-  fire_marshal_pre: "Fire Marshal Pre-Inspection",
-};
+const inspectionTypeLabels = INSPECTION_TYPE_LABELS;
 
 const categoryLabels: Record<string, string> = {
   emergency_lighting: "Emergency Lighting",
@@ -118,6 +122,7 @@ export default function TechInspectionDetailPage({
   const [inspection, setInspection] = useState<Inspection | null>(null);
   const [checklist, setChecklist] = useState<InspectionChecklist | null>(null);
   const [checklistResults, setChecklistResults] = useState<ChecklistResult[]>([]);
+  const [equipment, setEquipment] = useState<EquipmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
@@ -134,6 +139,24 @@ export default function TechInspectionDetailPage({
     fetchInspection();
   }, [resolvedParams.id]);
 
+  /**
+   * After a photo or deficiency is added, pull the fresh lists without
+   * throwing away the checklist and device rows the tech has entered but
+   * not yet saved.
+   */
+  const refreshRelated = async () => {
+    try {
+      const res = await fetch(`/api/inspections/${resolvedParams.id}`);
+      if (!res.ok) return;
+      const { data } = await res.json();
+      setInspection((prev) =>
+        prev ? { ...prev, deficiencies: data.deficiencies, photos: data.photos } : data
+      );
+    } catch (error) {
+      console.error("Error refreshing inspection:", error);
+    }
+  };
+
   const fetchInspection = async () => {
     try {
       const [inspResponse, checklistResponse] = await Promise.all([
@@ -145,6 +168,7 @@ export default function TechInspectionDetailPage({
 
       const inspData = await inspResponse.json();
       setInspection(inspData.data);
+      setEquipment(hydrateEquipment(inspData.data.equipment));
 
       // Get checklist template
       if (checklistResponse.ok) {
@@ -227,12 +251,14 @@ export default function TechInspectionDetailPage({
         severity: "minor",
         recommended_action: "",
       });
-      fetchInspection();
+      refreshRelated();
     } catch (error) {
       console.error("Error adding deficiency:", error);
       alert("Failed to add deficiency");
     }
   };
+
+  const hasEquipmentLog = !!inspection && usesEquipmentLog(inspection.inspection_type);
 
   const handleSaveProgress = async () => {
     setSaving(true);
@@ -243,6 +269,7 @@ export default function TechInspectionDetailPage({
         body: JSON.stringify({
           checklist_results: checklistResults,
           notes: inspection?.notes,
+          ...(hasEquipmentLog ? { equipment } : {}),
         }),
       });
     } catch (error) {
@@ -266,6 +293,7 @@ export default function TechInspectionDetailPage({
           pass_with_deficiencies: passed && hasDeficiencies,
           checklist_results: checklistResults,
           notes: inspection?.notes,
+          ...(hasEquipmentLog ? { equipment } : {}),
         }),
       });
 
@@ -401,6 +429,17 @@ export default function TechInspectionDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Device log — extinguisher inspections are one row per unit */}
+      {hasEquipmentLog && (
+        <EquipmentLog
+          inspectionId={inspection.id}
+          rows={equipment}
+          onChange={setEquipment}
+          photoTags={(inspection.photos || []).map((p) => p.device_tag || "").filter(Boolean)}
+          onPhotoUploaded={refreshRelated}
+        />
+      )}
 
       {/* Checklist */}
       <div className="space-y-4">
