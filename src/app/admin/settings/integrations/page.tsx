@@ -11,6 +11,7 @@ import {
   Loader2,
   Link2,
   Unlink,
+  RefreshCw,
 } from "lucide-react";
 
 interface GoogleStatus {
@@ -129,9 +130,132 @@ function IntegrationsInner() {
         </div>
       </div>
 
+      <SquareCard />
+
       <p className="text-xs text-gray-400">
         More integrations (Twilio for texting, etc.) will appear here as they&apos;re set up.
       </p>
+    </div>
+  );
+}
+
+interface SquareState {
+  configured: boolean;
+  last: {
+    last_synced_at: string | null;
+    customers_synced: number;
+    catalog_synced: number;
+    invoices_synced: number;
+    errors: string[];
+  } | null;
+}
+
+/** Square: pull the price list, customers, and invoices into the site. */
+function SquareCard() {
+  const [state, setState] = useState<SquareState | null>(null);
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const load = async () => {
+    try {
+      const res = await fetch("/api/integrations/square");
+      setState(await res.json());
+    } catch {
+      setState({ configured: false, last: null });
+    }
+  };
+  useEffect(() => {
+    load();
+  }, []);
+
+  const sync = async () => {
+    setRunning(true);
+    setResult(null);
+    setErr(null);
+    try {
+      const res = await fetch("/api/integrations/square", { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Sync failed");
+      setResult(
+        `Synced ${json.customers} customers, ${json.catalog} price-list items, ${json.invoices} invoices` +
+          (json.errors?.length ? ` — ${json.errors.length} row(s) had problems (see below)` : "")
+      );
+      await load();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Sync failed");
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="flex items-start gap-4">
+        <div className="p-3 bg-gray-100 rounded-xl">
+          <RefreshCw className="w-6 h-6 text-gray-700" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-900">Square</h3>
+          <p className="text-sm text-gray-500 mt-1">
+            Pulls your Square price list into the Proposal Agent&apos;s inventory, plus your customers
+            and invoices. Safe to run repeatedly — existing records are updated, not duplicated.
+          </p>
+
+          {state === null ? (
+            <div className="mt-4 text-gray-300">
+              <Loader2 className="w-5 h-5 animate-spin" />
+            </div>
+          ) : !state.configured ? (
+            <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+              Not set up on the server yet. Add <code className="font-mono">SQUARE_ACCESS_TOKEN</code> in
+              Vercel, then reload.
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={sync}
+                  disabled={running}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-200 disabled:text-gray-400 text-white rounded-lg text-sm font-medium"
+                >
+                  {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  {running ? "Syncing…" : "Sync now"}
+                </button>
+                {state.last?.last_synced_at && (
+                  <span className="text-xs text-gray-500">
+                    Last sync {new Date(state.last.last_synced_at).toLocaleString()} —{" "}
+                    {state.last.customers_synced} customers · {state.last.catalog_synced} items ·{" "}
+                    {state.last.invoices_synced} invoices
+                  </span>
+                )}
+              </div>
+              {result && (
+                <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" /> {result}
+                </div>
+              )}
+              {err && (
+                <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                  <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" /> <span>{err}</span>
+                </div>
+              )}
+              {!!state.last?.errors?.length && (
+                <details className="text-xs text-gray-500">
+                  <summary className="cursor-pointer">
+                    {state.last.errors.length} row(s) skipped last sync
+                  </summary>
+                  <ul className="mt-1 ml-4 list-disc space-y-0.5">
+                    {state.last.errors.map((e, i) => (
+                      <li key={i}>{e}</li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
