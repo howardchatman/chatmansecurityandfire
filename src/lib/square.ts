@@ -36,6 +36,35 @@ async function sq<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+// Supabase errors are plain objects, not Error instances — String(e) gives
+// "[object Object]" and hides the real reason. Pull the message out properly.
+function errText(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (e && typeof e === "object" && "message" in e) return String((e as { message: unknown }).message);
+  return String(e);
+}
+
+/**
+ * Update the row carrying this Square id, or insert one. Done as an explicit
+ * lookup rather than upsert(onConflict) because the square_* unique indexes
+ * are partial (WHERE ... IS NOT NULL) and Postgres won't use a partial index
+ * as an ON CONFLICT target.
+ */
+async function writeBySquareId(
+  table: string,
+  idColumn: string,
+  squareId: string,
+  record: Record<string, unknown>
+): Promise<void> {
+  const { data: existing, error: findErr } = await supabaseAdmin
+    .from(table).select("id").eq(idColumn, squareId).maybeSingle();
+  if (findErr) throw findErr;
+  const { error } = existing
+    ? await supabaseAdmin.from(table).update(record).eq("id", existing.id)
+    : await supabaseAdmin.from(table).insert([record]);
+  if (error) throw error;
+}
+
 /** Walk a cursor-paginated Square list endpoint to completion. */
 async function paginate<T>(path: string, key: string): Promise<T[]> {
   const out: T[] = [];
@@ -110,7 +139,7 @@ export async function syncCustomers(): Promise<{ count: number; errors: string[]
       if (error) throw error;
       count++;
     } catch (e) {
-      errors.push(`customer ${name}: ${e instanceof Error ? e.message : String(e)}`);
+      errors.push(`customer ${name}: ${errText(e)}`);
     }
   }
   return { count, errors };
@@ -164,22 +193,18 @@ export async function syncCatalog(): Promise<{ count: number; errors: string[] }
       const unit_cost = typeof cents === "number" ? cents / 100 : 0;
 
       try {
-        const { error } = await supabaseAdmin.from("proposal_inventory").upsert(
-          {
-            name,
-            category,
-            unit: "each",
-            unit_cost,
-            description: item.description || (vd?.pricing_type === "VARIABLE_PRICING" ? "Variable pricing in Square — priced per job" : null),
-            square_catalog_id: v.id,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "square_catalog_id" }
-        );
-        if (error) throw error;
+        await writeBySquareId("proposal_inventory", "square_catalog_id", v.id, {
+          name,
+          category,
+          unit: "each",
+          unit_cost,
+          description: item.description || (vd?.pricing_type === "VARIABLE_PRICING" ? "Variable pricing in Square — priced per job" : null),
+          square_catalog_id: v.id,
+          updated_at: new Date().toISOString(),
+        });
         count++;
       } catch (e) {
-        errors.push(`catalog ${name}: ${e instanceof Error ? e.message : String(e)}`);
+        errors.push(`catalog ${name}: ${errText(e)}`);
       }
     }
   }
@@ -241,8 +266,7 @@ export async function syncInvoices(): Promise<{ count: number; errors: string[] 
       const status = mapStatus(inv.status, total, paid, due);
 
       try {
-        const { error } = await supabaseAdmin.from("invoices").upsert(
-          {
+        await writeBySquareId("invoices", "square_invoice_id", inv.id, {
             invoice_number: inv.invoice_number || `SQ-${inv.id.slice(0, 8)}`,
             customer_id: inv.primary_recipient?.customer_id
               ? custMap.get(inv.primary_recipient.customer_id) ?? null
@@ -260,13 +284,10 @@ export async function syncInvoices(): Promise<{ count: number; errors: string[] 
             notes: "Imported from Square",
             square_invoice_id: inv.id,
             updated_at: new Date().toISOString(),
-          },
-          { onConflict: "square_invoice_id" }
-        );
-        if (error) throw error;
+        });
         count++;
       } catch (e) {
-        errors.push(`invoice ${inv.invoice_number ?? inv.id}: ${e instanceof Error ? e.message : String(e)}`);
+        errors.push(`invoice ${inv.invoice_number ?? inv.id}: ${errText(e)}`);
       }
     }
   }
