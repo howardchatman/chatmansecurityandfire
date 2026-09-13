@@ -169,6 +169,10 @@ interface SqCatalogObject {
   };
 }
 
+/** Names that mark a one-off invoice line rather than a sellable product. */
+const ONE_OFF_LINE =
+  /scope for|draw #|deposit|\(see attached|^invoice$|balance due|final payment|progress payment/i;
+
 export async function syncCatalog(): Promise<{ count: number; errors: string[] }> {
   const objects = await paginate<SqCatalogObject>("/v2/catalog/list?types=ITEM,CATEGORY", "objects");
   const categoryName = new Map<string, string>();
@@ -180,6 +184,11 @@ export async function syncCatalog(): Promise<{ count: number; errors: string[] }
   for (const o of objects) {
     if (o.type !== "ITEM" || o.is_deleted || !o.item_data) continue;
     const item = o.item_data;
+    // Square silently turns ad-hoc invoice lines into catalog "items" —
+    // "Draw #1 - Deposit", "Fire Sprinkler Scope for <one customer>". Those
+    // aren't products; imported, the Proposal Agent would offer another
+    // customer a $10,000 line named after someone else's job. Skip them.
+    if (ONE_OFF_LINE.test(item.name ?? "")) continue;
     const catId = item.category_id || item.categories?.[0]?.id || item.reporting_category?.id;
     const category = (catId && categoryName.get(catId)) || "Square";
 
@@ -283,6 +292,10 @@ export async function syncInvoices(): Promise<{ count: number; errors: string[] 
             sent_at: inv.status === "DRAFT" ? null : inv.created_at ?? null,
             notes: "Imported from Square",
             square_invoice_id: inv.id,
+            // Keep Square's original date, not the import time — otherwise
+            // every historical invoice lands in the month the sync ran and
+            // the Reports "billed by month" chart is meaningless.
+            created_at: inv.created_at ?? new Date().toISOString(),
             updated_at: new Date().toISOString(),
         });
         count++;
