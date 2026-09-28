@@ -1,10 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import {
   getInspectionWithDetails,
   updateInspection,
   deleteInspection,
 } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
+import { deleteEvent, syncInspectionToCalendar } from "@/lib/google-calendar";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(
   request: NextRequest,
@@ -74,6 +76,15 @@ export async function PATCH(
             status: "cancelled",
             internal_notes: body.internal_notes || body.reason,
           });
+          // A cancelled visit comes off the Google Calendar.
+          const eventId = (cancelledInspection as { google_event_id?: string | null })?.google_event_id;
+          if (eventId) {
+            after(
+              deleteEvent(eventId)
+                .then(() => supabaseAdmin.from("inspections").update({ google_event_id: null }).eq("id", id))
+                .catch((err) => console.error("Failed to remove inspection from Google Calendar:", err))
+            );
+          }
           return NextResponse.json({ data: cancelledInspection });
 
         default:
@@ -83,6 +94,16 @@ export async function PATCH(
 
     // Regular update
     const inspection = await updateInspection(id, body);
+
+    // A reschedule moves the Google Calendar event (or creates it if the
+    // inspection had no date before). No-op when the calendar isn't connected.
+    if ("scheduled_date" in body || "scheduled_time" in body || "inspection_type" in body) {
+      after(
+        syncInspectionToCalendar(inspection as Parameters<typeof syncInspectionToCalendar>[0]).catch((err) =>
+          console.error("Failed to sync inspection to Google Calendar:", err)
+        )
+      );
+    }
     return NextResponse.json({ data: inspection });
   } catch (error) {
     console.error("Error updating inspection:", error);
