@@ -29,7 +29,7 @@ interface Profile {
   full_name: string;
   email: string;
   phone?: string;
-  role: "admin" | "manager" | "technician" | "inspector";
+  role: "admin" | "manager" | "technician" | "inspector" | "customer";
   team_id?: string;
   team?: { id: string; name: string };
   is_active: boolean;
@@ -41,6 +41,7 @@ const roleLabels = {
   manager: "Manager",
   technician: "Technician",
   inspector: "Inspector",
+  customer: "Customer",
 };
 
 const roleColors = {
@@ -48,6 +49,7 @@ const roleColors = {
   manager: "bg-blue-100 text-blue-700",
   technician: "bg-green-100 text-green-700",
   inspector: "bg-orange-100 text-orange-700",
+  customer: "bg-gray-100 text-gray-700",
 };
 
 export default function TeamManagementPage() {
@@ -63,7 +65,7 @@ export default function TeamManagementPage() {
     email: "",
     full_name: "",
     phone: "",
-    role: "technician" as "admin" | "manager" | "technician" | "inspector",
+    role: "technician" as "admin" | "manager" | "technician" | "inspector" | "customer",
     team_id: "",
   });
   const [inviteLoading, setInviteLoading] = useState(false);
@@ -197,6 +199,7 @@ export default function TeamManagementPage() {
     { label: "Managers", value: "manager" },
     { label: "Technicians", value: "technician" },
     { label: "Inspectors", value: "inspector" },
+    { label: "Customers", value: "customer" },
   ];
 
   const columns = [
@@ -480,7 +483,7 @@ export default function TeamManagementPage() {
                   onChange={(e) =>
                     setInviteForm({
                       ...inviteForm,
-                      role: e.target.value as "admin" | "manager" | "technician" | "inspector",
+                      role: e.target.value as "admin" | "manager" | "technician" | "inspector" | "customer",
                     })
                   }
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
@@ -489,7 +492,14 @@ export default function TeamManagementPage() {
                   <option value="inspector">Inspector</option>
                   <option value="manager">Manager</option>
                   <option value="admin">Admin</option>
+                  <option value="customer">Customer (portal login)</option>
                 </select>
+                {inviteForm.role === "customer" && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Use the same email as the customer record on the Customers page. That match is what
+                    lets the portal show them their own jobs, inspections, and invoices.
+                  </p>
+                )}
               </div>
 
               <div>
