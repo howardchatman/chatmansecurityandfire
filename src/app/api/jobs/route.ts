@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { verifyAuth } from "@/lib/auth";
 import { sendSms, smsTemplates } from "@/lib/sms";
 import { syncJobToCalendar } from "@/lib/google-calendar";
@@ -149,9 +149,9 @@ export async function POST(request: NextRequest) {
 
     // Push the new job onto the connected Google Calendar (no-op if not
     // connected). Fire-and-forget — a calendar hiccup must not fail creation.
-    syncJobToCalendar(job).catch((err) =>
+    after(syncJobToCalendar(job).catch((err) =>
       console.error("Failed to sync job to Google Calendar:", err)
-    );
+    ));
 
     return NextResponse.json({
       success: true,
@@ -211,19 +211,19 @@ export async function PATCH(request: NextRequest) {
         const when = new Date(job.scheduled_date + "T12:00:00").toLocaleDateString("en-US", {
           weekday: "long", month: "long", day: "numeric",
         });
-        sendSms({ ...who, message: smsTemplates.jobScheduled(when) })
-          .catch((err) => console.error("job scheduled text failed:", err));
+        after(sendSms({ ...who, message: smsTemplates.jobScheduled(when) })
+          .catch((err) => console.error("job scheduled text failed:", err)));
       } else if (updates.status === "completed") {
-        sendSms({ ...who, message: smsTemplates.jobComplete() })
-          .catch((err) => console.error("job complete text failed:", err));
+        after(sendSms({ ...who, message: smsTemplates.jobComplete() })
+          .catch((err) => console.error("job complete text failed:", err)));
       }
     }
 
     // Keep the Google Calendar event in step with a reschedule (no-op if the
-    // calendar isn't connected). Fire-and-forget.
-    syncJobToCalendar(job).catch((err) =>
+    // calendar isn't connected). Runs via after() so it completes past the response.
+    after(syncJobToCalendar(job).catch((err) =>
       console.error("Failed to sync job to Google Calendar:", err)
-    );
+    ));
 
     return NextResponse.json({
       success: true,

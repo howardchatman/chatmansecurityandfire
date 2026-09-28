@@ -190,13 +190,43 @@ function toGoogleTimes(ev: CalendarEvent) {
     d.setUTCDate(d.getUTCDate() + 1);
     return { start: { date: ev.start }, end: { date: d.toISOString().slice(0, 10) } };
   }
+  const tz = "America/Chicago";
+
+  // Job and inspection times are Houston wall-clock times ("10:00") with no
+  // offset. Hand them to Google as-is with timeZone set, and Google places
+  // them in Central time. Parsing them with new Date() instead reads them in
+  // the SERVER's timezone — UTC on Vercel — which put a 10:00 AM job on the
+  // calendar at 5:00 AM.
+  if (NAIVE_DATETIME.test(ev.start)) {
+    const start = withSeconds(ev.start);
+    const end = ev.end && NAIVE_DATETIME.test(ev.end) ? withSeconds(ev.end) : addMinutes(start, 60);
+    return { start: { dateTime: start, timeZone: tz }, end: { dateTime: end, timeZone: tz } };
+  }
+
+  // An absolute timestamp (carries Z or an offset) is unambiguous — convert.
   const start = new Date(ev.start);
   const end = ev.end ? new Date(ev.end) : new Date(start.getTime() + 60 * 60 * 1000);
-  const tz = "America/Chicago";
   return {
     start: { dateTime: start.toISOString(), timeZone: tz },
     end: { dateTime: end.toISOString(), timeZone: tz },
   };
+}
+
+/** "YYYY-MM-DDTHH:MM" or "…:SS" with no Z/offset — a local wall-clock time. */
+const NAIVE_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
+
+function withSeconds(s: string): string {
+  return s.length === 16 ? `${s}:00` : s;
+}
+
+/** Add minutes to a wall-clock time without any timezone conversion. */
+function addMinutes(s: string, minutes: number): string {
+  const [d, t] = s.split("T");
+  const [Y, M, D] = d.split("-").map(Number);
+  const [h, m, sec = 0] = t.split(":").map(Number);
+  // Date.UTC is used purely as calendar arithmetic (it handles day rollover);
+  // the result is read back in UTC so no offset is ever applied.
+  return new Date(Date.UTC(Y, M - 1, D, h, m + minutes, sec)).toISOString().slice(0, 19);
 }
 
 /**
@@ -269,18 +299,24 @@ interface JobLike {
   google_event_id?: string | null;
 }
 
+/** "fire_alarm" → "Fire Alarm", for readable calendar titles. */
+function titleCase(s: string): string {
+  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function combine(date?: string | null, time?: string | null): string | null {
   if (!date) return null;
   if (!time) return date; // all-day
   // scheduled_time_start is "HH:MM" or "HH:MM:SS", local Houston time.
   const t = time.length === 5 ? `${time}:00` : time;
-  // Build an ISO string with Central offset so Google places it correctly.
+  // A wall-clock time with no offset — toGoogleTimes pairs it with the
+  // America/Chicago timeZone so Google places it in Houston time.
   return `${date}T${t}`;
 }
 
 export async function syncJobToCalendar(job: JobLike): Promise<void> {
   if (!job.scheduled_date) return; // nothing to put on a calendar yet
-  const title = `${job.job_type ? job.job_type.replace(/_/g, " ") : "Job"} — ${job.customer_name || "Customer"}`;
+  const title = `${job.job_type ? titleCase(job.job_type) : "Job"} — ${job.customer_name || "Customer"}`;
   const eventId = await upsertEvent(
     {
       summary: title,
@@ -311,7 +347,7 @@ interface InspectionLike {
 
 export async function syncInspectionToCalendar(insp: InspectionLike): Promise<void> {
   if (!insp.scheduled_date) return;
-  const title = `Inspection: ${insp.inspection_type ? insp.inspection_type.replace(/_/g, " ") : ""} — ${insp.customer_name || "Customer"}`;
+  const title = `Inspection: ${insp.inspection_type ? titleCase(insp.inspection_type) : ""} — ${insp.customer_name || "Customer"}`;
   const eventId = await upsertEvent(
     {
       summary: title,

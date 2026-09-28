@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
 import { upsertGhlContact } from "@/lib/gohighlevel";
@@ -71,40 +71,40 @@ export async function POST(request: NextRequest) {
 
     // Push into GoHighLevel — the single source of truth for CRM / leads /
     // sales pipeline. Fires for every lead (phone-only or with email).
-    upsertGhlContact({
+    after(upsertGhlContact({
       name: lead.name,
       email: lead.email,
       phone: lead.phone,
       source: lead.source || "website",
       tags: [body.serviceNeed, body.buildingType].filter(Boolean),
       note: lead.message || undefined,
-    }).catch((err) => console.error("Failed to push lead to GoHighLevel:", err));
+    }).catch((err) => console.error("Failed to push lead to GoHighLevel:", err)));
 
     // Send email notification (don't await to avoid slowing down response)
-    sendLeadNotification({
+    after(sendLeadNotification({
       name: lead.name,
       email: lead.email || "not provided",
       phone: lead.phone || undefined,
       message: lead.message || undefined,
       source: lead.source || "website",
-    }).catch((err) => console.error("Failed to send lead notification:", err));
+    }).catch((err) => console.error("Failed to send lead notification:", err)));
 
     // Text the owner too — email to iCloud gets spam-filtered, a text doesn't.
-    notifyOwnerOfLead({
+    after(notifyOwnerOfLead({
       name: lead.name,
       phone: lead.phone,
       email: lead.email,
       source: lead.source,
       message: lead.message,
-    }).catch((err) => console.error("Failed to text owner about lead:", err));
+    }).catch((err) => console.error("Failed to text owner about lead:", err)));
 
     // Send confirmation to customer only if they provided an email
     if (lead.email) {
-      sendCustomerConfirmation({
+      after(sendCustomerConfirmation({
         customerEmail: lead.email,
         customerName: lead.name,
         service: body.serviceNeed || undefined,
-      }).catch((err) => console.error("Failed to send customer confirmation:", err));
+      }).catch((err) => console.error("Failed to send customer confirmation:", err)));
     }
 
     return NextResponse.json({
