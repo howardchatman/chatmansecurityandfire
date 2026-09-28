@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import {
   getInspections,
   createInspection,
@@ -70,9 +70,9 @@ export async function POST(request: NextRequest) {
     });
 
     // Push onto the connected Google Calendar (no-op if not connected).
-    syncInspectionToCalendar(inspection).catch((err) =>
+    after(syncInspectionToCalendar(inspection).catch((err) =>
       console.error("Failed to sync inspection to Google Calendar:", err)
-    );
+    ));
 
     return NextResponse.json({ data: inspection }, { status: 201 });
   } catch (error) {
