@@ -88,7 +88,7 @@ export default async function ServiceCityPage({
     "@context": "https://schema.org",
     "@type": "Service",
     serviceType: service.name,
-    provider: { "@type": "LocalBusiness", name: "Chatman Security & Fire", telephone: "+13468525540" },
+    provider: { "@type": "LocalBusiness", "@id": "https://www.chatmansecurityandfire.com/#business", name: "Chatman Security & Fire", telephone: "+13468525540" },
     areaServed: { "@type": "City", name: `${cityName}, TX` },
     description: f(service.blurb),
   };

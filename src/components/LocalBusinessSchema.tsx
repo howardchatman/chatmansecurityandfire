@@ -1,18 +1,31 @@
+import { cities } from "@/lib/cities-data";
+import { siteServices, SITE_URL } from "@/lib/site-services";
+
+// The business's identity card for search engines and AI assistants
+// (Google, Bing/Copilot, ChatGPT, Siri, Alexa, Perplexity…). Rendered on every
+// public page from the root layout, so whichever page an AI crawler lands on,
+// it can resolve "who is this business, where do they work, what do they do".
+//
+// areaServed and the offer catalog are built from the same data as the site's
+// pages. The previous hand-written version listed 9 of 19 cities and 7 of 16
+// services — to an AI reading it, Chatman didn't serve Katy or do access
+// control. Now a new city or service page is described here automatically.
+
 export default function LocalBusinessSchema() {
   const schema = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "@id": "https://www.chatmansecurityandfire.com/#business",
+    "@type": ["LocalBusiness", "HomeAndConstructionBusiness"],
+    "@id": `${SITE_URL}/#business`,
     name: "Chatman Security & Fire",
     description:
-      "Commercial fire protection and security services in Houston, TX and throughout Texas. Fire alarms, sprinkler systems, extinguishers, fire marshal compliance, emergency lighting, fire lane markings, and Brinks security systems.",
-    url: "https://www.chatmansecurityandfire.com",
+      "Commercial fire protection, life safety, and security contractor based in Houston, Texas, serving Houston and cities across Texas. Fire alarm and fire sprinkler installation and inspection, fire marshal violation corrections, fire extinguishers, emergency lighting, fire lane marking, access control, security cameras, and Brinks security systems.",
+    url: SITE_URL,
     telephone: "+13468525540",
     email: "info@chatmansecurityandfire.com",
     foundingDate: "2009",
     priceRange: "$$",
-    image: "https://www.chatmansecurityandfire.com/csf_wide_logo.png",
-    logo: "https://www.chatmansecurityandfire.com/logo_only.png",
+    image: `${SITE_URL}/csf_wide_logo.png`,
+    logo: `${SITE_URL}/logo_only.png`,
     address: {
       "@type": "PostalAddress",
       streetAddress: "3403 West TC Jester Blvd, #1112",
@@ -27,15 +40,22 @@ export default function LocalBusinessSchema() {
       longitude: -95.4363,
     },
     areaServed: [
-      { "@type": "City", name: "Houston", containedInPlace: { "@type": "State", name: "Texas" } },
-      { "@type": "City", name: "Dallas", containedInPlace: { "@type": "State", name: "Texas" } },
-      { "@type": "City", name: "San Antonio", containedInPlace: { "@type": "State", name: "Texas" } },
-      { "@type": "City", name: "Austin", containedInPlace: { "@type": "State", name: "Texas" } },
-      { "@type": "City", name: "Fort Worth", containedInPlace: { "@type": "State", name: "Texas" } },
-      { "@type": "City", name: "Waco", containedInPlace: { "@type": "State", name: "Texas" } },
-      { "@type": "City", name: "Denton", containedInPlace: { "@type": "State", name: "Texas" } },
-      { "@type": "City", name: "College Station", containedInPlace: { "@type": "State", name: "Texas" } },
-      { "@type": "City", name: "Lufkin", containedInPlace: { "@type": "State", name: "Texas" } },
+      { "@type": "State", name: "Texas" },
+      ...cities.map((c) => ({
+        "@type": "City",
+        name: c.name,
+        url: `${SITE_URL}/service-areas/${c.slug}`,
+        containedInPlace: { "@type": "State", name: "Texas" },
+      })),
+    ],
+    knowsAbout: [
+      "NFPA 72 fire alarm code",
+      "NFPA 13 fire sprinkler code",
+      "NFPA 10 portable fire extinguishers",
+      "NFPA 25 sprinkler inspection, testing and maintenance",
+      "International Fire Code (IFC)",
+      "Fire marshal inspections and violation corrections",
+      ...siteServices.map((s) => s.name),
     ],
     openingHoursSpecification: [
       {
@@ -54,16 +74,17 @@ export default function LocalBusinessSchema() {
     ],
     hasOfferCatalog: {
       "@type": "OfferCatalog",
-      name: "Fire Protection Services",
-      itemListElement: [
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fire Alarm System Installation & Inspection" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fire Sprinkler Service & Modifications" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fire Extinguisher Inspection & Service" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fire Marshal Compliance & Corrections" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Emergency Lighting & Exit Sign Repairs" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fire Lane Striping & Markings" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Brinks Security Alarm Systems" } },
-      ],
+      name: "Fire Protection, Life Safety & Security Services",
+      itemListElement: siteServices.map((s) => ({
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: s.name,
+          description: s.summary,
+          url: `${SITE_URL}/services/${s.slug}`,
+          areaServed: { "@type": "State", name: "Texas" },
+        },
+      })),
     },
     sameAs: [
       "https://www.facebook.com/chatmansecurityandfire",

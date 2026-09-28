@@ -3,7 +3,6 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import RequestQuoteBanner from "@/components/RequestQuoteBanner";
 import FinancingBanner from "@/components/FinancingBanner";
-import LocalBusinessSchema from "@/components/LocalBusinessSchema";
 import LeadMagnetBanner from "@/components/LeadMagnetBanner";
 import Services from "@/components/Services";
 import BrinksBanner from "@/components/BrinksBanner";
@@ -36,7 +35,6 @@ export default function Home() {
         </main>
         <Footer />
       </div>
-      <LocalBusinessSchema />
     </>
   );
 }
