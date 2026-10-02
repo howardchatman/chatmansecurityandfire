@@ -188,7 +188,7 @@ export default function WelcomeContent({ token }: { token: string }) {
         </div>
 
         <p className="text-center text-white/50 text-xs mt-6">
-          Questions? Call (832) 859-7009
+          Questions? Call (346) 852-5540
         </p>
       </div>
     </div>

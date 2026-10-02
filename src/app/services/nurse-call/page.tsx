@@ -4,7 +4,7 @@ import ServiceLanding, { type ServiceLandingData } from "@/components/ServiceLan
 export const metadata: Metadata = {
   title: "Nurse Call System Installation Houston TX | Assisted Living & Healthcare",
   description:
-    "Nurse call system installation, upgrades, and service in Houston and across Texas. For assisted living, senior care, clinics, and hospitals — reliable call stations, dome lights, and reporting built to UL 1069. (832) 859-7009.",
+    "Nurse call system installation, upgrades, and service in Houston and across Texas. For assisted living, senior care, clinics, and hospitals — reliable call stations, dome lights, and reporting built to UL 1069. (346) 852-5540.",
   keywords: [
     "nurse call system installation Houston",
     "assisted living nurse call system Texas",
@@ -64,7 +64,7 @@ const data: ServiceLandingData = {
     { question: "Can you replace or upgrade our old nurse call system?", answer: "Yes — this is a big part of what we do. If your current system is unreliable, obsolete, or failing survey, we replace it with a modern system, often using wireless components to minimize downtime and keep residents safe throughout the transition." },
     { question: "Does the system meet state survey and licensing requirements?", answer: "We design to UL 1069 and align with FGI guidelines and Texas care-facility requirements, including call/response documentation many surveyors look for. We help you stay survey-ready." },
     { question: "Can it include fall pendants or wander management?", answer: "Yes. We can add wearable pendants so residents can call for help anywhere, plus wander-management and door alerts for memory-care residents who are at risk of leaving safely-monitored areas." },
-    { question: "Do you serve assisted living facilities across the Houston area?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the greater metro, plus statewide for larger facilities. Call (832) 859-7009." },
+    { question: "Do you serve assisted living facilities across the Houston area?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the greater metro, plus statewide for larger facilities. Call (346) 852-5540." },
   ],
   related: [
     { title: "Fire Alarm Systems", href: "/services/fire-alarm", description: "Life safety for care facilities from the same trusted team." },

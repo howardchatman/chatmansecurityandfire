@@ -4,7 +4,7 @@ import SecurityAlarmContent from "./_content";
 export const metadata: Metadata = {
   title: "Brinks Home Security Houston TX | Authorized Dealer | Chatman Security & Fire",
   description:
-    "Authorized Brinks security dealer in Houston, TX. Home and commercial security systems with 24/7 professional monitoring. Expert local installation by licensed technicians. (832) 859-7009",
+    "Authorized Brinks security dealer in Houston, TX. Home and commercial security systems with 24/7 professional monitoring. Expert local installation by licensed technicians. (346) 852-5540",
   keywords: [
     "Brinks security Houston TX",
     "authorized Brinks dealer Houston",

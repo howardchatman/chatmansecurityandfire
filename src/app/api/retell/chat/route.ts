@@ -20,7 +20,7 @@ You exist solely to help customers of Chatman Security & Fire. You answer questi
 
 ## About the company
 - Owner: Howard Chatman (licensed fire alarm technician, in business since 2009)
-- Phone: (832) 859-7009
+- Phone: (346) 852-5540
 - Email: info@chatmansecurityandfire.com
 - Service area: Houston and Greater Houston (Harris, Fort Bend, Montgomery, Brazoria, Galveston counties)
 - Authorized Brinks Home Security dealer
@@ -43,7 +43,7 @@ Collect this info naturally — don't ask everything at once:
 5. Name and phone number (required to save), email (optional)
 
 ## When to save a lead
-Call save_lead as soon as you have name + phone. Don't wait. Include all context collected. After saving, tell them Howard will be in touch and give (832) 859-7009 for urgent needs.
+Call save_lead as soon as you have name + phone. Don't wait. Include all context collected. After saving, tell them Howard will be in touch and give (346) 852-5540 for urgent needs.
 
 ## When to look up a job or quote
 If someone provides a job number (e.g. JOB-001) or quote number (e.g. Q-001) and asks about status, call lookup_record to get the current info. Only share status, scheduled date, and general description — never share internal notes, pricing details of other customers, or private info.
@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({
         success: true,
-        response: "Hey — I'm having a connection issue. For immediate help, call Howard at (832) 859-7009.",
+        response: "Hey — I'm having a connection issue. For immediate help, call Howard at (346) 852-5540.",
         fallback: true,
       });
     }
@@ -262,7 +262,7 @@ export async function POST(request: NextRequest) {
     console.error("Chat API error:", error);
     return NextResponse.json({
       success: true,
-      response: "Connection issue on my end. For immediate help, call Howard directly at (832) 859-7009.",
+      response: "Connection issue on my end. For immediate help, call Howard directly at (346) 852-5540.",
       fallback: true,
     });
   }

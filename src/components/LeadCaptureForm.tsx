@@ -87,7 +87,7 @@ export default function LeadCaptureForm({
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
         <h3 className="text-xl font-bold text-[#0D1B2A] mb-2">Got it. I&apos;ll be in touch.</h3>
-        <p className="text-gray-500">You&apos;ll hear from me within one business day. For urgent needs, call (832) 859-7009.</p>
+        <p className="text-gray-500">You&apos;ll hear from me within one business day. For urgent needs, call (346) 852-5540.</p>
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function LeadCaptureForm({
           </button>
         </form>
         {status === "error" && (
-          <p className="text-red-500 text-xs mt-2 text-center">Something went wrong. Please call (832) 859-7009.</p>
+          <p className="text-red-500 text-xs mt-2 text-center">Something went wrong. Please call (346) 852-5540.</p>
         )}
       </div>
     );
@@ -256,7 +256,7 @@ export default function LeadCaptureForm({
 
             {status === "error" && (
               <p className="text-red-400 text-sm text-center">
-                Something went wrong. Please call us directly at (832) 859-7009.
+                Something went wrong. Please call us directly at (346) 852-5540.
               </p>
             )}
           </form>

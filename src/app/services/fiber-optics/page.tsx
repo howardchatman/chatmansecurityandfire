@@ -4,7 +4,7 @@ import FiberOpticsContent from "./_content";
 export const metadata: Metadata = {
   title: "Fiber Optic Cabling & Installation Houston TX | Structured Cabling Contractor",
   description:
-    "Commercial fiber optic installation, splicing, and structured cabling in Houston and across Texas. Single-mode and multimode fiber, network cabling, low-voltage infrastructure for new construction and retrofits. (832) 859-7009",
+    "Commercial fiber optic installation, splicing, and structured cabling in Houston and across Texas. Single-mode and multimode fiber, network cabling, low-voltage infrastructure for new construction and retrofits. (346) 852-5540",
   keywords: [
     "fiber optic installation Houston",
     "structured cabling Houston TX",

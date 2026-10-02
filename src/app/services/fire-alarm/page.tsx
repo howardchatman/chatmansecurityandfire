@@ -4,7 +4,7 @@ import FireAlarmContent from "./_content";
 export const metadata: Metadata = {
   title: "Commercial Fire Alarm Systems Houston TX | Installation, Repair & Inspection Corrections",
   description:
-    "Licensed commercial fire alarm contractor serving Houston and Greater Texas. New system installation, NFPA 72 inspection corrections, trouble diagnostics, and panel replacements. 24/7 emergency service. (832) 859-7009",
+    "Licensed commercial fire alarm contractor serving Houston and Greater Texas. New system installation, NFPA 72 inspection corrections, trouble diagnostics, and panel replacements. 24/7 emergency service. (346) 852-5540",
   keywords: [
     "commercial fire alarm Houston",
     "fire alarm installation Texas",

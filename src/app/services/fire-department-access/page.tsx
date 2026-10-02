@@ -4,7 +4,7 @@ import ServiceLanding, { type ServiceLandingData } from "@/components/ServiceLan
 export const metadata: Metadata = {
   title: "Knox Box & Fire Department Access Houston TX | Rapid Entry Installation",
   description:
-    "Knox Box rapid-entry key box and fire department access installation in Houston and across Texas. Wall boxes, gate Knox switches, and FD override to pass fire marshal inspection. We coordinate with your AHJ. (832) 859-7009.",
+    "Knox Box rapid-entry key box and fire department access installation in Houston and across Texas. Wall boxes, gate Knox switches, and FD override to pass fire marshal inspection. We coordinate with your AHJ. (346) 852-5540.",
   keywords: [
     "Knox Box installation Houston",
     "fire department access Texas",
@@ -63,7 +63,7 @@ const data: ServiceLandingData = {
     { question: "Does my automated gate need fire department access?", answer: "Yes. The fire code requires that locked or automated gates allow fire department entry, typically through a Knox key switch or approved override device wired to your gate operator. We install this so first responders are never locked out — and so your gate passes inspection." },
     { question: "I failed inspection over my Knox Box — can you fix it fast?", answer: "Yes. Whether the box is missing, in the wrong location or height, or your gate lacks fire department access, we correct it quickly and coordinate re-inspection with the fire marshal to close out the violation." },
     { question: "Where does the Knox Box have to be mounted?", answer: "Your fire marshal specifies the location and mounting height — usually near the main entrance at a set height, visible to responders. Because it varies by jurisdiction, we confirm the exact requirement with your AHJ before installing." },
-    { question: "Do you handle Knox Box and fire department access across Houston?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the greater metro, coordinating with each local fire marshal. Call (832) 859-7009." },
+    { question: "Do you handle Knox Box and fire department access across Houston?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the greater metro, coordinating with each local fire marshal. Call (346) 852-5540." },
   ],
   related: [
     { title: "Gate Entry Systems", href: "/services/gate-entry", description: "Automated gates with built-in fire department access." },

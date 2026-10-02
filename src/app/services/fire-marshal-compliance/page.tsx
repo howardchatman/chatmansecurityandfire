@@ -4,7 +4,7 @@ import FireMarshalComplianceContent from "./_content";
 export const metadata: Metadata = {
   title: "Fire Marshal Inspection Corrections Houston TX | Violation Repair & Reinspection",
   description:
-    "Failed a Houston fire marshal inspection? We review your deficiency report, correct every violation, and get you reinspection-ready fast. Licensed commercial contractor since 2009. (832) 859-7009",
+    "Failed a Houston fire marshal inspection? We review your deficiency report, correct every violation, and get you reinspection-ready fast. Licensed commercial contractor since 2009. (346) 852-5540",
   keywords: [
     "fire marshal inspection correction Houston",
     "fire marshal violation repair Texas",

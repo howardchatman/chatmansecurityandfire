@@ -4,7 +4,7 @@ import ServiceLanding, { type ServiceLandingData } from "@/components/ServiceLan
 export const metadata: Metadata = {
   title: "Commercial Security Camera Installation Houston TX | Video Surveillance",
   description:
-    "Professional commercial security camera & video surveillance installation in Houston and across Texas. HD/4K IP cameras, cloud or on-site recording, remote viewing, and 24/7 monitoring integration. Free assessment: (832) 859-7009.",
+    "Professional commercial security camera & video surveillance installation in Houston and across Texas. HD/4K IP cameras, cloud or on-site recording, remote viewing, and 24/7 monitoring integration. Free assessment: (346) 852-5540.",
   keywords: [
     "commercial security camera installation Houston",
     "video surveillance Houston TX",
@@ -57,7 +57,7 @@ const data: ServiceLandingData = {
     { question: "Should I use cloud recording or an on-site NVR?", answer: "Both work well — it's about your priorities. Cloud recording is offsite (safe even if hardware is stolen or damaged), needs no on-premise recorder, and is accessible anywhere, with a monthly cost. An on-site NVR has no recurring fee and keeps footage local. Many businesses choose a hybrid. We'll recommend the right fit for your budget and risk." },
     { question: "Can I watch my cameras from my phone?", answer: "Yes. Every system we install includes secure live viewing and playback from your phone, tablet, or computer, with optional motion alerts on the zones you choose. You'll be able to check in on your business anytime, from anywhere." },
     { question: "How long is footage stored?", answer: "That's configurable — commonly 14 to 90 days, depending on the number of cameras, resolution, and your storage plan. Some industries or insurers require specific retention; we'll set it to meet your needs." },
-    { question: "Do you service Houston and the surrounding suburbs?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the greater metro. We also travel across Texas for larger projects. Call (832) 859-7009." },
+    { question: "Do you service Houston and the surrounding suburbs?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the greater metro. We also travel across Texas for larger projects. Call (346) 852-5540." },
     { question: "Can cameras work with my alarm and door access?", answer: "Absolutely. Because we handle fire, alarm, access control, and cameras under one roof, we integrate them so a door event or alarm can be tied to the right camera view — one coordinated system instead of disconnected parts." },
   ],
   related: [

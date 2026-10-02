@@ -4,7 +4,7 @@ import FireSprinklerContent from "./_content";
 export const metadata: Metadata = {
   title: "Fire Sprinkler Systems Houston TX | Installation, Repair & NFPA 13 Compliance",
   description:
-    "Licensed fire sprinkler contractor serving Houston and Greater Texas. New system installation, modifications, obstruction corrections, and NFPA 13 compliance for commercial properties. 24/7 emergency service. (832) 859-7009",
+    "Licensed fire sprinkler contractor serving Houston and Greater Texas. New system installation, modifications, obstruction corrections, and NFPA 13 compliance for commercial properties. 24/7 emergency service. (346) 852-5540",
   keywords: [
     "fire sprinkler system Houston",
     "fire sprinkler installation Texas",

@@ -106,7 +106,7 @@ const QuotePDFPreview = forwardRef<HTMLDivElement, QuotePDFPreviewProps>(
             />
             <div className="text-xs text-gray-600">
               <p>Houston, TX</p>
-              <p>(832) 859-7009</p>
+              <p>(346) 852-5540</p>
               <p>info@chatmansecurityandfire.com</p>
             </div>
           </div>
@@ -371,7 +371,7 @@ const QuotePDFPreview = forwardRef<HTMLDivElement, QuotePDFPreviewProps>(
         {/* Footer */}
         <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
           <p>
-            Chatman Security and Fire | Houston, TX | (832) 859-7009 |
+            Chatman Security and Fire | Houston, TX | (346) 852-5540 |
             chatmansecurityandfire.com
           </p>
           <p className="mt-1">

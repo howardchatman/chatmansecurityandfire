@@ -4,7 +4,7 @@ import ServiceLanding, { type ServiceLandingData } from "@/components/ServiceLan
 export const metadata: Metadata = {
   title: "Commercial PA & Mass Notification Systems Houston TX | Paging & Intercom",
   description:
-    "Commercial PA systems, intercom, paging, and mass notification installation in Houston and across Texas. Clear building-wide audio, emergency alerts, and fire alarm voice-evacuation integration. (832) 859-7009.",
+    "Commercial PA systems, intercom, paging, and mass notification installation in Houston and across Texas. Clear building-wide audio, emergency alerts, and fire alarm voice-evacuation integration. (346) 852-5540.",
   keywords: [
     "commercial PA system installation Houston",
     "mass notification system Texas",
@@ -64,7 +64,7 @@ const data: ServiceLandingData = {
     { question: "Do you install school intercom and bell systems?", answer: "Yes — classroom paging, office-to-room communication, scheduled class bells, and emergency/lockdown mass notification for schools and daycares, designed to meet life-safety expectations." },
     { question: "Can the PA system tie into our fire alarm?", answer: "Yes. As a licensed fire alarm contractor, we integrate paging with fire alarm voice evacuation and emergency communication systems so a fire or emergency message automatically takes priority over normal paging — one coordinated, code-compliant system." },
     { question: "Can we play different audio in different areas?", answer: "Yes. Zoning lets you page or play music independently by area — for example, music up front, silence in the warehouse, and an all-call that reaches everyone. Volume is set per zone." },
-    { question: "Do you serve the greater Houston area?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and beyond, plus statewide for larger projects. Call (832) 859-7009." },
+    { question: "Do you serve the greater Houston area?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and beyond, plus statewide for larger projects. Call (346) 852-5540." },
   ],
   related: [
     { title: "Fire Alarm Systems", href: "/services/fire-alarm", description: "Voice evacuation and emergency communication integration." },

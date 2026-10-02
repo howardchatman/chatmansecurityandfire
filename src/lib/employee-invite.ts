@@ -76,7 +76,7 @@ export async function sendEmployeeInviteEmail(opts: {
     </div>
 
     <div style="border-top:1px solid #e5e7eb;padding-top:16px;font-size:12px;color:#9ca3af">
-      <p style="margin:0">Chatman Security &amp; Fire, Inc. &middot; Houston, TX &middot; (832) 859-7009</p>
+      <p style="margin:0">Chatman Security &amp; Fire, Inc. &middot; Houston, TX &middot; (346) 852-5540</p>
       <p style="margin:8px 0 0">If you weren't expecting this, you can ignore this email.</p>
     </div>
   </div>`;

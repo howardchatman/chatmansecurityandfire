@@ -4,7 +4,7 @@ import EmergencyLightingContent from "./_content";
 export const metadata: Metadata = {
   title: "Emergency Lighting & Exit Signs Houston TX | Installation & Inspection Corrections",
   description:
-    "Emergency lighting and exit sign installation, repair, and inspection corrections for Houston commercial properties. Battery replacements, fixture upgrades, code compliance. Fast turnaround. (832) 859-7009",
+    "Emergency lighting and exit sign installation, repair, and inspection corrections for Houston commercial properties. Battery replacements, fixture upgrades, code compliance. Fast turnaround. (346) 852-5540",
   keywords: [
     "emergency lighting Houston TX",
     "exit sign repair Houston",

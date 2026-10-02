@@ -4,7 +4,7 @@ import ServiceLanding, { type ServiceLandingData } from "@/components/ServiceLan
 export const metadata: Metadata = {
   title: "Commercial Gate Entry Systems & Keypads Houston TX | Automated Gate Access",
   description:
-    "Commercial gate entry systems, keypads, call boxes, and telephone entry installation in Houston and across Texas. Automated slide & swing gate operators with mobile access and fire department override. (832) 859-7009.",
+    "Commercial gate entry systems, keypads, call boxes, and telephone entry installation in Houston and across Texas. Automated slide & swing gate operators with mobile access and fire department override. (346) 852-5540.",
   keywords: [
     "commercial gate entry system Houston",
     "gate keypad installation Texas",
@@ -64,7 +64,7 @@ const data: ServiceLandingData = {
     { question: "Do I need fire department access on my gate?", answer: "Yes — the fire code requires that automated gates allow emergency access so the fire department is never locked out. We install a Knox key switch or approved override device and coordinate with your local fire marshal so it passes inspection. See our Knox Box & Fire Department Access page for details." },
     { question: "What's the difference between a keypad and a call box?", answer: "A keypad lets people with a code enter themselves — ideal for staff and tenants. A call box (or telephone entry) lets a visitor call you; you can talk to them and buzz the gate open from your phone. Many properties use both, plus RFID for vehicles." },
     { question: "Can you fix or upgrade an existing gate?", answer: "Yes. We repair failing gate operators, replace obsolete entry equipment, add keypads/call boxes or mobile access to existing gates, and bring older gates up to current safety and fire-access code." },
-    { question: "Do you install gate systems across the Houston area?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the greater metro, plus statewide for larger projects. Call (832) 859-7009." },
+    { question: "Do you install gate systems across the Houston area?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the greater metro, plus statewide for larger projects. Call (346) 852-5540." },
   ],
   related: [
     { title: "Fire Department Access & Knox Box", href: "/services/fire-department-access", description: "Required emergency access for gates and buildings." },

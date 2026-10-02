@@ -14,7 +14,7 @@ export default function ProfileSettingsPage() {
     firstName: "Howard",
     lastName: "Chatman",
     email: "howardchatman@icloud.com",
-    phone: "(832) 859-7009",
+    phone: "(346) 852-5540",
     company: "Chatman Security & Fire",
     role: "Admin",
   });

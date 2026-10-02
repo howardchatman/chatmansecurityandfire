@@ -223,13 +223,13 @@ export async function sendGhlSms(opts: {
  */
 export const smsTemplates = {
   jobScheduled: (date: string) =>
-    `Chatman Security & Fire: you're scheduled for ${date}. We'll text if anything changes. Questions? Call (832) 859-7009. Reply STOP to opt out.`,
+    `Chatman Security & Fire: you're scheduled for ${date}. We'll text if anything changes. Questions? Call (346) 852-5540. Reply STOP to opt out.`,
 
   jobUpdate: (update: string) =>
     `Chatman Security & Fire update: ${update} Reply STOP to opt out.`,
 
   jobComplete: () =>
-    `Chatman Security & Fire: your work is complete. Your invoice is on its way by email. Questions? (832) 859-7009. Reply STOP to opt out.`,
+    `Chatman Security & Fire: your work is complete. Your invoice is on its way by email. Questions? (346) 852-5540. Reply STOP to opt out.`,
 
   invoiceSent: (invoiceNumber: string, total: string, payUrl: string) =>
     `Chatman Security & Fire: invoice ${invoiceNumber} for ${total} is ready. Pay here: ${payUrl} Reply STOP to opt out.`,

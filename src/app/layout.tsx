@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | Chatman Security & Fire",
   },
   description:
-    "Houston's trusted commercial fire protection company since 2009. Fire alarm systems, sprinklers, extinguishers, fire marshal compliance, and Brinks security. Licensed & insured. 24/7 dispatch. (832) 859-7009.",
+    "Houston's trusted commercial fire protection company since 2009. Fire alarm systems, sprinklers, extinguishers, fire marshal compliance, and Brinks security. Licensed & insured. 24/7 dispatch. (346) 852-5540.",
   metadataBase: new URL("https://www.chatmansecurityandfire.com"),
   alternates: {
     types: { "application/rss+xml": "https://www.chatmansecurityandfire.com/rss.xml" },
@@ -28,13 +28,13 @@ export const metadata: Metadata = {
     siteName: "Chatman Security & Fire",
     title: "Chatman Security & Fire | Houston Commercial Fire Protection & Compliance",
     description:
-      "Houston's trusted commercial fire protection company since 2009. Fire alarms, sprinklers, extinguishers, fire marshal compliance, and Brinks security. (832) 859-7009.",
+      "Houston's trusted commercial fire protection company since 2009. Fire alarms, sprinklers, extinguishers, fire marshal compliance, and Brinks security. (346) 852-5540.",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Chatman Security & Fire" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Chatman Security & Fire | Houston Commercial Fire Protection",
-    description: "Houston's trusted commercial fire protection company since 2009. (832) 859-7009.",
+    description: "Houston's trusted commercial fire protection company since 2009. (346) 852-5540.",
     images: ["/og-image.png"],
   },
   icons: {

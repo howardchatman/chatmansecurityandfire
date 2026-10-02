@@ -4,7 +4,7 @@ import ServiceLanding, { type ServiceLandingData } from "@/components/ServiceLan
 export const metadata: Metadata = {
   title: "Commercial Access Control Systems Houston TX | Door Access & Key Fobs",
   description:
-    "Commercial access control installation in Houston and across Texas. Key fobs, keypads, mobile credentials, and cloud-managed door access with audit trails. Secure your doors and stay code-compliant. (832) 859-7009.",
+    "Commercial access control installation in Houston and across Texas. Key fobs, keypads, mobile credentials, and cloud-managed door access with audit trails. Secure your doors and stay code-compliant. (346) 852-5540.",
   keywords: [
     "access control systems Houston",
     "commercial door access control Texas",
@@ -64,7 +64,7 @@ const data: ServiceLandingData = {
     { question: "Is access control safe in a fire or emergency?", answer: "Yes, when it's installed correctly. Code requires that doors on your means of egress always allow free exit, and magnetically locked doors must release automatically when the fire alarm activates. Because we're also a fire alarm contractor, we build this integration in — security and life safety working together." },
     { question: "Can I keep a log of who entered and when?", answer: "Every unlock is recorded — the person, the door, and the time. You can pull reports for investigations, HR questions, or compliance in seconds." },
     { question: "Will it work with my existing cameras or alarm?", answer: "Yes. We integrate access control with video surveillance and intrusion alarms so door events link to camera views and unusual activity (forced or after-hours entry) triggers alerts. One coordinated system from one contractor." },
-    { question: "Do you install access control in the Houston suburbs?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the wider metro, plus statewide for larger projects. Call (832) 859-7009." },
+    { question: "Do you install access control in the Houston suburbs?", answer: "Yes — Houston, Katy, Sugar Land, The Woodlands, Pearland, Cypress, Spring, and the wider metro, plus statewide for larger projects. Call (346) 852-5540." },
   ],
   related: [
     { title: "Video Surveillance", href: "/services/video-surveillance", description: "Pair door access with cameras for a complete picture." },

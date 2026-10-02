@@ -4,7 +4,7 @@ import WirelessContent from "./_content";
 export const metadata: Metadata = {
   title: "Commercial WiFi & Wireless Internet Installation Houston TX | Business Networks",
   description:
-    "Commercial wireless internet and WiFi installation in Houston and across Texas. Business-grade access points, wireless site surveys, point-to-point links, and managed networks for offices, warehouses, and multi-building sites. (832) 859-7009",
+    "Commercial wireless internet and WiFi installation in Houston and across Texas. Business-grade access points, wireless site surveys, point-to-point links, and managed networks for offices, warehouses, and multi-building sites. (346) 852-5540",
   keywords: [
     "commercial WiFi installation Houston",
     "business wireless internet Houston TX",

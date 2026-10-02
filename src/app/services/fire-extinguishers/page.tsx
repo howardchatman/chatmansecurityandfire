@@ -4,7 +4,7 @@ import FireExtinguishersContent from "./_content";
 export const metadata: Metadata = {
   title: "Fire Extinguisher Service Houston TX | Inspection, Sales & Tagging",
   description:
-    "Annual fire extinguisher inspection, tagging, sales, and recharging for Houston commercial properties. $50 trip + $25/unit. Discounts for 5+ extinguishers. Compliance-ready service. (832) 859-7009",
+    "Annual fire extinguisher inspection, tagging, sales, and recharging for Houston commercial properties. $50 trip + $25/unit. Discounts for 5+ extinguishers. Compliance-ready service. (346) 852-5540",
   keywords: [
     "fire extinguisher inspection Houston",
     "fire extinguisher service Texas",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Fire Extinguisher Service Houston TX | Chatman Security & Fire",
     description:
-      "Annual fire extinguisher inspection, tagging, and sales for Houston businesses. Compliance-ready service. $50 trip + $25/unit. (832) 859-7009",
+      "Annual fire extinguisher inspection, tagging, and sales for Houston businesses. Compliance-ready service. $50 trip + $25/unit. (346) 852-5540",
     url: "https://www.chatmansecurityandfire.com/services/fire-extinguishers",
   },
 };

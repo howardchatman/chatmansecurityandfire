@@ -4,7 +4,7 @@ import ConsultingContent from "./_content";
 export const metadata: Metadata = {
   title: "Fire & Life-Safety Consulting",
   description:
-    "Expert fire code consulting in Houston: compliance reviews, pre-inspection assessments, risk assessments, and fire marshal guidance for commercial and industrial properties. (832) 859-7009.",
+    "Expert fire code consulting in Houston: compliance reviews, pre-inspection assessments, risk assessments, and fire marshal guidance for commercial and industrial properties. (346) 852-5540.",
   alternates: { canonical: "/services/consulting" },
 };
 

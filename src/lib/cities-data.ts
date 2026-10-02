@@ -49,7 +49,7 @@ export const cities: CityData[] = [
       {
         question: "How much does a commercial fire alarm system cost in Houston, TX?",
         answer:
-          "Commercial fire alarm system costs in Houston typically range from $1,500 for a small tenant space to $50,000 or more for a large multi-story building, depending on square footage, panel type, device count, and AHJ-required monitoring. Chatman Security & Fire provides free on-site estimates and can design a system that meets Houston Fire Department requirements without over-engineering the scope. Call (832) 859-7009 to schedule your no-cost assessment.",
+          "Commercial fire alarm system costs in Houston typically range from $1,500 for a small tenant space to $50,000 or more for a large multi-story building, depending on square footage, panel type, device count, and AHJ-required monitoring. Chatman Security & Fire provides free on-site estimates and can design a system that meets Houston Fire Department requirements without over-engineering the scope. Call (346) 852-5540 to schedule your no-cost assessment.",
       },
       {
         question: "What happens if I fail a fire marshal inspection in Houston?",
@@ -161,7 +161,7 @@ export const cities: CityData[] = [
       {
         question: "How do I find out if my Dallas building needs a sprinkler retrofit?",
         answer:
-          "Dallas Fire Code triggers sprinkler retrofits in older buildings when a change of occupancy, major renovation, or building addition is permitted. High-rise buildings without sprinklers may also be subject to mandatory retrofit ordinances. The best way to determine your obligation is a code review by a qualified fire protection contractor — call Chatman Security & Fire at (832) 859-7009 for a consultation.",
+          "Dallas Fire Code triggers sprinkler retrofits in older buildings when a change of occupancy, major renovation, or building addition is permitted. High-rise buildings without sprinklers may also be subject to mandatory retrofit ordinances. The best way to determine your obligation is a code review by a qualified fire protection contractor — call Chatman Security & Fire at (346) 852-5540 for a consultation.",
       },
       {
         question: "Fire extinguisher service near me Dallas TX",
@@ -218,7 +218,7 @@ export const cities: CityData[] = [
       {
         question: "Fire alarm inspection San Antonio TX — who do I call?",
         answer:
-          "For commercial fire alarm inspection in San Antonio, Chatman Security & Fire provides NFPA 72-compliant annual testing and a full written inspection report accepted by the San Antonio Fire Department's Fire Prevention Bureau. We test every device, verify central station monitoring, and document all findings so your file is complete at re-inspection. Call (832) 859-7009 to schedule.",
+          "For commercial fire alarm inspection in San Antonio, Chatman Security & Fire provides NFPA 72-compliant annual testing and a full written inspection report accepted by the San Antonio Fire Department's Fire Prevention Bureau. We test every device, verify central station monitoring, and document all findings so your file is complete at re-inspection. Call (346) 852-5540 to schedule.",
       },
       {
         question: "What does the San Antonio Fire Marshal require for a new commercial space?",
@@ -320,7 +320,7 @@ export const cities: CityData[] = [
       {
         question: "Commercial fire protection company near me Austin TX",
         answer:
-          "Chatman Security & Fire serves the Austin market with fire alarm installation, sprinkler service, extinguisher inspection, and emergency lighting — all permitted through Austin Development Services and inspected by Austin Fire Department. Call (832) 859-7009 to discuss your Austin project.",
+          "Chatman Security & Fire serves the Austin market with fire alarm installation, sprinkler service, extinguisher inspection, and emergency lighting — all permitted through Austin Development Services and inspected by Austin Fire Department. Call (346) 852-5540 to discuss your Austin project.",
       },
       {
         question: "How long does fire alarm permitting take in Austin?",
@@ -392,7 +392,7 @@ export const cities: CityData[] = [
       {
         question: "How much does fire sprinkler installation cost in College Station?",
         answer:
-          "Fire sprinkler installation in College Station for a standard commercial space typically runs $2.50 to $4.50 per square foot depending on occupancy classification and building construction type. Restaurant and assembly occupancies may cost more due to higher hazard requirements. Contact Chatman Security & Fire at (832) 859-7009 for a free estimate on your College Station project.",
+          "Fire sprinkler installation in College Station for a standard commercial space typically runs $2.50 to $4.50 per square foot depending on occupancy classification and building construction type. Restaurant and assembly occupancies may cost more due to higher hazard requirements. Contact Chatman Security & Fire at (346) 852-5540 for a free estimate on your College Station project.",
       },
       {
         question: "What happens if I fail a fire marshal inspection in College Station?",
@@ -454,7 +454,7 @@ export const cities: CityData[] = [
       {
         question: "Is there a fire alarm inspection company that serves Lufkin TX?",
         answer:
-          "Chatman Security & Fire provides fire alarm installation, inspection, and service for Lufkin and the surrounding Angelina County area. We travel to East Texas to serve commercial, industrial, and healthcare clients who need a licensed, NFPA-compliant fire protection contractor. Call (832) 859-7009 to schedule service in Lufkin.",
+          "Chatman Security & Fire provides fire alarm installation, inspection, and service for Lufkin and the surrounding Angelina County area. We travel to East Texas to serve commercial, industrial, and healthcare clients who need a licensed, NFPA-compliant fire protection contractor. Call (346) 852-5540 to schedule service in Lufkin.",
       },
       {
         question: "What are the fire code requirements for businesses in Lufkin TX?",
@@ -618,7 +618,7 @@ export const cities: CityData[] = [
       {
         question: "Commercial fire alarm company near me Denton TX",
         answer:
-          "Chatman Security & Fire serves the Denton market with fire alarm design, installation, and annual testing services. We handle plan review submittals to Denton Development Services and final inspection coordination with the Denton Fire Marshal. Call (832) 859-7009 to discuss your Denton project.",
+          "Chatman Security & Fire serves the Denton market with fire alarm design, installation, and annual testing services. We handle plan review submittals to Denton Development Services and final inspection coordination with the Denton Fire Marshal. Call (346) 852-5540 to discuss your Denton project.",
       },
       {
         question: "Does Denton require fire sprinklers in apartment complexes?",
@@ -700,7 +700,7 @@ export const cities: CityData[] = [
       {
         question: "Commercial fire protection company near me Fort Worth TX",
         answer:
-          "Chatman Security & Fire serves the Fort Worth market with comprehensive fire protection services including fire alarm installation, sprinkler systems, extinguisher inspection, emergency lighting, and fire lane markings. We manage Fort Worth Development Services permitting and Fire Marshal coordination on behalf of our clients. Call (832) 859-7009 to get started.",
+          "Chatman Security & Fire serves the Fort Worth market with comprehensive fire protection services including fire alarm installation, sprinkler systems, extinguisher inspection, emergency lighting, and fire lane markings. We manage Fort Worth Development Services permitting and Fire Marshal coordination on behalf of our clients. Call (346) 852-5540 to get started.",
       },
       {
         question: "Fire extinguisher inspection near me Fort Worth TX",
@@ -765,7 +765,7 @@ export const cities: CityData[] = [
     faqs: [
       { question: "Who is the fire marshal for a business in Katy, TX?", answer: "It depends on your exact location — Katy spans Harris, Fort Bend, and Waller counties, plus the City of Katy. Properties inside city limits fall under the Katy Fire Department, while unincorporated areas answer to the applicable county fire marshal. Chatman Security & Fire works with all three county AHJs and can confirm who has jurisdiction over your Katy property." },
       { question: "Do you correct failed fire inspections in Katy?", answer: "Yes. We review your deficiency report, correct every violation — fire alarm, sprinkler, extinguisher, or exit lighting — and coordinate re-inspection with the correct Katy-area AHJ. Most corrections are done in one to two visits." },
-      { question: "How fast can you get to a Katy commercial property?", answer: "Katy is within our core Houston-metro service area. We routinely schedule same-week assessments and offer emergency service for urgent inspection deadlines. Call (832) 859-7009." },
+      { question: "How fast can you get to a Katy commercial property?", answer: "Katy is within our core Houston-metro service area. We routinely schedule same-week assessments and offer emergency service for urgent inspection deadlines. Call (346) 852-5540." },
     ],
     services: METRO_SERVICES,
     localContext:
