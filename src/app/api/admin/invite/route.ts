@@ -93,6 +93,12 @@ export async function POST(request: NextRequest) {
       password_hash: passwordHash,
     };
     if (phone) row.phone = phone;
+    // A customer login is tied to its customers row, so the portal shows them
+    // their own quotes, jobs and invoices even if the login email ever drifts
+    // from the billing email.
+    if (role === "customer" && typeof body.customer_id === "string" && body.customer_id) {
+      row.customer_id = body.customer_id;
+    }
 
     let inviteToken: string | null = null;
     if (method === "invite") {
@@ -110,6 +116,17 @@ export async function POST(request: NextRequest) {
     // If the phone column doesn't exist yet, retry without it
     if (error && phone && /phone/i.test(error.message)) {
       delete row.phone;
+      ({ data, error } = await supabaseAdmin
+        .from("admin_users")
+        .insert(row)
+        .select("*")
+        .single());
+    }
+
+    // Before the link_customer_users migration, there is no customer_id column.
+    // The portal still finds the customer by email, so carry on without it.
+    if (error && row.customer_id && /customer_id/i.test(error.message)) {
+      delete row.customer_id;
       ({ data, error } = await supabaseAdmin
         .from("admin_users")
         .insert(row)

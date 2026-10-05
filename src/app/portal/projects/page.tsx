@@ -12,6 +12,9 @@ import {
   MessageSquare,
   Phone,
   PauseCircle,
+  FileSignature,
+  FileText,
+  Info,
 } from "lucide-react";
 
 interface Update {
@@ -21,6 +24,7 @@ interface Update {
 }
 
 interface Project {
+  kind: "job" | "quote";
   id: string;
   job_number: string;
   title: string;
@@ -36,7 +40,11 @@ interface Project {
   progress: number;
   is_complete: boolean;
   is_on_hold: boolean;
+  note: string | null;
   updates: Update[];
+  quote: { number: string; total: number | null; sign_url: string | null; expires_at: string | null } | null;
+  needs_signature: boolean;
+  is_closed: boolean;
 }
 
 interface StageDef { key: string; label: string; blurb: string }
@@ -70,15 +78,22 @@ export default function PortalProjectsPage() {
     })();
   }, []);
 
-  const active = projects.filter((p) => !p.is_complete);
-  const finished = projects.filter((p) => p.is_complete);
+  const waiting = projects.filter((p) => p.needs_signature);
+  const active = projects.filter((p) => !p.is_complete && !p.is_closed && !p.needs_signature);
+  const finished = projects.filter((p) => p.is_complete || p.is_closed);
+
+  const money = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
 
   const Card = ({ p }: { p: Project }) => (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-mono text-gray-500">{p.job_number}</p>
+            <p className="text-xs font-mono text-gray-500 flex items-center gap-1">
+              {p.kind === "quote" && <FileText className="w-3 h-3" />}
+              {p.kind === "quote" ? `Quote ${p.job_number}` : p.job_number}
+            </p>
             <h3 className="font-semibold text-gray-900 capitalize">{p.title}</h3>
             {p.site && (
               <p className="text-sm text-gray-500 flex items-center gap-1 mt-0.5">
@@ -88,14 +103,17 @@ export default function PortalProjectsPage() {
           </div>
           <span
             className={`px-2.5 py-1 rounded-full text-xs font-medium flex-shrink-0 flex items-center gap-1 ${
-              p.is_on_hold
+              p.is_on_hold || p.is_closed
                 ? "bg-gray-100 text-gray-600"
-                : p.is_complete
+                : p.needs_signature
+                  ? "bg-orange-100 text-orange-700"
+                  : p.is_complete
                   ? "bg-green-100 text-green-700"
                   : "bg-blue-100 text-blue-700"
             }`}
           >
             {p.is_on_hold && <PauseCircle className="w-3 h-3" />}
+            {p.needs_signature && <FileSignature className="w-3 h-3" />}
             {p.is_complete && <CheckCircle className="w-3 h-3" />}
             {p.stage_label}
           </span>
@@ -105,7 +123,9 @@ export default function PortalProjectsPage() {
         <div className="mt-5">
           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${p.is_complete ? "bg-green-500" : "bg-orange-500"}`}
+              className={`h-full rounded-full transition-all ${
+                p.is_closed ? "bg-gray-300" : p.is_complete ? "bg-green-500" : "bg-orange-500"
+              }`}
               style={{ width: `${p.progress}%` }}
             />
           </div>
@@ -128,7 +148,46 @@ export default function PortalProjectsPage() {
           </div>
         </div>
 
+        {p.note && !p.is_complete && (
+          <p className="mt-4 text-sm text-gray-700 flex items-start gap-2">
+            <Info className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+            {p.note}
+          </p>
+        )}
+
+        {p.quote && (
+          <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
+            <div className="text-sm text-gray-600">
+              {p.quote.total !== null && (
+                <span className="font-semibold text-gray-900 text-base mr-3">{money(p.quote.total)}</span>
+              )}
+              {p.quote.expires_at && !p.is_closed && (
+                <span className="text-gray-500">Valid until {fmt(p.quote.expires_at)}</span>
+              )}
+            </div>
+            {p.needs_signature &&
+              (p.quote.sign_url ? (
+                <Link
+                  href={p.quote.sign_url}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium"
+                >
+                  <FileSignature className="w-4 h-4" />
+                  Review &amp; sign quote
+                </Link>
+              ) : (
+                <a
+                  href="tel:3468525540"
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg text-sm font-medium"
+                >
+                  <Phone className="w-4 h-4" />
+                  Call for a new signing link
+                </a>
+              ))}
+          </div>
+        )}
+
         {/* Dates */}
+        {(fmt(p.scheduled_date) || fmt(p.completed_at)) && (
         <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-x-6 gap-y-2 text-sm">
           {fmt(p.scheduled_date) && (
             <span className="text-gray-600 flex items-center gap-1.5">
@@ -143,6 +202,7 @@ export default function PortalProjectsPage() {
             </span>
           )}
         </div>
+        )}
 
         {p.scope && (
           <div className="mt-4 pt-4 border-t border-gray-100">
@@ -179,7 +239,9 @@ export default function PortalProjectsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">My Projects</h1>
-        <p className="text-gray-600 mt-1">Where your work stands, updated by our crew as it happens</p>
+        <p className="text-gray-600 mt-1">
+          Where your work stands, from quote to finished job, updated by our crew as it happens
+        </p>
       </div>
 
       {loading ? (
@@ -196,7 +258,8 @@ export default function PortalProjectsPage() {
           <Wrench className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="font-medium text-gray-900">No projects yet</p>
           <p className="text-sm text-gray-500 mt-1 max-w-md mx-auto">
-            When we schedule work at your property, you&apos;ll be able to follow its progress here.
+            When we send you a quote or schedule work at your property, you&apos;ll be able to follow
+            its progress here.
           </p>
           <Link
             href="/portal/support"
@@ -207,6 +270,17 @@ export default function PortalProjectsPage() {
         </div>
       ) : (
         <>
+          {waiting.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">
+                Waiting on you ({waiting.length})
+              </h2>
+              <div className="space-y-4">
+                {waiting.map((p) => <Card key={p.id} p={p} />)}
+              </div>
+            </div>
+          )}
+
           {active.length > 0 && (
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-3">
@@ -221,7 +295,7 @@ export default function PortalProjectsPage() {
           {finished.length > 0 && (
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                Completed ({finished.length})
+                Completed &amp; closed ({finished.length})
               </h2>
               <div className="space-y-4">
                 {finished.map((p) => <Card key={p.id} p={p} />)}

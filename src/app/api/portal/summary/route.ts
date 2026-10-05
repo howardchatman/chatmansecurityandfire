@@ -12,7 +12,7 @@ const DAY = 24 * 60 * 60 * 1000;
 
 type Alert = {
   id: string;
-  type: "invoice" | "inspection" | "request" | "job";
+  type: "invoice" | "inspection" | "request" | "job" | "quote";
   severity: "high" | "medium" | "info";
   title: string;
   message: string;
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     // jobs and service_tickets key off the customer's email; invoices and
     // inspections key off the customer id.
-    const [invRes, tickRes, jobRes, inspRes] = await Promise.all([
+    const [invRes, tickRes, jobRes, inspRes, quoteRes] = await Promise.all([
       supabaseAdmin
         .from("invoices")
         .select("id, invoice_number, status, total, amount_paid, due_date, created_at")
@@ -78,12 +78,21 @@ export async function GET(request: NextRequest) {
         .eq("customer_id", customerId)
         .order("scheduled_date", { ascending: true })
         .limit(20),
+      // Quotes sent and not yet signed — the one thing waiting on the customer.
+      supabaseAdmin
+        .from("quotes")
+        .select("id, quote_number, status, totals, created_at, expires_at")
+        .ilike("customer->>email", email)
+        .in("status", ["sent", "viewed"])
+        .order("created_at", { ascending: false })
+        .limit(10),
     ]);
 
     const invoices = invRes.data || [];
     const requests = tickRes.data || [];
     const jobs = jobRes.data || [];
     const inspections = inspRes.data || [];
+    const quotesAwaiting = quoteRes.error ? [] : quoteRes.data || [];
 
     const settled = ["paid", "cancelled", "refunded"];
     const openInvoices = invoices.filter((i) => !settled.includes(i.status));
@@ -99,6 +108,22 @@ export async function GET(request: NextRequest) {
 
     // ---- derive alerts ----
     const alerts: Alert[] = [];
+
+    for (const q of quotesAwaiting) {
+      const totals = (q.totals || {}) as { total?: number };
+      alerts.push({
+        id: `quote-${q.id}`,
+        type: "quote",
+        severity: "medium",
+        title: `Quote ${q.quote_number} is ready to sign`,
+        message:
+          typeof totals.total === "number"
+            ? `${money(totals.total)}. Review and sign it to get on the schedule.`
+            : "Review and sign it to get on the schedule.",
+        date: q.created_at,
+        href: "/portal/projects",
+      });
+    }
 
     for (const inv of openInvoices) {
       if (!inv.due_date) continue;

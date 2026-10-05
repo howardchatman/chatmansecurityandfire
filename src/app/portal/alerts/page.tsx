@@ -36,6 +36,7 @@ const typeIcon: Record<string, typeof Bell> = {
   inspection: Calendar,
   request: Ticket,
   job: Wrench,
+  quote: FileText,
 };
 
 const formatDate = (v: string | null) =>

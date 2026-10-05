@@ -32,7 +32,7 @@ const ROLE_BLURB: Record<string, string> = {
   manager: "You'll use it to schedule jobs, manage the crew, and track work in progress.",
   dispatcher: "You'll use it to schedule jobs and keep the crew's day organized.",
   admin: "You'll have full access to the admin dashboard.",
-  customer: "You'll use it to view your projects, invoices, and inspection reports.",
+  customer: "You'll use it to review and sign quotes, follow your project from quote to completion, and see your invoices and inspection reports.",
 };
 
 export async function sendEmployeeInviteEmail(opts: {

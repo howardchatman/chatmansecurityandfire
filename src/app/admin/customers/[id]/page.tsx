@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
 import CustomerSystems from "@/components/admin/CustomerSystems";
+import PortalAccess from "@/components/admin/PortalAccess";
 
 interface CustomerData {
   id: string;
@@ -327,6 +328,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
               )}
             </div>
           )}
+          <PortalAccess customerId={customer.id} name={customer.name} email={customer.email} />
         </div>
 
         {/* Tabs Content */}
