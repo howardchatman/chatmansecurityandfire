@@ -54,14 +54,16 @@ async function writeBySquareId(
   table: string,
   idColumn: string,
   squareId: string,
-  record: Record<string, unknown>
+  record: Record<string, unknown>,
+  /** Fields written only when the row is first created, never on later syncs. */
+  insertOnly: Record<string, unknown> = {}
 ): Promise<void> {
   const { data: existing, error: findErr } = await supabaseAdmin
     .from(table).select("id").eq(idColumn, squareId).maybeSingle();
   if (findErr) throw findErr;
   const { error } = existing
     ? await supabaseAdmin.from(table).update(record).eq("id", existing.id)
-    : await supabaseAdmin.from(table).insert([record]);
+    : await supabaseAdmin.from(table).insert([{ ...insertOnly, ...record }]);
   if (error) throw error;
 }
 
@@ -199,17 +201,25 @@ export async function syncCatalog(): Promise<{ count: number; errors: string[] }
       const vName = vd?.name && !/^(regular|default)$/i.test(vd.name) ? ` — ${vd.name}` : "";
       const name = `${item.name ?? "Item"}${vName}`;
       const cents = vd?.price_money?.amount;
-      const unit_cost = typeof cents === "number" ? cents / 100 : 0;
+      const squarePrice = typeof cents === "number" && cents > 0 ? cents / 100 : null;
+
+      // A price set in Square wins. When Square has none (variable pricing,
+      // or simply left blank) the item arrives at $0 the first time, and any
+      // rate typed into the site's Inventory afterwards is kept — re-running
+      // the sync must not quietly wipe it back to $0.
+      const record: Record<string, unknown> = {
+        name,
+        category,
+        unit: "each",
+        description: item.description || (vd?.pricing_type === "VARIABLE_PRICING" ? "Variable pricing in Square — priced per job" : null),
+        square_catalog_id: v.id,
+        updated_at: new Date().toISOString(),
+      };
+      if (squarePrice !== null) record.unit_cost = squarePrice;
 
       try {
-        await writeBySquareId("proposal_inventory", "square_catalog_id", v.id, {
-          name,
-          category,
-          unit: "each",
-          unit_cost,
-          description: item.description || (vd?.pricing_type === "VARIABLE_PRICING" ? "Variable pricing in Square — priced per job" : null),
-          square_catalog_id: v.id,
-          updated_at: new Date().toISOString(),
+        await writeBySquareId("proposal_inventory", "square_catalog_id", v.id, record, {
+          unit_cost: squarePrice ?? 0,
         });
         count++;
       } catch (e) {
