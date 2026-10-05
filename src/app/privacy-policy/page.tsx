@@ -77,8 +77,9 @@ export default function PrivacyPolicyPage() {
         <a href="mailto:info@chatmansecurityandfire.com" className="text-orange-600 font-medium hover:underline">info@chatmansecurityandfire.com</a>.
       </p>
       <p className={p}>
-        <strong>Data Sharing.</strong> We do not sell, rent, share, or disclose your mobile phone number or
-        SMS consent data to third parties for their marketing or promotional purposes. Your information may
+        <strong>Data Sharing.</strong> We do not sell or share your SMS opt-in data or personal information
+        with third parties for marketing purposes. We do not sell, rent, share, or disclose your mobile phone
+        number or SMS consent data to third parties for their marketing or promotional purposes. Your information may
         be shared with our SMS service provider solely to facilitate message delivery. No mobile information
         will be shared with third parties or affiliates for marketing or promotional purposes, and SMS
         opt-in consent is never shared with any third party.
