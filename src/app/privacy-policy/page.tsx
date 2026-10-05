@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Chatman Security & Fire",
+  title: "Privacy Policy",
   description:
     "Privacy Policy for Chatman Security & Fire (Chatman Inc.) — how we collect, use, and protect your information, including SMS messaging consent and opt-out.",
   alternates: { canonical: "/privacy-policy" },

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | Chatman Security & Fire",
+  title: "Terms & Conditions",
   description:
     "Terms and Conditions for Chatman Security & Fire (Chatman Inc.) — services, SMS messaging terms, appointments, payment, warranties, and opt-out instructions.",
   alternates: { canonical: "/terms-and-conditions" },
@@ -14,7 +14,7 @@ const ul = "list-disc pl-6 space-y-1.5 text-gray-600 mb-4";
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms and Conditions" lastUpdated="October 5, 2026">
+    <LegalPage title="Terms &amp; Conditions" lastUpdated="October 5, 2026">
       <p className={p}>
         Please read these Terms and Conditions (&ldquo;Terms&rdquo;) carefully before using the services of
         Chatman Inc., doing business as Chatman Security &amp; Fire (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
@@ -51,7 +51,7 @@ export default function TermsPage() {
         will confirm final pricing before work begins.
       </p>
 
-      <h2 className={h2}>3. SMS Messaging Terms</h2>
+      <h2 className={h2}>3. SMS Terms</h2>
       <p className={p}>
         <strong>Program Name:</strong> Chatman Security &amp; Fire Alerts, operated by Chatman Inc.
       </p>
