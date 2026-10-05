@@ -1,4 +1,4 @@
-import { blogPosts } from "@/lib/blog-posts";
+import { blogPosts, postUrl } from "@/lib/blog-posts";
 
 const SITE = "https://www.chatmansecurityandfire.com";
 
@@ -22,8 +22,8 @@ export function GET() {
     .map(
       (p) => `    <item>
       <title>${esc(p.title)}</title>
-      <link>${esc(p.url)}</link>
-      <guid isPermaLink="true">${esc(p.url)}</guid>
+      <link>${esc(postUrl(p))}</link>
+      <guid isPermaLink="true">${esc(postUrl(p))}</guid>
       <description>${esc(p.description)}</description>
       <category>${esc(p.category)}</category>
       <pubDate>${new Date(p.date).toUTCString()}</pubDate>
@@ -35,7 +35,7 @@ export function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Chatman Security &amp; Fire — Fire &amp; Life Safety Blog</title>
-    <link>${SITE}</link>
+    <link>${SITE}/blog</link>
     <atom:link href="${SITE}/rss.xml" rel="self" type="application/rss+xml" />
     <description>Fire alarm, sprinkler, security, and life safety guidance for Houston-area businesses from Chatman Security &amp; Fire.</description>
     <language>en-us</language>

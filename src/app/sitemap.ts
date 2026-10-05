@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { cities } from "@/lib/cities-data";
 import { catalogServiceSlugs } from "@/lib/service-catalog";
 import { ROLES } from "@/lib/careers";
+import { blogPosts } from "@/lib/blog-posts";
 
 // Must match the canonical host in layout.tsx. A sitemap listing the non-www
 // host while every page canonicalises to www splits the ranking signals across
@@ -42,6 +43,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/financing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/sell-your-accounts`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/careers`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/blog`, lastModified: blogPosts[0] ? new Date(blogPosts[0].date) : new Date(), changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/privacy-policy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/terms-and-conditions`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
   ];
@@ -81,5 +83,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       }))
     );
 
-  return [...staticPages, ...careerPages, ...servicePages, ...cityPages, ...serviceCityPages];
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((p) => ({
+    url: `${BASE_URL}/blog/${p.slug}`,
+    lastModified: new Date(p.date),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...careerPages, ...servicePages, ...cityPages, ...serviceCityPages, ...blogPages];
 }

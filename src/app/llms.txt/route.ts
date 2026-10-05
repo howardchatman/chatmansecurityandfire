@@ -1,4 +1,5 @@
 import { cities } from "@/lib/cities-data";
+import { blogPosts } from "@/lib/blog-posts";
 import { catalogServices } from "@/lib/service-catalog";
 import { siteServices, SITE_URL } from "@/lib/site-services";
 
@@ -54,6 +55,11 @@ export function GET() {
         (s) => `- [${s.name} in ${c.name}, TX](${SITE_URL}/service-areas/${c.slug}/${s.slug})`
       )
     ),
+    "",
+    "## Guides",
+    "",
+    `- [Blog](${SITE_URL}/blog): plain-English fire and life safety guidance for Houston-area businesses`,
+    ...blogPosts.map((p) => `- [${p.title}](${SITE_URL}/blog/${p.slug}): ${p.description}`),
     "",
     "## Other",
     "",
