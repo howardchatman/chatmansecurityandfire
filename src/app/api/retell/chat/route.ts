@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import OpenAI from "openai";
 import { createLead, supabaseAdmin } from "@/lib/supabase";
 import { sendLeadNotification } from "@/lib/email";
@@ -125,13 +125,13 @@ async function executeSaveLead(args: {
     preferred_contact: "phone",
   });
 
-  sendLeadNotification({
+  after(sendLeadNotification({
     name: args.name,
     email: args.email || "not provided",
     phone: args.phone,
     message: messageParts.join("\n"),
     source: "chad_chat",
-  }).catch((err) => console.error("Lead notification error:", err));
+  }).catch((err) => console.error("Lead notification error:", err)));
 
   return { success: true };
 }

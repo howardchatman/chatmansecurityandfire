@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { supabaseAdmin as supabase } from "@/lib/supabase";
 import { sendAccessGrantedEmail } from "@/lib/email";
 import { verifyAuth } from "@/lib/auth";
@@ -117,11 +117,11 @@ export async function POST(
     }
 
     // Send access granted email
-    sendAccessGrantedEmail({
+    after(sendAccessGrantedEmail({
       customerEmail: lead.email,
       customerName: lead.name,
       portalUrl,
-    }).catch((err) => console.error("Failed to send access granted email:", err));
+    }).catch((err) => console.error("Failed to send access granted email:", err)));
 
     return NextResponse.json({
       success: true,

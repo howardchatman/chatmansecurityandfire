@@ -14,7 +14,7 @@
  *   -d '{"call_id":"test_123","event":"call_started","from":"+18325551234"}'
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { parseRetellPayload, determineEventType } from "@/lib/retell/parse";
 import { processRetellWebhook } from "@/lib/retell/db";
 import { sendLeadNotification } from "@/lib/email";
@@ -107,13 +107,13 @@ export async function POST(request: NextRequest) {
       if (parsed.extracted.callbackRequested) messageParts.push("Callback requested");
       if (parsed.summary) messageParts.push(`Summary: ${parsed.summary}`);
 
-      sendLeadNotification({
+      after(sendLeadNotification({
         name: result.lead.name || phone || "Unknown Caller",
         email: result.lead.email || "no-email@retell-call.local",
         phone,
         message: messageParts.join("\n") || `Retell ${eventType}`,
         source: "retell",
-      }).catch((err) => console.error("[Retell Webhook] Email notification failed:", err));
+      }).catch((err) => console.error("[Retell Webhook] Email notification failed:", err)));
     }
 
     // 8. Log result

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { verifyAuth } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
@@ -97,7 +97,7 @@ export async function POST(
 
       const total = formatAmount(Math.round(invoice.total * 100));
 
-      sendInvoiceEmail({
+      after(sendInvoiceEmail({
         customerEmail: invoice.customer.email,
         customerName: invoice.customer.name || invoice.customer.company || "Customer",
         invoiceNumber: invoice.invoice_number,
@@ -105,17 +105,17 @@ export async function POST(
         dueDate,
         description: `Invoice ${invoice.invoice_number}`,
         payUrl: stripeInvoice.hosted_invoice_url,
-      }).catch((err) => console.error("Failed to send invoice email:", err));
+      }).catch((err) => console.error("Failed to send invoice email:", err)));
 
       // Text the pay link too. Invoices sit unread in email; a text with a link
       // gets paid. Never awaited — a failed send must not fail the invoice.
       if (invoice.customer.phone) {
-        sendSms({
+        after(sendSms({
           name: invoice.customer.name || invoice.customer.company || "Customer",
           phone: invoice.customer.phone,
           email: invoice.customer.email,
           message: smsTemplates.invoiceSent(invoice.invoice_number, total, stripeInvoice.hosted_invoice_url),
-        }).catch((err) => console.error("Failed to text the invoice:", err));
+        }).catch((err) => console.error("Failed to text the invoice:", err)));
       }
     }
 

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { verifyAuth } from "@/lib/auth";
 import { sendSms, smsTemplates } from "@/lib/sms";
 import { supabaseAdmin as supabase,
@@ -213,12 +213,12 @@ export async function PATCH(
             .eq("id", id)
             .maybeSingle();
           if (jb?.customer_phone) {
-            sendSms({
+            after(sendSms({
               name: jb.customer_name || "Customer",
               phone: jb.customer_phone,
               email: jb.customer_email,
               message: smsTemplates.jobUpdate(String(data.note).slice(0, 90)),
-            }).catch((err) => console.error("job update text failed:", err));
+            }).catch((err) => console.error("job update text failed:", err)));
           }
         }
 

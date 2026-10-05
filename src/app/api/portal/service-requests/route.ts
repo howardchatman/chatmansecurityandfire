@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
 import { getCustomerIdForUser } from "@/lib/customer";
@@ -112,9 +112,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Failed to submit request" }, { status: 500 });
     }
 
-    // Tell Howard, and put it in the CRM so it lands in the pipeline like any
-    // other inbound work. Neither should block the customer's submission.
-    sendEmail({
+    // Tell Howard. Runs after the response so it can't block the customer's
+    // submission, and via after() so Vercel doesn't cut it off.
+    after(sendEmail({
       to: process.env.ADMIN_EMAIL || "howardchatman@icloud.com",
       subject: `Portal service request: ${title} — ${customerName}`,
       html: `
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
         <p><strong>${title}</strong></p>
         <p>${(body.description || "").replace(/\n/g, "<br/>")}</p>
       `,
-    }).catch((err) => console.error("Service request email failed:", err));
+    }).catch((err) => console.error("Service request email failed:", err)));
 
     return NextResponse.json({
       success: true,

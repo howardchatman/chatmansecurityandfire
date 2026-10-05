@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    sendEmail({
+    after(sendEmail({
       to: process.env.ADMIN_EMAIL || "howardchatman@icloud.com",
       subject: `Application: ${data.role_title} — ${fullName}`,
       html: `
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
         <p>${resumeFilename ? `Résumé attached to their record: ${resumeFilename}` : "No résumé uploaded."}</p>
         <p><a href="https://www.chatmansecurityandfire.com/admin/careers">Review in the dashboard</a></p>
       `,
-    }).catch((err) => console.error("Application notification failed:", err));
+    }).catch((err) => console.error("Application notification failed:", err)));
 
     return NextResponse.json({
       success: true,

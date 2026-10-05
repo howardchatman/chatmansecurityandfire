@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import {
   getOrCreateStripeCustomer,
   createInvoice,
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
         ? new Date(invoice.due_date * 1000).toLocaleDateString()
         : "Upon Receipt";
 
-      sendInvoiceEmail({
+      after(sendInvoiceEmail({
         customerEmail,
         customerName,
         invoiceNumber: invoiceData.invoiceNumber,
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
           ? `Deposit (${depositPercent}%) - ${description}`
           : description,
         payUrl: invoice.hosted_invoice_url,
-      }).catch((err) => console.error("Failed to send invoice email:", err));
+      }).catch((err) => console.error("Failed to send invoice email:", err)));
     }
 
     return NextResponse.json({
