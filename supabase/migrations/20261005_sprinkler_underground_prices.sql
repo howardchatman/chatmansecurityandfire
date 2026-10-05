@@ -18,7 +18,11 @@ with prices(name, category, unit, unit_cost, description) as (values
   ('UG-WETTAP-4IN', 'Underground Fire Line', 'each', 4500.00, '4-inch wet tap with tapping sleeve and tapping valve'),
   ('UG-GATE-VALVE-4IN', 'Underground Fire Line', 'each', 1200.00, '4-inch resilient wedge gate valve with valve box'),
   ('UG-THRUST-BLOCK', 'Underground Fire Line', 'each', 350.00, 'Poured concrete thrust block'),
-  ('UG-FDC', 'Underground Fire Line', 'each', 1450.00, 'Fire department connection, 2.5 x 2.5 x 4-inch, with check valve')
+  ('UG-FDC', 'Underground Fire Line', 'each', 1450.00, 'Fire department connection, 2.5 x 2.5 x 4-inch, with check valve'),
+  ('UG-BACKFLOW-4IN', 'Underground Fire Line', 'each', 4800.00, '4-inch double check detector backflow assembly with test cocks'),
+  ('UG-FLOW-TEST', 'Underground Fire Line', 'each', 650.00, 'Fire hydrant flow test for hydraulic design'),
+  ('UG-HYDRO-DISINFECT', 'Underground Fire Line', 'each', 950.00, 'Hydrostatic test, flush and disinfection of the underground fire line'),
+  ('UG-PERMIT', 'Underground Fire Line', 'each', 750.00, 'Underground fire line permit and plan review fee allowance')
 ),
 updated as (
   update proposal_inventory p
