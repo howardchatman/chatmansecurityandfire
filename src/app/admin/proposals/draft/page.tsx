@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Sparkles,
   Loader2,
@@ -35,6 +36,11 @@ export default function ProposalsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  // The proposal_history row this draft is saved as, once saved or reopened.
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [savedFor, setSavedFor] = useState<string>("");
+  // Saved, and still pointing at the customer it was saved for.
+  const isSaved = !!savedId && !!customerId && savedFor === customerId;
 
   useEffect(() => {
     (async () => {
@@ -46,8 +52,34 @@ export default function ProposalsPage() {
     })();
   }, []);
 
+  // /admin/proposals/draft?id=… reopens a saved draft — the link the
+  // customer page's Proposals tab uses.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (!id) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/proposal-agent/proposals?id=${encodeURIComponent(id)}`);
+        const json = await res.json();
+        const pd = json.data?.proposal_data as (Draft & { customer_id?: string | null; description?: string }) | null;
+        if (!res.ok || !pd?.document) {
+          setError(json.error || "That saved proposal couldn't be opened.");
+          return;
+        }
+        setDraft({ document: pd.document, dropped_items: pd.dropped_items || [], attempts: pd.attempts || 1 });
+        setCustomerId(pd.customer_id || json.data.customer_id || "");
+        setDescription(pd.description || "");
+        setSavedId(json.data.id);
+        setSavedFor(pd.customer_id || json.data.customer_id || "");
+        setNotice("Opened a saved draft.");
+      } catch {
+        setError("That saved proposal couldn't be opened.");
+      }
+    })();
+  }, []);
+
   const generate = async () => {
-    setError(""); setNotice(""); setGenerating(true); setDraft(null);
+    setError(""); setNotice(""); setGenerating(true); setDraft(null); setSavedId(null);
     try {
       const res = await fetch("/api/proposal-agent/generate", {
         method: "POST",
@@ -74,13 +106,23 @@ export default function ProposalsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           client_name: cust ? cust.company || cust.name : "Unassigned",
+          customer_id: customerId || null,
           status: "draft",
+          total: draft.document.total,
+          proposal_type: "ai_draft",
+          filename: draft.document.project_name,
           proposal_data: { ...draft, customer_id: customerId || null, description },
         }),
       });
       const data = await res.json();
-      if (data.error) { setError(data.error); return; }
-      setNotice("Saved as a draft proposal.");
+      if (!res.ok || data.error) { setError(data.error || "Couldn't save the proposal."); return; }
+      setSavedId(data.data?.id || null);
+      setSavedFor(customerId);
+      setNotice(
+        customerId
+          ? "Saved. It's on the customer's page under Proposals."
+          : "Saved, but not linked to a customer. Pick a customer and save again to put it in their file."
+      );
     } catch {
       setError("Couldn't save the proposal.");
     } finally {
@@ -143,12 +185,17 @@ export default function ProposalsPage() {
           {draft && (
             <button
               onClick={save}
-              disabled={saving}
+              disabled={saving || isSaved}
               className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save draft
+              {isSaved ? "Saved" : "Save draft"}
             </button>
+          )}
+          {isSaved && (
+            <Link href={`/admin/customers/${customerId}`} className="text-sm text-orange-600 hover:underline">
+              Open customer file
+            </Link>
           )}
         </div>
 

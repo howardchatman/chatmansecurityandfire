@@ -35,6 +35,13 @@ interface CustomerData {
   notes: string;
   status: string;
   created_at: string;
+  proposals?: Array<{
+    id: string;
+    title: string;
+    status: string;
+    total: number | null;
+    created_at: string;
+  }>;
   quotes: Array<{
     id: string;
     quote_number: string;
@@ -156,6 +163,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   const tabs = [
     { key: "overview", label: "Overview" },
     { key: "systems", label: "Systems" },
+    { key: "proposals", label: `Proposals (${customer.proposals?.length ?? 0})` },
     { key: "quotes", label: `Quotes (${customer.quotes.length})` },
     { key: "jobs", label: `Jobs (${customer.jobs.length})` },
     { key: "invoices", label: `Invoices (${customer.invoices.length})` },
@@ -405,6 +413,48 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
 
 
           {/* Quotes Tab */}
+          {activeTab === "proposals" && (
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              {!customer.proposals?.length ? (
+                <div className="text-center py-8">
+                  <p className="text-sm text-gray-400">No proposals yet</p>
+                  <Link href="/admin/proposals/draft" className="inline-block mt-3 text-sm text-orange-600 hover:underline">
+                    Draft a proposal
+                  </Link>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-500">Proposal</th>
+                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-500">Amount</th>
+                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-500">Status</th>
+                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-500">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customer.proposals.map((p) => (
+                      <tr
+                        key={p.id}
+                        className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => router.push(`/admin/proposals/draft?id=${p.id}`)}
+                      >
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">{p.title}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {p.total !== null
+                            ? `$${p.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+                            : "—"}
+                        </td>
+                        <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
+                        <td className="px-4 py-3 text-sm text-gray-500">{new Date(p.created_at).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
           {activeTab === "quotes" && (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               {customer.quotes.length === 0 ? (

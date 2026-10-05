@@ -54,10 +54,40 @@ export async function GET(
         .limit(20),
     ]);
 
+    // Proposal drafts saved from the AI draft page or the Proposal Agent.
+    // Linked by customer_id once the 20261005b migration has run; before that
+    // (and for drafts saved earlier) the id only lives inside proposal_data.
+    const PROPOSAL_COLS = "id, client_name, status, total, filename, proposal_type, created_at, proposal_data";
+    let proposalsRes = await supabaseAdmin
+      .from("proposal_history")
+      .select(PROPOSAL_COLS)
+      .or(`customer_id.eq.${id},proposal_data->>customer_id.eq.${id}`)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (proposalsRes.error) {
+      proposalsRes = await supabaseAdmin
+        .from("proposal_history")
+        .select("id, client_name, status, filename, created_at, proposal_data")
+        .eq("proposal_data->>customer_id", id)
+        .order("created_at", { ascending: false })
+        .limit(20) as typeof proposalsRes;
+    }
+    const proposals = (proposalsRes.data || []).map((p) => {
+      const pd = (p.proposal_data || {}) as { document?: { project_name?: string; total?: number } };
+      return {
+        id: p.id,
+        title: pd.document?.project_name || p.filename || p.client_name || "Proposal",
+        status: p.status || "draft",
+        total: (p as { total?: number | null }).total ?? pd.document?.total ?? null,
+        created_at: p.created_at,
+      };
+    });
+
     return NextResponse.json({
       success: true,
       data: {
         ...customer,
+        proposals,
         quotes: quotesRes.data || [],
         jobs: jobsRes.data || [],
         invoices: invoicesRes.data || [],
