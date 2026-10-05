@@ -49,6 +49,8 @@ export default function LeadCaptureForm({
     serviceNeed: service || "",
     description: "",
   });
+  // SMS opt-in for A2P/10DLC: optional, unchecked by default, never required.
+  const [smsConsent, setSmsConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
   const handleChange = (
@@ -66,6 +68,7 @@ export default function LeadCaptureForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          smsConsent,
           source: variant,
           page: typeof window !== "undefined" ? window.location.pathname : "",
         }),
@@ -235,6 +238,23 @@ export default function LeadCaptureForm({
                 />
               </>
             )}
+
+            <label className="flex items-start gap-3 text-xs text-gray-400 leading-relaxed cursor-pointer">
+              <input
+                type="checkbox"
+                name="smsConsent"
+                checked={smsConsent}
+                onChange={(e) => setSmsConsent(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[#E85D04]"
+              />
+              <span>
+                Yes, text me about my request, appointments, and service updates from Chatman Security &amp;
+                Fire. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out, HELP
+                for help. Consent is not a condition of purchase. See our{" "}
+                <a href="/privacy-policy" className="underline hover:text-white">Privacy Policy</a> and{" "}
+                <a href="/terms-and-conditions" className="underline hover:text-white">Terms</a>.
+              </span>
+            </label>
 
             <button
               type="submit"

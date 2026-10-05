@@ -1,8 +1,8 @@
-import Script from "next/script";
 import Link from "next/link";
 import { ArrowLeft, Phone, FileText } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import LeadCaptureForm from "@/components/LeadCaptureForm";
 
 export default function RequestQuoteContent() {
   return (
@@ -10,7 +10,7 @@ export default function RequestQuoteContent() {
       <Navbar />
       <main className="pt-20 bg-gray-50 min-h-screen">
         {/* Hero */}
-        <section className="bg-[#0D1B2A] py-14">
+        <section className="bg-[#0D1B2A] pt-14 pb-2">
           <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
             <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-orange-400 mb-6 transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />
@@ -35,41 +35,22 @@ export default function RequestQuoteContent() {
           </div>
         </section>
 
-        {/* GoHighLevel Quote Request Form */}
-        <section className="py-12">
-          <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl mx-auto bg-white rounded-3xl border border-gray-200 shadow-sm p-3 sm:p-5">
-              <iframe
-                src="https://api.leadconnectorhq.com/widget/form/IEl7ihLU41vm4w0mKgZ2"
-                style={{ width: "100%", height: "1697px", border: "none", borderRadius: "8px" }}
-                id="inline-IEl7ihLU41vm4w0mKgZ2"
-                data-layout="{'id':'INLINE'}"
-                data-trigger-type="alwaysShow"
-                data-trigger-value=""
-                data-activation-type="alwaysActivated"
-                data-activation-value=""
-                data-deactivation-type="neverDeactivate"
-                data-deactivation-value=""
-                data-form-name="Fire & Life Safety Quote Request"
-                data-height="1697"
-                data-layout-iframe-id="inline-IEl7ihLU41vm4w0mKgZ2"
-                data-form-id="IEl7ihLU41vm4w0mKgZ2"
-                title="Fire & Life Safety Quote Request"
-              />
-            </div>
+        <LeadCaptureForm
+          variant="inline"
+          heading="Project details"
+          subtext="Name and phone are all we need to get started. Add the building type and what's going on if you have it."
+        />
 
-            {/* Fallback call CTA */}
-            <div className="max-w-2xl mx-auto mt-6 text-center">
-              <a href="tel:+13468525540" className="inline-flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium transition-colors">
-                <Phone className="w-4 h-4" />
-                Or call us directly: (346) 852-5540
-              </a>
-            </div>
+        <section className="py-8">
+          <div className="max-w-2xl mx-auto text-center px-4">
+            <a href="tel:+13468525540" className="inline-flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium transition-colors">
+              <Phone className="w-4 h-4" />
+              Or call us directly: (346) 852-5540
+            </a>
           </div>
         </section>
       </main>
       <Footer />
-      <Script src="https://link.msgsndr.com/js/form_embed.js" strategy="afterInteractive" />
     </>
   );
 }

@@ -1,16 +1,15 @@
-import { sendGhlSms } from "@/lib/gohighlevel";
-
 /**
- * One way to send a text, two possible carriers behind it.
+ * Outbound texts, sent through Twilio.
  *
- * Today the number's A2P/10DLC registration lives with GoHighLevel, so GHL is
- * the sender. If the number is ported back to Twilio, set the TWILIO_* vars and
- * this switches over — no route handler changes, and both can be configured at
- * once while a port is verified.
+ * The sending number is the Twilio line (TWILIO_FROM_NUMBER). Until its
+ * A2P/10DLC registration is approved and the TWILIO_* vars are set, texts are
+ * skipped and logged — never thrown — so a missing text can't fail the job
+ * update, invoice, or lead that triggered it. Lead alerts still reach the
+ * owner by email in the meantime.
  *
  * Transactional messages only: job scheduling, progress, completion, billing.
- * Those are covered by the existing registration. Marketing to contacts who
- * never opted in is not, and risks the number.
+ * Marketing to contacts who never opted in is not covered by the registration
+ * and risks the number.
  */
 
 export type SmsResult = { sent: boolean; provider: string; reason?: string };
@@ -64,28 +63,45 @@ export async function sendSms(opts: {
 }): Promise<SmsResult> {
   if (!opts.phone) return { sent: false, provider: "none", reason: "no phone number on file" };
 
-  if (twilioConfigured()) {
-    try {
-      return await sendViaTwilio(opts.phone, opts.message);
-    } catch (err) {
-      console.error("[SMS/twilio] threw:", err);
-      return { sent: false, provider: "twilio", reason: "send failed" };
-    }
+  if (!twilioConfigured()) {
+    console.warn("[SMS] Twilio not configured — text skipped");
+    return { sent: false, provider: "none", reason: "Twilio not configured" };
   }
 
-  const r = await sendGhlSms(opts);
-  return { ...r, provider: "gohighlevel" };
+  try {
+    return await sendViaTwilio(opts.phone, opts.message);
+  } catch (err) {
+    console.error("[SMS/twilio] threw:", err);
+    return { sent: false, provider: "twilio", reason: "send failed" };
+  }
 }
 
-export { smsTemplates } from "@/lib/gohighlevel";
+/**
+ * Message bodies, kept together so the wording can be reviewed in one place
+ * rather than hunted through route handlers.
+ *
+ * Deliberately short — one SMS segment is 160 characters, and anything longer
+ * is billed and delivered as multiple messages.
+ */
+export const smsTemplates = {
+  jobScheduled: (date: string) =>
+    `Chatman Security & Fire: you're scheduled for ${date}. We'll text if anything changes. Questions? Call (346) 852-5540. Reply STOP to opt out.`,
+
+  jobUpdate: (update: string) =>
+    `Chatman Security & Fire update: ${update} Reply STOP to opt out.`,
+
+  jobComplete: () =>
+    `Chatman Security & Fire: your work is complete. Your invoice is on its way by email. Questions? (346) 852-5540. Reply STOP to opt out.`,
+
+  invoiceSent: (invoiceNumber: string, total: string, payUrl: string) =>
+    `Chatman Security & Fire: invoice ${invoiceNumber} for ${total} is ready. Pay here: ${payUrl} Reply STOP to opt out.`,
+};
 
 /**
  * Text the owner the moment a lead comes in.
  *
- * Email to iCloud gets spam-filtered; a text does not. Routes through the same
- * abstraction above — Twilio directly if configured (clean, no CRM contact),
- * otherwise GoHighLevel. Set OWNER_ALERT_PHONE to change where alerts land; it
- * defaults to the business cell.
+ * Email to iCloud gets spam-filtered; a text does not. Set OWNER_ALERT_PHONE to
+ * change where alerts land; it defaults to the business cell.
  *
  * Fire-and-forget: a failed alert must never stop a lead being saved. Callers
  * still .catch().
@@ -106,7 +122,5 @@ export async function notifyOwnerOfLead(lead: {
   let body = parts.join(" · ");
   if (lead.message) body += `\n"${lead.message.slice(0, 120)}"`;
 
-  // name/email identify the alert destination (the owner), not the lead — kept
-  // distinct so a GHL fallback doesn't file the alert under the lead's contact.
   return sendSms({ name: "CSF Lead Alert", phone: to, message: body });
 }

@@ -14,7 +14,7 @@ const ul = "list-disc pl-6 space-y-1.5 text-gray-600 mb-4";
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms and Conditions" lastUpdated="July 24, 2026">
+    <LegalPage title="Terms and Conditions" lastUpdated="October 5, 2026">
       <p className={p}>
         Please read these Terms and Conditions (&ldquo;Terms&rdquo;) carefully before using the services of
         Chatman Security &amp; Fire, Inc. (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
@@ -57,13 +57,15 @@ export default function TermsPage() {
       </p>
       <p className={p}>
         By opting in to our SMS program, you agree to receive text messages from Chatman Security &amp;
-        Fire, Inc. Message types include appointment reminders, fire and life safety alerts, and customer
-        care communications related to your account with us.
+        Fire, Inc. Message types include appointment reminders, job status and completion notices, invoice and
+        payment notifications, fire and life safety alerts, and customer care communications related to
+        your account with us.
       </p>
       <p className={p}>
-        <strong>How to Opt In.</strong> You may opt in by checking the SMS consent box on our service
-        agreement form or website chat widget and submitting your mobile number, or by texting START or
-        SUBSCRIBE to our SMS number.
+        <strong>How to Opt In.</strong> You may opt in by checking the optional text-message consent box on
+        a form on our website (such as our{" "}
+        <a href="/request-quote" className="text-orange-600 font-medium hover:underline">quote request form</a>)
+        or on our service agreement and submitting your mobile number, or by texting START to our SMS number.
       </p>
       <p className={p}>
         <strong>How to Opt Out.</strong> Reply STOP to unsubscribe at any time. You will receive one
@@ -71,7 +73,7 @@ export default function TermsPage() {
       </p>
       <p className={p}>
         <strong>Help.</strong> For assistance, reply HELP to any message, or contact us at{" "}
-        <a href="tel:+18326391433" className="text-orange-600 font-medium hover:underline">(832) 639-1433</a>{" "}
+        <a href="tel:+13468525540" className="text-orange-600 font-medium hover:underline">(346) 852-5540</a>{" "}
         or{" "}
         <a href="mailto:info@chatmansecurityandfire.com" className="text-orange-600 font-medium hover:underline">info@chatmansecurityandfire.com</a>.
       </p>

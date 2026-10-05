@@ -14,7 +14,7 @@ const ul = "list-disc pl-6 space-y-1.5 text-gray-600 mb-4";
 
 export default function PrivacyPolicyPage() {
   return (
-    <LegalPage title="Privacy Policy" lastUpdated="July 24, 2026">
+    <LegalPage title="Privacy Policy" lastUpdated="October 5, 2026">
       <p className={p}>
         Chatman Security &amp; Fire, Inc. (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
         &ldquo;our&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we
@@ -45,13 +45,16 @@ export default function PrivacyPolicyPage() {
 
       <h2 className={h2}>3. SMS &amp; Text Messaging</h2>
       <p className={p}>
-        Chatman Security &amp; Fire, Inc. offers SMS/text messaging to customers who opt in through our
-        service agreement form, our website chat widget, or other opt-in methods. By providing your mobile
-        phone number and opting in, you consent to receive SMS text messages from us regarding:
+        Chatman Security &amp; Fire, Inc. offers SMS/text messaging to customers who opt in by checking the
+        optional text-message consent box on a form on our website (for example, our{" "}
+        <a href="/request-quote" className="text-orange-600 font-medium hover:underline">quote request form</a>)
+        or on our service agreement. The box is never pre-checked and is not required to submit a form. By
+        opting in, you consent to receive SMS text messages from us regarding:
       </p>
       <ul className={ul}>
         <li>Appointment confirmations, reminders, and scheduling updates</li>
         <li>Fire and life safety alerts related to your monitored systems</li>
+        <li>Job status, completion, and invoice/payment notifications</li>
         <li>Customer care communications related to your account</li>
       </ul>
       <p className={p}>
@@ -69,7 +72,7 @@ export default function PrivacyPolicyPage() {
       <p className={p}>
         Reply STOP to unsubscribe at any time. Reply START to opt back in. Reply HELP for help, or
         contact us at{" "}
-        <a href="tel:+18326391433" className="text-orange-600 font-medium hover:underline">(832) 639-1433</a>{" "}
+        <a href="tel:+13468525540" className="text-orange-600 font-medium hover:underline">(346) 852-5540</a>{" "}
         or{" "}
         <a href="mailto:info@chatmansecurityandfire.com" className="text-orange-600 font-medium hover:underline">info@chatmansecurityandfire.com</a>.
       </p>

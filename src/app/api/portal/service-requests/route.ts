@@ -3,7 +3,6 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
 import { getCustomerIdForUser } from "@/lib/customer";
 import { sendEmail } from "@/lib/email";
-import { upsertGhlContact } from "@/lib/gohighlevel";
 import { normalizePriority, normalizeServiceType } from "@/lib/service-tickets";
 
 // Customer-facing service requests. The admin /api/tickets endpoint is staff
@@ -131,15 +130,6 @@ export async function POST(request: NextRequest) {
         <p>${(body.description || "").replace(/\n/g, "<br/>")}</p>
       `,
     }).catch((err) => console.error("Service request email failed:", err));
-
-    upsertGhlContact({
-      name: customerName,
-      email: customerEmail,
-      phone: customer?.phone,
-      source: "portal_service_request",
-      tags: ["Service Request", data.service_type],
-      note: `Portal service request ${data.ticket_number} (${data.priority})\n${title}\n${body.description || ""}`,
-    }).catch((err) => console.error("Service request GHL push failed:", err));
 
     return NextResponse.json({
       success: true,

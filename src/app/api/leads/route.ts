@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
-import { upsertGhlContact } from "@/lib/gohighlevel";
 import { notifyOwnerOfLead } from "@/lib/sms";
 import { verifyAuth } from "@/lib/auth";
 
@@ -55,6 +54,10 @@ export async function POST(request: NextRequest) {
     if (body.buildingType) messageParts.push(`Building type: ${body.buildingType}`);
     if (body.description) messageParts.push(`Details: ${body.description}`);
     if (body.page) messageParts.push(`Page: ${body.page}`);
+    // A2P/10DLC proof of opt-in: kept on the lead itself, stamped by created_at.
+    if (body.smsConsent === true) {
+      messageParts.push("SMS consent: YES — checked the text-message opt-in box on the form");
+    }
     if (body.message) messageParts.push(body.message);
     const composedMessage = messageParts.length ? messageParts.join("\n") : undefined;
 
@@ -68,17 +71,6 @@ export async function POST(request: NextRequest) {
     };
 
     const data = await createLead(lead);
-
-    // Push into GoHighLevel — the single source of truth for CRM / leads /
-    // sales pipeline. Fires for every lead (phone-only or with email).
-    after(upsertGhlContact({
-      name: lead.name,
-      email: lead.email,
-      phone: lead.phone,
-      source: lead.source || "website",
-      tags: [body.serviceNeed, body.buildingType].filter(Boolean),
-      note: lead.message || undefined,
-    }).catch((err) => console.error("Failed to push lead to GoHighLevel:", err)));
 
     // Send email notification (don't await to avoid slowing down response)
     after(sendLeadNotification({

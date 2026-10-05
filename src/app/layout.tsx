@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
-import GhlChatWidget from "@/components/GhlChatWidget";
 import LocalBusinessSchema from "@/components/LocalBusinessSchema";
 
 const inter = Inter({
@@ -61,9 +60,6 @@ export default function RootLayout({
         {/* Business identity for search engines and AI assistants, on every page. */}
         <LocalBusinessSchema />
         <AuthProvider>{children}</AuthProvider>
-        {/* GoHighLevel chat widget — loads on all pages EXCEPT /request-quote,
-            which has its own embedded GHL form (one consent point per page). */}
-        <GhlChatWidget />
       </body>
     </html>
   );
