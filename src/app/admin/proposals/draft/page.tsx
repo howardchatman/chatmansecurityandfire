@@ -86,11 +86,20 @@ export default function ProposalsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ customer_id: customerId || undefined, description }),
       });
-      const data = await res.json();
+      // A platform timeout or crash comes back as an HTML page, not JSON.
+      const data = await res.json().catch(() => null);
+      if (!data) {
+        setError(
+          res.status === 504 || res.status === 408
+            ? "The draft took too long and the server stopped it. Try again, or split a big job into two drafts."
+            : `The proposal service failed (HTTP ${res.status}). Try again in a minute.`
+        );
+        return;
+      }
       if (!data.success) { setError(data.error || "Couldn't draft the proposal."); return; }
       setDraft(data.data);
     } catch {
-      setError("Couldn't reach the proposal service.");
+      setError("Couldn't reach the proposal service. Check your connection and try again.");
     } finally {
       setGenerating(false);
     }

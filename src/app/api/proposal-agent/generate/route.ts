@@ -14,6 +14,16 @@ import type { ProposalDocument, ScopeLineItem } from "@/lib/proposal-doc";
 // dropped rather than silently priced.
 
 const MODEL = "claude-sonnet-5";
+
+// A full draft is one long model reply (sometimes a retry or two). Without
+// this, Vercel cut the function off at its default limit and the browser got
+// a timeout page instead of JSON — shown as "Couldn't reach the proposal
+// service". 300s is the most every Vercel plan allows; the cron route already
+// relies on more than the old 60s default.
+export const maxDuration = 300;
+
+// Leave room under maxDuration: never start another attempt that can't finish.
+const RETRY_BUDGET_MS = 170_000;
 const TAX_RATE = 0.0825; // Harris County
 
 interface DraftScope {
@@ -157,7 +167,12 @@ Reply with ONLY a JSON object, no prose and no code fence:
     let lastFailure = "";
     let attemptsUsed = 0;
 
+    const startedAt = Date.now();
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      if (attempt > 1 && Date.now() - startedAt > RETRY_BUDGET_MS) {
+        lastFailure += " (stopped retrying: out of time)";
+        break;
+      }
       attemptsUsed = attempt;
 
       const resp = await fetch("https://api.anthropic.com/v1/messages", {
