@@ -12,6 +12,12 @@ export async function GET(
     if (!auth) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
+    // A customer's whole file — contact details, quotes, jobs, invoices,
+    // proposals — is staff-only. Portal logins see their own records through
+    // /api/portal/*, which scopes to their customer.
+    if (auth.role === "customer") {
+      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    }
 
     const { id } = await params;
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
-import { getCustomerIdForUser } from "@/lib/customer";
+import { getCustomerIdForUser, likeExact } from "@/lib/customer";
 import { CUSTOMER_STAGES, stageForQuote, stageForStatus } from "@/lib/job-stages";
 
 // A customer's view of the work we're doing for them — from the quote through
@@ -114,7 +114,7 @@ async function loadQuotes(email: string, convertedQuoteIds: Set<string>) {
   const { data: quotes, error } = await supabaseAdmin
     .from("quotes")
     .select("id, quote_number, status, totals, site, quote_type, created_at, expires_at")
-    .ilike("customer->>email", email)
+    .ilike("customer->>email", likeExact(email))
     .neq("status", "draft")
     .order("created_at", { ascending: false });
 

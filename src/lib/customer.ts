@@ -2,6 +2,15 @@ import { supabaseAdmin } from "@/lib/supabase";
 import type { JWTPayload } from "@/lib/auth";
 
 /**
+ * An email made safe for a case-insensitive exact match with `.ilike()`. In a
+ * LIKE pattern `_` matches any character, so an unescaped "j_smith@acme.com"
+ * would also match "jxsmith@acme.com" — and show one customer another's records.
+ */
+export function likeExact(value: string): string {
+  return value.replace(/[\\%_]/g, "\\$&");
+}
+
+/**
  * Resolve the customers.id that a logged-in user is allowed to see.
  *
  * Prefers the explicit `customer_id` carried on the auth token (populated once the
@@ -25,7 +34,7 @@ export async function getCustomerIdForUser(
   const { data, error } = await supabaseAdmin
     .from("customers")
     .select("id")
-    .ilike("email", user.email)
+    .ilike("email", likeExact(user.email))
     .maybeSingle();
 
   if (error) {

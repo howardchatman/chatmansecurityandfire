@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
-import { getCustomerIdForUser } from "@/lib/customer";
+import { getCustomerIdForUser, likeExact } from "@/lib/customer";
 
 // Everything the portal dashboard and alerts pages need, in one customer-scoped
 // call. Alerts are derived from real records rather than stored: an overdue
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
       supabaseAdmin
         .from("quotes")
         .select("id, quote_number, status, totals, created_at, expires_at")
-        .ilike("customer->>email", email)
+        .ilike("customer->>email", likeExact(email))
         .in("status", ["sent", "viewed"])
         .order("created_at", { ascending: false })
         .limit(10),
