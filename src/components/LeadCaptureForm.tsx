@@ -91,6 +91,11 @@ export default function LeadCaptureForm({
         </div>
         <h3 className="text-xl font-bold text-[#0D1B2A] mb-2">Got it. I&apos;ll be in touch.</h3>
         <p className="text-gray-500">You&apos;ll hear from me within one business day. For urgent needs, call (346) 852-5540.</p>
+        {smsConsent && (
+          <p className="text-gray-500 mt-2">
+            You opted in to text updates. We&apos;ll send a confirmation text. Reply STOP anytime to opt out.
+          </p>
+        )}
       </div>
     );
   }
@@ -239,20 +244,21 @@ export default function LeadCaptureForm({
               </>
             )}
 
-            <label className="flex items-start gap-3 text-xs text-gray-400 leading-relaxed cursor-pointer">
+            <label className="flex items-start gap-3 text-sm text-gray-200 leading-relaxed cursor-pointer bg-white/5 border border-white/15 rounded-xl p-4">
               <input
                 type="checkbox"
                 name="smsConsent"
                 checked={smsConsent}
                 onChange={(e) => setSmsConsent(e.target.checked)}
-                className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[#E85D04]"
+                className="mt-1 h-5 w-5 flex-shrink-0 accent-[#E85D04]"
               />
               <span>
-                Yes, text me about my request, appointments, and service updates from Chatman Security &amp;
-                Fire. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out, HELP
-                for help. Consent is not a condition of purchase. See our{" "}
-                <a href="/privacy-policy" className="underline hover:text-white">Privacy Policy</a> and{" "}
-                <a href="/terms-and-conditions" className="underline hover:text-white">Terms</a>.
+                <strong className="text-white">Yes, text me</strong> about my request, appointments, and service
+                updates from <strong className="text-white">Chatman Security &amp; Fire</strong>. Message frequency
+                varies. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a
+                condition of purchase. See our{" "}
+                <a href="/privacy-policy" className="underline text-white hover:text-orange-300">Privacy Policy</a> and{" "}
+                <a href="/terms-and-conditions" className="underline text-white hover:text-orange-300">Terms</a>.
               </span>
             </label>
 

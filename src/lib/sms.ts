@@ -84,6 +84,10 @@ export async function sendSms(opts: {
  * is billed and delivered as multiple messages.
  */
 export const smsTemplates = {
+  // Sent once, right after someone checks the SMS consent box on a site form.
+  optInConfirmation: () =>
+    `Chatman Security & Fire: you're signed up for texts about your service. Msg frequency varies. Msg & data rates may apply. Reply HELP for help, STOP to opt out.`,
+
   jobScheduled: (date: string) =>
     `Chatman Security & Fire: you're scheduled for ${date}. We'll text if anything changes. Questions? Call (346) 852-5540. Reply STOP to opt out.`,
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { createLead, getLeads, type Lead } from "@/lib/supabase";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
-import { notifyOwnerOfLead } from "@/lib/sms";
+import { notifyOwnerOfLead, sendSms, smsTemplates } from "@/lib/sms";
 import { verifyAuth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
@@ -89,6 +89,17 @@ export async function POST(request: NextRequest) {
       source: lead.source,
       message: lead.message,
     }).catch((err) => console.error("Failed to text owner about lead:", err)));
+
+    // Welcome text for anyone who checked the SMS consent box — the opt-in
+    // confirmation carriers expect (A2P/10DLC). Skipped until Twilio is live.
+    if (body.smsConsent === true && lead.phone) {
+      after(sendSms({
+        name: lead.name,
+        phone: lead.phone,
+        email: lead.email,
+        message: smsTemplates.optInConfirmation(),
+      }).catch((err) => console.error("Failed to send opt-in confirmation text:", err)));
+    }
 
     // Send confirmation to customer only if they provided an email
     if (lead.email) {
