@@ -4,7 +4,7 @@ import LegalPage from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Terms & Conditions | Chatman Security & Fire",
   description:
-    "Terms and Conditions for Chatman Security & Fire, Inc. — services, SMS messaging terms, appointments, payment, warranties, and opt-out instructions.",
+    "Terms and Conditions for Chatman Security & Fire (Chatman Inc.) — services, SMS messaging terms, appointments, payment, warranties, and opt-out instructions.",
   alternates: { canonical: "/terms-and-conditions" },
 };
 
@@ -17,14 +17,14 @@ export default function TermsPage() {
     <LegalPage title="Terms and Conditions" lastUpdated="October 5, 2026">
       <p className={p}>
         Please read these Terms and Conditions (&ldquo;Terms&rdquo;) carefully before using the services of
-        Chatman Security &amp; Fire, Inc. (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
+        Chatman Inc., doing business as Chatman Security &amp; Fire (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
         &ldquo;our&rdquo;). By contacting us, submitting a form, or engaging our services, you agree to be
         bound by these Terms.
       </p>
 
       <h2 className={h2}>1. Services</h2>
       <p className={p}>
-        Chatman Security &amp; Fire, Inc. provides professional security and fire protection services
+        Chatman Security &amp; Fire provides professional security and fire protection services
         including, but not limited to:
       </p>
       <ul className={ul}>
@@ -45,7 +45,7 @@ export default function TermsPage() {
 
       <h2 className={h2}>2. Quotes &amp; Estimates</h2>
       <p className={p}>
-        All quotes and estimates provided by Chatman Security &amp; Fire, Inc. are based on information
+        All quotes and estimates provided by Chatman Security &amp; Fire are based on information
         available at the time of assessment. Final pricing may vary based on actual site conditions, scope
         changes, material costs, or permit requirements discovered during installation. A written agreement
         will confirm final pricing before work begins.
@@ -53,11 +53,11 @@ export default function TermsPage() {
 
       <h2 className={h2}>3. SMS Messaging Terms</h2>
       <p className={p}>
-        <strong>Program Name:</strong> Chatman Security &amp; Fire Alerts
+        <strong>Program Name:</strong> Chatman Security &amp; Fire Alerts, operated by Chatman Inc.
       </p>
       <p className={p}>
-        By opting in to our SMS program, you agree to receive text messages from Chatman Security &amp;
-        Fire, Inc. Message types include appointment reminders, job status and completion notices, invoice and
+        By opting in to our SMS program, you agree to receive text messages from Chatman Inc., doing
+        business as Chatman Security &amp; Fire. Message types include appointment reminders, job status and completion notices, invoice and
         payment notifications, fire and life safety alerts, and customer care communications related to
         your account with us.
       </p>
@@ -103,7 +103,7 @@ export default function TermsPage() {
         <li>Site assessments and consultations are offered free of charge.</li>
         <li>Clients are asked to provide at least 24 hours notice to reschedule or cancel a confirmed appointment.</li>
         <li>Repeated no-shows or late cancellations may result in a scheduling fee.</li>
-        <li>Chatman Security &amp; Fire, Inc. reserves the right to reschedule appointments due to crew availability, weather, or other unforeseen circumstances.</li>
+        <li>Chatman Security &amp; Fire reserves the right to reschedule appointments due to crew availability, weather, or other unforeseen circumstances.</li>
       </ul>
 
       <h2 className={h2}>5. Payment Terms</h2>
@@ -116,13 +116,13 @@ export default function TermsPage() {
 
       <h2 className={h2}>6. Warranties</h2>
       <ul className={ul}>
-        <li>Chatman Security &amp; Fire, Inc. warrants its installation workmanship against defects for a period specified in the executed service agreement.</li>
+        <li>Chatman Security &amp; Fire warrants its installation workmanship against defects for a period specified in the executed service agreement.</li>
         <li>Equipment and hardware warranties are provided by the respective manufacturers and subject to their terms.</li>
         <li>Warranty coverage does not apply to damage caused by misuse, unauthorized modifications, natural disasters, or third-party interference.</li>
       </ul>
 
       <h2 className={h2}>7. Limitation of Liability</h2>
-      <p className={p}>To the fullest extent permitted by applicable law, Chatman Security &amp; Fire, Inc. shall not be liable for:</p>
+      <p className={p}>To the fullest extent permitted by applicable law, Chatman Security &amp; Fire shall not be liable for:</p>
       <ul className={ul}>
         <li>Indirect, incidental, or consequential damages arising from the use or inability to use our services</li>
         <li>Losses resulting from system failure, equipment malfunction, power outages, or third-party service interruptions</li>
@@ -135,7 +135,7 @@ export default function TermsPage() {
 
       <h2 className={h2}>8. Permits &amp; Compliance</h2>
       <p className={p}>
-        Chatman Security &amp; Fire, Inc. operates in compliance with applicable local, state, and federal
+        Chatman Security &amp; Fire operates in compliance with applicable local, state, and federal
         regulations. Where required, we will coordinate permit applications on behalf of the client. The
         client is responsible for providing accurate property information and access necessary for permit
         filing and inspection.
@@ -144,7 +144,7 @@ export default function TermsPage() {
       <h2 className={h2}>9. Intellectual Property</h2>
       <p className={p}>
         All content on our website, including text, images, logos, and documentation, is the property of
-        Chatman Security &amp; Fire, Inc. and may not be reproduced, distributed, or used without prior
+        Chatman Security &amp; Fire and may not be reproduced, distributed, or used without prior
         written permission.
       </p>
 
@@ -165,7 +165,7 @@ export default function TermsPage() {
       <h2 className={h2}>12. Contact Us</h2>
       <p className={p}>For questions about these Terms, please contact:</p>
       <div className="bg-gray-50 rounded-xl p-5 text-gray-700 leading-relaxed">
-        <strong>Chatman Security &amp; Fire, Inc.</strong><br />
+        <strong>Chatman Inc., d/b/a Chatman Security &amp; Fire</strong><br />
         3403 West TC Jester Blvd #1112<br />
         Houston, TX 77018<br />
         Phone: <a href="tel:+13468525540" className="text-orange-600 font-medium hover:underline">(346) 852-5540</a><br />
