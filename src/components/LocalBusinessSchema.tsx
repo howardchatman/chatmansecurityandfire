@@ -55,6 +55,10 @@ export default function LocalBusinessSchema() {
       "NFPA 25 sprinkler inspection, testing and maintenance",
       "International Fire Code (IFC)",
       "Fire marshal inspections and violation corrections",
+      "Fire and security contracting for school districts",
+      "Fire and security contracting for cities, municipalities, and government facilities",
+      "Fire alarm and security subcontracting for prime contractors on public projects",
+      "Prevailing wage and certified payroll for public works",
       ...siteServices.map((s) => s.name),
     ],
     openingHoursSpecification: [

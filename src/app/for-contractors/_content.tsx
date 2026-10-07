@@ -189,7 +189,12 @@ export default function ForContractorsPage() {
               </p>
 
               <p className="text-gray-400 mb-10">
-                Serving the greater Houston area on new construction, TIs, schools, and commercial build-outs.
+                Serving the greater Houston area on new construction, TIs, schools, and commercial build-outs, plus
+                public projects for school districts, cities, and government facilities, with prevailing wage and
+                certified payroll.{" "}
+                <Link href="/government" className="text-orange-400 hover:text-orange-300 underline underline-offset-2">
+                  Public-sector work
+                </Link>
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">

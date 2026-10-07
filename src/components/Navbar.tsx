@@ -146,6 +146,7 @@ const navigation = [
   { name: "Home", href: "/" },
   { name: "Services", href: "#services", hasDropdown: true },
   { name: "Financing", href: "/financing" },
+  { name: "Government", href: "/government" },
   { name: "For Contractors", href: "/for-contractors" },
   { name: "Careers", href: "/careers" },
   { name: "About", href: "/about" },
@@ -196,7 +197,7 @@ export default function Navbar() {
         <nav className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <Link href="/" className="flex items-center group">
+            <Link href="/" className="flex items-center group flex-shrink-0">
               <img
                 src="/csf_wide_logo.png"
                 alt="Chatman Security and Fire"
@@ -207,7 +208,7 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden xl:flex items-center gap-0.5">
               {navigation.map((item) =>
                 item.hasDropdown ? (
                   <div
@@ -216,7 +217,7 @@ export default function Navbar() {
                     onMouseEnter={() => setIsServicesOpen(true)}
                     onMouseLeave={() => setIsServicesOpen(false)}
                   >
-                    <button className="flex items-center gap-1 px-4 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors">
+                    <button className="flex items-center gap-1 px-2 py-2 whitespace-nowrap text-gray-700 hover:text-orange-600 font-medium transition-colors">
                       {item.name}
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${
@@ -289,7 +290,7 @@ export default function Navbar() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="px-4 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors"
+                    className="px-2 py-2 whitespace-nowrap text-gray-700 hover:text-orange-600 font-medium transition-colors"
                   >
                     {item.name}
                   </Link>
@@ -298,16 +299,7 @@ export default function Navbar() {
             </div>
 
             {/* Desktop CTA */}
-            <div className="hidden lg:flex items-center gap-4">
-              <a
-                href="tel:+13468525540"
-                className="flex items-center gap-2 text-gray-700 hover:text-orange-600 transition-colors"
-              >
-                <div className="p-2 bg-orange-50 rounded-full">
-                  <Phone className="w-4 h-4 text-orange-600" />
-                </div>
-                <span className="text-sm font-semibold">(346) 852-5540</span>
-              </a>
+            <div className="hidden xl:flex items-center gap-2">
 
               {/* User Menu or Sign In Button */}
               {user ? (
@@ -373,14 +365,14 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => setIsSignInOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:text-orange-600 font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap text-gray-700 hover:text-orange-600 font-medium transition-colors"
                   >
                     <User className="w-4 h-4" />
                     Sign In
                   </button>
                   <a
                     href="tel:+13468525540"
-                    className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
+                    className="flex items-center gap-2 px-5 py-2.5 whitespace-nowrap bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors"
                   >
                     <Phone className="w-4 h-4" />
                     Emergency Service
@@ -392,7 +384,7 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-700 hover:text-orange-600"
+              className="xl:hidden p-2 text-gray-700 hover:text-orange-600"
             >
               {isMobileMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -410,7 +402,7 @@ export default function Navbar() {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="lg:hidden border-t border-gray-100 overflow-hidden bg-white"
+                className="xl:hidden border-t border-gray-100 overflow-hidden bg-white"
               >
                 <div className="py-4 space-y-1">
                   {navigation.map((item) => (

@@ -5,6 +5,7 @@ import RequestQuoteBanner from "@/components/RequestQuoteBanner";
 import FinancingBanner from "@/components/FinancingBanner";
 import LeadMagnetBanner from "@/components/LeadMagnetBanner";
 import Services from "@/components/Services";
+import PublicSectorBanner from "@/components/PublicSectorBanner";
 import BrinksBanner from "@/components/BrinksBanner";
 import FreeTools from "@/components/FreeTools";
 import HowItWorks from "@/components/HowItWorks";
@@ -27,6 +28,7 @@ export default function Home() {
           <FinancingBanner />
           <BrinksBanner />
           <Services />
+          <PublicSectorBanner />
           <PersonalStory />
           <FreeTools />
           <HowItWorks />
