@@ -4,7 +4,7 @@ import LegalPage from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Privacy Policy for Chatman Security & Fire (Chatman Inc.) — how we collect, use, and protect your information, including SMS messaging consent and opt-out.",
+    "Privacy Policy for Chatman Security & Fire, Inc. — how we collect, use, and protect your information, including SMS messaging consent and opt-out.",
   alternates: { canonical: "/privacy-policy" },
 };
 
@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
   return (
     <LegalPage title="Privacy Policy" lastUpdated="October 5, 2026">
       <p className={p}>
-        Chatman Inc., doing business as Chatman Security &amp; Fire (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
+        Chatman Security &amp; Fire, Inc. (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
         &ldquo;our&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we
         collect, use, disclose, and safeguard your information when you visit our website, contact us,
         or use our services.
@@ -45,7 +45,7 @@ export default function PrivacyPolicyPage() {
 
       <h2 className={h2}>3. SMS &amp; Text Messaging</h2>
       <p className={p}>
-        Chatman Inc., doing business as Chatman Security &amp; Fire, offers SMS/text messaging to customers who opt in by checking the
+        Chatman Security &amp; Fire, Inc. offers SMS/text messaging to customers who opt in by checking the
         optional text-message consent box on a form on our website (for example, our{" "}
         <a href="/request-quote" className="text-orange-600 font-medium hover:underline">quote request form</a>)
         or on our service agreement. The box is never pre-checked and is not required to submit a form. By
@@ -139,7 +139,7 @@ export default function PrivacyPolicyPage() {
       <h2 className={h2}>10. Contact Us</h2>
       <p className={p}>If you have questions about this Privacy Policy or your personal data, please contact us:</p>
       <div className="bg-gray-50 rounded-xl p-5 text-gray-700 leading-relaxed">
-        <strong>Chatman Inc., d/b/a Chatman Security &amp; Fire</strong><br />
+        <strong>Chatman Security &amp; Fire, Inc.</strong><br />
         3403 West TC Jester Blvd #1112<br />
         Houston, TX 77018<br />
         Phone: <a href="tel:+13468525540" className="text-orange-600 font-medium hover:underline">(346) 852-5540</a><br />

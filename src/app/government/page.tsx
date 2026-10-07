@@ -374,7 +374,7 @@ export default function GovernmentPage() {
                 </dl>
               </div>
               <div className="rounded-2xl border border-gray-200 p-6 text-sm text-gray-700 space-y-3">
-                <p className="font-semibold text-[#0D1B2A]">Chatman Security &amp; Fire</p>
+                <p className="font-semibold text-[#0D1B2A]">Chatman Security &amp; Fire, Inc.</p>
                 <p>
                   3403 West TC Jester Blvd, #1112
                   <br />

@@ -196,7 +196,7 @@ export default function Footer() {
         <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-neutral-400 text-sm">
-              &copy; {currentYear} Chatman Inc., d/b/a Chatman Security &amp; Fire. All rights reserved.
+              &copy; {currentYear} Chatman Security &amp; Fire, Inc. All rights reserved.
             </p>
 
             {/* Social Links */}
