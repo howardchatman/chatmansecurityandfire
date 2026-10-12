@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import AcademyContent from "./_content";
 
 export const metadata: Metadata = {
-  title: "Fire Protection Academy: Free Fire Sprinkler Learning Game",
+  title: "Fire Protection Academy: Free Fire Safety Learning Games",
   description:
-    "Learn how fire sprinkler systems actually work in five quick levels. Name the parts of a sprinkler, see why only the hot head opens, follow the water from the city main, and spot fire code violations. Free, no sign-up.",
+    "Free games that teach how fire sprinklers, fire alarms, and fire extinguishers work. Three courses: sprinkler anatomy and water flow, alarm panels and detectors, classes of fire and the P.A.S.S. method. No sign-up.",
   alternates: { canonical: "/academy" },
   openGraph: {
     title: "Fire Protection Academy | Chatman Security & Fire",
     description:
-      "A free game that teaches how fire sprinklers work: sprinkler anatomy, bulb colors, system water flow, and the violations fire marshals write up.",
+      "Learn fire sprinklers, fire alarms, and fire extinguishers through quick games, then spot the violations a fire marshal would write up.",
     url: "https://www.chatmansecurityandfire.com/academy",
   },
 };

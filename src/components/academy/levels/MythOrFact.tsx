@@ -8,7 +8,9 @@ import { FeedbackSheet, LevelHeader, type LevelProps, SheetSpacer, shuffle } fro
 const SECONDS = 15;
 const ROUNDS = 10;
 
-const STATEMENTS: { text: string; fact: boolean; why: string }[] = [
+export type Statement = { text: string; fact: boolean; why: string };
+
+const STATEMENTS: Statement[] = [
   {
     text: "Smoke from burnt popcorn can set off a fire sprinkler.",
     fact: false,
@@ -73,8 +75,18 @@ const STATEMENTS: { text: string; fact: boolean; why: string }[] = [
 
 type Answer = { said: boolean | null; right: boolean };
 
-export default function MythOrFact({ onFinish, onExit }: LevelProps) {
-  const [deck] = useState(() => shuffle(STATEMENTS).slice(0, ROUNDS));
+export default function MythOrFact(props: LevelProps) {
+  return <MythOrFactLevel {...props} title="Myth or Fact" statements={STATEMENTS} />;
+}
+
+/** Rapid-fire true/false round. Courses pass their own statements. */
+export function MythOrFactLevel({
+  onFinish,
+  onExit,
+  title,
+  statements,
+}: LevelProps & { title: string; statements: Statement[] }) {
+  const [deck] = useState(() => shuffle(statements).slice(0, ROUNDS));
   const [i, setI] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -133,7 +145,7 @@ export default function MythOrFact({ onFinish, onExit }: LevelProps) {
 
   return (
     <div>
-      <LevelHeader title="Myth or Fact" step={i} total={deck.length} score={score} onExit={onExit} />
+      <LevelHeader title={title} step={i} total={deck.length} score={score} onExit={onExit} />
 
       <div className="max-w-xl mx-auto">
         <div className="flex items-center justify-between text-sm font-semibold text-gray-500 mb-2 h-7">

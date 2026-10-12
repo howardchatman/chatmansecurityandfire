@@ -143,7 +143,7 @@ const freeTools = [
   },
   {
     name: "Fire Protection Academy",
-    description: "Learn how sprinklers work, as a game",
+    description: "Sprinkler, alarm & extinguisher games",
     href: "/academy",
     icon: GraduationCap,
   },

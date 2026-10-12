@@ -205,7 +205,18 @@ button {
   animation: academy-ping 1.2s ease-out infinite;
 }
 
+@keyframes academy-sweep {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(7deg); }
+}
+
+.academy-sweep {
+  transform-box: view-box;
+  animation: academy-sweep 0.9s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .academy-sweep,
   .academy-flicker,
   .academy-rise,
   .academy-spray,

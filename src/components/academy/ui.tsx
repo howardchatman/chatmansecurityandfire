@@ -165,19 +165,27 @@ export function FeedbackSheet({
 }
 
 /** Multiple-choice answers. Locks once answered and marks right and wrong. */
+const choiceColumns = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-2 sm:grid-cols-3",
+};
+
 export function Choices({
   options,
   answer,
   picked,
   onPick,
+  columns = 1,
 }: {
   options: React.ReactNode[];
   answer: number;
   picked: number | null;
   onPick: (index: number) => void;
+  columns?: 1 | 2 | 3;
 }) {
   return (
-    <div className="grid gap-2.5">
+    <div className={`grid gap-2.5 ${choiceColumns[columns]}`}>
       {options.map((opt, i) => {
         const done = picked !== null;
         const isAnswer = i === answer;
