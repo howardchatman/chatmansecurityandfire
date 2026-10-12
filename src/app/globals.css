@@ -141,3 +141,75 @@ button {
 .bg-pattern {
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ea580c' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
+
+/* Fire Protection Academy (/academy) — graph-paper play area and the small
+   loops the game's illustrations use: flames, rising heat, sprinkler spray. */
+.academy-grid {
+  background-color: #fbf6ea;
+  background-image:
+    linear-gradient(rgba(194, 65, 12, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(194, 65, 12, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@keyframes academy-flicker {
+  0%, 100% { transform: scale(1, 1); }
+  25% { transform: scale(0.94, 1.08); }
+  50% { transform: scale(1.05, 0.95); }
+  75% { transform: scale(0.97, 1.05); }
+}
+
+.academy-flicker {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: academy-flicker 0.6s ease-in-out infinite;
+}
+
+@keyframes academy-rise {
+  0% { opacity: 0; transform: translateY(14px); }
+  35% { opacity: 0.85; }
+  100% { opacity: 0; transform: translateY(-26px); }
+}
+
+.academy-rise {
+  animation: academy-rise 1.6s ease-in infinite;
+}
+
+@keyframes academy-spray {
+  to { stroke-dashoffset: -24; }
+}
+
+.academy-spray {
+  stroke-dasharray: 3 5;
+  animation: academy-spray 0.45s linear infinite;
+}
+
+@keyframes academy-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.academy-shake {
+  animation: academy-shake 0.4s ease-in-out;
+}
+
+@keyframes academy-ping {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.academy-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: academy-ping 1.2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .academy-flicker,
+  .academy-rise,
+  .academy-spray,
+  .academy-ping {
+    animation: none;
+  }
+}

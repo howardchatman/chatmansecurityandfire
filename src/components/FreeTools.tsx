@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FileSearch, Building2, ArrowRight } from "lucide-react";
+import { FileSearch, Building2, GraduationCap, ArrowRight } from "lucide-react";
 
 const tools = [
   {
@@ -19,6 +19,14 @@ const tools = [
     href: "/recommend",
     icon: Building2,
     cta: "Get Recommendations",
+    badge: null,
+  },
+  {
+    name: "Fire Protection Academy",
+    description: "A quick game that shows how fire sprinklers actually work, from the parts of a sprinkler head to spotting code violations.",
+    href: "/academy",
+    icon: GraduationCap,
+    cta: "Play the Game",
     badge: null,
   },
 ];
@@ -43,7 +51,7 @@ export default function FreeTools() {
         </motion.div>
 
         {/* Tools Grid */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {tools.map((tool, index) => (
             <motion.div
               key={tool.name}

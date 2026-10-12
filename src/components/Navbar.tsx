@@ -30,6 +30,7 @@ import {
   BellRing,
   DoorOpen,
   ShieldAlert,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SignInModal from "./SignInModal";
@@ -139,6 +140,12 @@ const freeTools = [
     description: "Find out what services you need",
     href: "/recommend",
     icon: Building2,
+  },
+  {
+    name: "Fire Protection Academy",
+    description: "Learn how sprinklers work, as a game",
+    href: "/academy",
+    icon: GraduationCap,
   },
 ];
 
