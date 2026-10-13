@@ -4,7 +4,7 @@
 // beside it, and an explanation after every answer. Courses supply the data.
 
 import { useState } from "react";
-import { Choices, FeedbackSheet, LevelHeader, type LevelProps, Prompt, SheetSpacer, shuffle } from "../ui";
+import { Choices, CodeRef, FeedbackSheet, LevelHeader, type LevelProps, Prompt, SheetSpacer, shuffle } from "../ui";
 
 export type QuizQuestion = {
   prompt: string;
@@ -17,6 +17,10 @@ export type QuizQuestion = {
   right?: string;
   wrong?: string;
   explain: React.ReactNode;
+  /** Where the rule comes from, e.g. "NFPA 25". */
+  ref?: string;
+  /** Overrides the level's answer-grid columns for this question. */
+  columns?: 1 | 2 | 3;
 };
 
 export default function QuizLevel({
@@ -69,7 +73,7 @@ export default function QuizLevel({
             {q.visual(answered)}
           </div>
         )}
-        <Choices key={`c${i}`} options={opts} answer={q.answer} picked={picked} onPick={pick} columns={columns} />
+        <Choices key={`c${i}`} options={opts} answer={q.answer} picked={picked} onPick={pick} columns={q.columns ?? columns} />
       </div>
 
       {answered && <SheetSpacer />}
@@ -82,6 +86,7 @@ export default function QuizLevel({
         onAction={next}
       >
         {q.explain}
+        <CodeRef>{q.ref}</CodeRef>
       </FeedbackSheet>
     </div>
   );

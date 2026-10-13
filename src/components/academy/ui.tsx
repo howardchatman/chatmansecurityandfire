@@ -218,3 +218,29 @@ export function Choices({
 export function SheetSpacer() {
   return <div aria-hidden className="h-64" />;
 }
+
+/** "NFPA 25" style source line under an explanation. */
+export function CodeRef({ children }: { children?: React.ReactNode }) {
+  if (!children) return null;
+  return <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-gray-400">{children}</p>;
+}
+
+/** Big icon + label shown beside a question ("Server room", "Gasoline spill"). */
+export function SubjectCard({
+  icon: Icon,
+  name,
+  tone = "orange",
+}: {
+  icon: React.ElementType;
+  name: string;
+  tone?: "orange" | "red";
+}) {
+  return (
+    <div className="flex items-center gap-4 p-4">
+      <div className={`p-4 rounded-2xl ${tone === "red" ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"}`}>
+        <Icon className="w-10 h-10" />
+      </div>
+      <div className="text-xl font-extrabold text-gray-900">{name}</div>
+    </div>
+  );
+}

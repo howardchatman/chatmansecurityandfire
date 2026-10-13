@@ -143,7 +143,7 @@ const freeTools = [
   },
   {
     name: "Fire Protection Academy",
-    description: "Sprinkler, alarm & extinguisher games",
+    description: "Fire safety & NFPA learning games",
     href: "/academy",
     icon: GraduationCap,
   },

@@ -3,53 +3,61 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Flame } from "lucide-react";
-import { FeedbackSheet, LevelHeader, type LevelProps, SheetSpacer, shuffle } from "../ui";
+import { CodeRef, FeedbackSheet, LevelHeader, type LevelProps, SheetSpacer, shuffle } from "../ui";
 
 const SECONDS = 15;
 const ROUNDS = 10;
 
-export type Statement = { text: string; fact: boolean; why: string };
+export type Statement = { text: string; fact: boolean; why: string; ref?: string };
 
-const STATEMENTS: Statement[] = [
+export const SPRINKLER_MYTHS: Statement[] = [
   {
     text: "Smoke from burnt popcorn can set off a fire sprinkler.",
     fact: false,
     why: "Sprinklers react only to heat at the head. Smoke detectors belong to the fire alarm, a separate system. Burnt popcorn can set off the alarm, but never the sprinklers.",
+    ref: "NFPA 13",
   },
   {
     text: "When one sprinkler opens, all the sprinklers in the building open.",
     fact: false,
     why: "Each head opens on its own when it gets hot. In about 3 out of 4 fires where sprinklers operated, just one opened.",
+    ref: "NFPA 13",
   },
   {
     text: "On a wet sprinkler system, the main control valve stays open 24/7.",
     fact: true,
     why: "The heads hold the water back, not the valve. It's closed only for repairs, and it's locked or supervised so nobody can leave it shut by accident.",
+    ref: "NFPA 25",
   },
   {
     text: "Hanging a lightweight sign from sprinkler pipe is fine.",
     fact: false,
     why: "Nothing gets hung from sprinkler pipe. It strains the hangers and fittings and can block the spray.",
+    ref: "NFPA 25",
   },
   {
     text: "Storage has to stay at least 18 inches below sprinkler heads.",
     fact: true,
     why: "The spray needs room to spread. Some warehouse sprinklers need even more clearance: 36 inches.",
+    ref: "NFPA 13 & NFPA 25",
   },
   {
     text: "A sprinkler head with paint on it can be cleaned and put back in service.",
     fact: false,
     why: "Painted heads have to be replaced. Paint can glue the parts or insulate the bulb so it opens late, or not at all.",
+    ref: "NFPA 25",
   },
   {
     text: "Every sprinkler system needs a fire pump.",
     fact: false,
     why: "Plenty of buildings get enough pressure straight from the city main. A fire pump is added only when the supply can't deliver what the system needs.",
+    ref: "NFPA 20",
   },
   {
     text: "Fire trucks can pump water into a building's sprinkler system.",
     fact: true,
     why: "That's the job of the Fire Department Connection (FDC) on the outside wall. Keep it visible, capped, and unblocked.",
+    ref: "NFPA 25",
   },
   {
     text: "Sprinklers cause more water damage than firefighters' hoses would.",
@@ -60,23 +68,26 @@ const STATEMENTS: Statement[] = [
     text: "The building owner is responsible for keeping the sprinkler system inspected and maintained.",
     fact: true,
     why: "NFPA 25 puts that on the owner, or a representative like the property manager. That includes regular inspections by a licensed sprinkler company.",
+    ref: "NFPA 25",
   },
   {
     text: "A red sprinkler bulb opens at about 155°F.",
     fact: true,
     why: "The liquid's color shows the rating: orange 135°F, red 155°F, yellow 175°F, green 200°F, blue 286°F.",
+    ref: "NFPA 13",
   },
   {
     text: "Buildings with sprinklers should keep spare heads and a sprinkler wrench on site.",
     fact: true,
     why: "NFPA 13 calls for a spare-head cabinet with replacements for each type of head in the building, plus the wrench, so the system can go back in service fast.",
+    ref: "NFPA 13",
   },
 ];
 
 type Answer = { said: boolean | null; right: boolean };
 
 export default function MythOrFact(props: LevelProps) {
-  return <MythOrFactLevel {...props} title="Myth or Fact" statements={STATEMENTS} />;
+  return <MythOrFactLevel {...props} title="Myth or Fact" statements={SPRINKLER_MYTHS} />;
 }
 
 /** Rapid-fire true/false round. Courses pass their own statements. */
@@ -229,6 +240,7 @@ export function MythOrFactLevel({
         onAction={next}
       >
         {card.why}
+        <CodeRef>{card.ref}</CodeRef>
       </FeedbackSheet>
     </div>
   );

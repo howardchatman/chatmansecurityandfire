@@ -2,7 +2,17 @@
 
 import {
   BellRing,
+  BookOpen,
   Building2,
+  CalendarClock,
+  DoorOpen,
+  Grid3x3,
+  GraduationCap,
+  Hash,
+  Layers,
+  ShieldAlert,
+  SlidersHorizontal,
+  UtensilsCrossed,
   ClipboardCheck,
   Droplets,
   FireExtinguisher,
@@ -23,6 +33,17 @@ import Inspector from "./levels/Inspector";
 import MythOrFact from "./levels/MythOrFact";
 import { AlarmAnatomy, AlarmDetectors, AlarmInspector, AlarmMyths, AlarmSignals } from "./content/alarms";
 import { ExtCheck, ExtClasses, ExtMyths, ExtPass, ExtPick } from "./content/extinguishers";
+import {
+  NfpaEgress,
+  NfpaHazards,
+  NfpaImpairments,
+  NfpaItm,
+  NfpaKitchen,
+  NfpaNumbers,
+  NfpaNumbersDial,
+  NfpaWhichStandard,
+} from "./content/nfpa";
+import { FinalExam } from "./content/exam";
 
 export type Level = {
   /** Saved progress is keyed by this id, so never rename one. */
@@ -34,7 +55,7 @@ export type Level = {
   Component: React.ComponentType<LevelProps>;
 };
 
-export type CourseId = "sprinklers" | "alarms" | "extinguishers";
+export type CourseId = "sprinklers" | "alarms" | "extinguishers" | "nfpa";
 
 export type Course = {
   id: CourseId;
@@ -194,9 +215,93 @@ export const COURSES: Course[] = [
       },
     ],
   },
+  {
+    id: "nfpa",
+    hash: "nfpa",
+    name: "NFPA Codes",
+    tagline: "The standards behind every inspection: what each one covers, how often things get tested, and the numbers inspectors check.",
+    icon: BookOpen,
+    levels: [
+      {
+        id: "nfpa-numbers",
+        title: "NFPA by the Numbers",
+        blurb: "Memory match: pair 18 standards with what they cover, from NFPA 1 to NFPA 2001.",
+        minutes: 4,
+        icon: Grid3x3,
+        Component: NfpaNumbers,
+      },
+      {
+        id: "nfpa-which",
+        title: "Which Standard Applies?",
+        blurb: "Read the inspector's note and name the NFPA standard behind it.",
+        minutes: 3,
+        icon: Hash,
+        Component: NfpaWhichStandard,
+      },
+      {
+        id: "nfpa-itm",
+        title: "The ITM Calendar",
+        blurb: "Weekly, monthly, quarterly, yearly, or every 5 years? Schedule 16 inspection and test tasks.",
+        minutes: 4,
+        icon: CalendarClock,
+        Component: NfpaItm,
+      },
+      {
+        id: "nfpa-hazards",
+        title: "Hazard Classification",
+        blurb: "Light, ordinary, or extra hazard? Classify occupancies the way NFPA 13 does.",
+        minutes: 3,
+        icon: Layers,
+        Component: NfpaHazards,
+      },
+      {
+        id: "nfpa-dial",
+        title: "Dial In the Code",
+        blurb: "18 inches? 75 feet? 90 minutes? Set the slider to the number the code calls for.",
+        minutes: 4,
+        icon: SlidersHorizontal,
+        Component: NfpaNumbersDial,
+      },
+      {
+        id: "nfpa-impairments",
+        title: "Impairments & Fire Watch",
+        blurb: "A system has to come down for repairs. Who gets told, what gets tagged, and when you need a fire watch.",
+        minutes: 3,
+        icon: ShieldAlert,
+        Component: NfpaImpairments,
+      },
+      {
+        id: "nfpa-egress",
+        title: "Life Safety Walkthrough",
+        blurb: "Find 5 NFPA 101 and NFPA 80 problems in a corridor: doors, exits, signs, and lights.",
+        minutes: 2,
+        icon: DoorOpen,
+        Component: NfpaEgress,
+      },
+      {
+        id: "nfpa-kitchen",
+        title: "Kitchen Walkthrough",
+        blurb: "Find 5 NFPA 96, 17A, and 10 problems in a restaurant kitchen before time runs out.",
+        minutes: 2,
+        icon: UtensilsCrossed,
+        Component: NfpaKitchen,
+      },
+    ],
+  },
 ];
 
-export function findLevel(id: string) {
+/** The cumulative exam isn't part of any course; it draws from all of them. */
+export const EXAM: Level = {
+  id: "final-exam",
+  title: "Final Exam",
+  blurb: "25 questions from all four courses. Score 80% to pass.",
+  minutes: 8,
+  icon: GraduationCap,
+  Component: FinalExam,
+};
+
+export function findLevel(id: string): { course: Course | null; level: Level; index: number } | null {
+  if (id === EXAM.id) return { course: null, level: EXAM, index: 0 };
   for (const course of COURSES) {
     const index = course.levels.findIndex((l) => l.id === id);
     if (index !== -1) return { course, level: course.levels[index], index };

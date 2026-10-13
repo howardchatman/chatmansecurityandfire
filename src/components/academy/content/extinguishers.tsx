@@ -36,18 +36,8 @@ import {
   SheetSpacer,
   shuffle,
   stepPoints,
+  SubjectCard,
 } from "../ui";
-
-function ThingCard({ icon: Icon, name, tone = "orange" }: { icon: React.ElementType; name: string; tone?: "orange" | "red" }) {
-  return (
-    <div className="flex items-center gap-4 p-4">
-      <div className={`p-4 rounded-2xl ${tone === "red" ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"}`}>
-        <Icon className="w-10 h-10" />
-      </div>
-      <div className="text-xl font-extrabold text-gray-900">{name}</div>
-    </div>
-  );
-}
 
 /* ---------- Level 1: Classes of fire ---------- */
 
@@ -73,11 +63,12 @@ const CLASS_OPTIONS = CLASSES.map((c) => (
 
 const classQ = (icon: React.ElementType, name: string, answer: number, explain: string): QuizQuestion => ({
   prompt: "What class of fire is this?",
-  visual: () => <ThingCard icon={icon} name={name} tone="red" />,
+  visual: () => <SubjectCard icon={icon} name={name} tone="red" />,
   answer,
   right: `Class ${CLASSES[answer].letter}`,
   wrong: `It's Class ${CLASSES[answer].letter}`,
   explain,
+  ref: "NFPA 10",
 });
 
 const CLASS_QUESTIONS: QuizQuestion[] = [
@@ -426,6 +417,7 @@ const checkQ = (c: Condition, sub: string, pass: boolean, explain: string, title
   right: pass ? "Pass, good eye" : (title ?? "Fail, good catch"),
   wrong: pass ? "This one passes" : (title ?? "This one fails"),
   explain,
+  ref: "NFPA 10",
 });
 
 const CHECK_QUESTIONS: QuizQuestion[] = [
@@ -495,12 +487,13 @@ const TYPES = ["ABC dry chemical", "Class K wet chemical", "Carbon dioxide (CO2)
 
 const typeQ = (icon: React.ElementType, name: string, answer: number, explain: string): QuizQuestion => ({
   prompt: "Which extinguisher belongs here?",
-  visual: () => <ThingCard icon={icon} name={name} />,
+  visual: () => <SubjectCard icon={icon} name={name} />,
   options: TYPES,
   answer,
   right: TYPES[answer],
   wrong: `Best fit: ${TYPES[answer]}`,
   explain,
+  ref: "NFPA 10",
 });
 
 const PICK_QUESTIONS: QuizQuestion[] = [
@@ -511,22 +504,24 @@ const PICK_QUESTIONS: QuizQuestion[] = [
   {
     prompt: "How high can you hang a 20-pound extinguisher?",
     sub: "Mounting height matters so anyone can grab it.",
-    visual: () => <ThingCard icon={Ruler} name="Mounting height" />,
+    visual: () => <SubjectCard icon={Ruler} name="Mounting height" />,
     options: ["Top no higher than 5 feet off the floor", "At least 7 feet up so nobody bumps it", "Anywhere, as long as there's a sign"],
     answer: 0,
     right: "No higher than 5 feet",
     wrong: "Top no higher than 5 feet",
     explain: "Extinguishers 40 pounds or lighter hang with the top no higher than 5 feet. Heavier ones go no higher than 3½ feet. Either way, the bottom stays at least 4 inches off the floor.",
+    ref: "NFPA 10",
   },
   {
     prompt: "In an office, how far can someone have to walk to reach an extinguisher?",
     sub: "This is the maximum travel distance for ordinary (Class A) hazards.",
-    visual: () => <ThingCard icon={Footprints} name="Travel distance" />,
+    visual: () => <SubjectCard icon={Footprints} name="Travel distance" />,
     options: ["75 feet", "200 feet", "500 feet"],
     answer: 0,
     right: "75 feet",
     wrong: "It's 75 feet",
     explain: "For ordinary hazards the walk to an extinguisher can't be more than 75 feet. Near commercial cooking with Class K hazards, it's 30 feet.",
+    ref: "NFPA 10",
   },
 ];
 
@@ -536,31 +531,36 @@ export function ExtPick(props: LevelProps) {
 
 /* ---------- Level 5: Myths ---------- */
 
-const EXT_MYTHS: Statement[] = [
+export const EXT_MYTHS: Statement[] = [
   {
     text: "You can put out a grease fire with water.",
     fact: false,
     why: "Water sinks under the burning oil, flashes to steam, and throws flaming oil everywhere. Cover a pan with a lid, or use a Class K extinguisher in a commercial kitchen.",
+    ref: "NFPA 10",
   },
   {
     text: "An ABC extinguisher works on most fires in a typical office.",
     fact: true,
     why: "ABC dry chemical covers ordinary combustibles, flammable liquids, and electrical equipment. That's why it's the most common type.",
+    ref: "NFPA 10",
   },
   {
     text: "Fire extinguishers need a quick visual check every month.",
     fact: true,
     why: "Monthly: is it there, visible, charged, pinned, and undamaged? Then a licensed technician does full maintenance once a year.",
+    ref: "NFPA 10",
   },
   {
     text: "If you only used an extinguisher for a second, it's still good to go.",
     fact: false,
     why: "Any use can let pressure leak out through the valve. A used extinguisher has to be recharged before it goes back on the wall.",
+    ref: "NFPA 10",
   },
   {
     text: "As long as the gauge is in the green, an extinguisher never needs service.",
     fact: false,
     why: "It still needs annual maintenance, plus periodic internal checks and pressure testing of the cylinder.",
+    ref: "NFPA 10",
   },
   {
     text: "Aim at the tallest flames, not the base of the fire.",
@@ -581,24 +581,36 @@ const EXT_MYTHS: Statement[] = [
     text: "CO2 extinguishers leave a messy powder behind.",
     fact: false,
     why: "CO2 is a gas that leaves no residue. Dry chemical extinguishers are the ones that leave powder everywhere.",
+    ref: "NFPA 10",
   },
   {
     text: "Class K extinguishers are made for commercial cooking oil fires.",
     fact: true,
     why: "Their wet chemical cools the oil and forms a soapy layer over it so it doesn't reignite.",
+    ref: "NFPA 10 & NFPA 96",
   },
   {
     text: "Storing the extinguisher in a closet is fine as long as everyone knows where it is.",
     fact: false,
     why: "Extinguishers have to be visible and easy to reach. If one can't be seen, signs have to point to it. In a panic, nobody remembers the closet.",
+    ref: "NFPA 10",
   },
   {
     text: "Stored-pressure dry chemical extinguishers need a hydrostatic pressure test every 12 years.",
     fact: true,
     why: "The cylinder gets pressure-tested to make sure it's still safe. Water and CO2 extinguishers need it every 5 years.",
+    ref: "NFPA 10",
   },
 ];
 
 export function ExtMyths(props: LevelProps) {
   return <MythOrFactLevel {...props} title="Extinguisher Myth or Fact" statements={EXT_MYTHS} />;
 }
+
+/* ---------- Question bank for the final exam ---------- */
+
+export const EXT_EXAM_BANK: QuizQuestion[] = [
+  ...CLASS_QUESTIONS.map((q) => ({ ...q, options: CLASS_OPTIONS, columns: 2 as const, ref: "NFPA 10" })),
+  ...CHECK_QUESTIONS.map((q) => ({ ...q, options: PASS_FAIL, ref: "NFPA 10" })),
+  ...PICK_QUESTIONS.map((q) => ({ ...q, ref: "NFPA 10" })),
+];

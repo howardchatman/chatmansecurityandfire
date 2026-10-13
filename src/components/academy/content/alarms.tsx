@@ -10,7 +10,7 @@ import IdentifyLevel, { type IdentifyPart } from "../levels/IdentifyLevel";
 import QuizLevel, { type QuizQuestion } from "../levels/QuizLevel";
 import SpotLevel, { type Decoy, type Violation } from "../levels/SpotLevel";
 import { MythOrFactLevel, type Statement } from "../levels/MythOrFact";
-import type { LevelProps } from "../ui";
+import { type LevelProps, SubjectCard } from "../ui";
 
 /* ---------- Level 1: Parts of a fire alarm system ---------- */
 
@@ -155,6 +155,7 @@ const signalQ = (
   right: `Right: ${["alarm", "supervisory", "trouble"][answer]}`,
   wrong: `That's a ${["alarm", "supervisory", "trouble"][answer]} signal`,
   explain,
+  ref: "NFPA 72",
 });
 
 const SIGNAL_QUESTIONS: QuizQuestion[] = [
@@ -216,24 +217,14 @@ export function AlarmSignals(props: LevelProps) {
 
 const DETECTORS = ["Smoke detector", "Heat detector", "Beam smoke detector"];
 
-function RoomCard({ icon: Icon, name }: { icon: React.ElementType; name: string }) {
-  return (
-    <div className="flex items-center gap-4 p-4">
-      <div className="p-4 rounded-2xl bg-orange-100 text-orange-700">
-        <Icon className="w-10 h-10" />
-      </div>
-      <div className="text-xl font-extrabold text-gray-900">{name}</div>
-    </div>
-  );
-}
-
 const roomQ = (icon: React.ElementType, name: string, answer: number, explain: string): QuizQuestion => ({
   prompt: "Which detector is the best fit?",
-  visual: () => <RoomCard icon={icon} name={name} />,
+  visual: () => <SubjectCard icon={icon} name={name} />,
   answer,
   right: `Yes: ${DETECTORS[answer].toLowerCase()}`,
   wrong: `Best fit: ${DETECTORS[answer].toLowerCase()}`,
   explain,
+  ref: "NFPA 72",
 });
 
 const DETECTOR_QUESTIONS: QuizQuestion[] = [
@@ -403,69 +394,88 @@ export function AlarmInspector(props: LevelProps) {
 
 /* ---------- Level 5: Myths ---------- */
 
-const ALARM_MYTHS: Statement[] = [
+export const ALARM_MYTHS: Statement[] = [
   {
     text: "A fire alarm panel stops working when the power goes out.",
     fact: false,
     why: "Panels have backup batteries, typically sized for 24 hours of standby plus 5 minutes of full alarm. A power loss shows up as a trouble signal.",
+    ref: "NFPA 72",
   },
   {
     text: "A trouble signal means there's a fire somewhere in the building.",
     fact: false,
     why: "Trouble means a fault in the alarm system itself, like a cut wire or low battery. A fire is an alarm signal.",
+    ref: "NFPA 72",
   },
   {
     text: "Commercial fire alarm systems need to be tested at least once a year.",
     fact: true,
     why: "NFPA 72 calls for regular inspection and testing. Most devices get tested annually by a licensed fire alarm company.",
+    ref: "NFPA 72",
   },
   {
     text: "It's fine to silence a trouble beep and deal with it whenever.",
     fact: false,
     why: "Part of your system may not work until it's fixed. Silence the buzzer if you need to, then call your alarm company right away.",
+    ref: "NFPA 72",
   },
   {
     text: "Strobes are there for people who are deaf or hard of hearing.",
     fact: true,
     why: "Visual signals make sure everyone gets the warning, including in spaces too loud to hear a horn.",
+    ref: "NFPA 72",
   },
   {
     text: "Pull stations belong within 5 feet of the exit doors.",
     fact: true,
     why: "That way you can sound the alarm on your way out instead of going deeper into the building.",
+    ref: "NFPA 72",
   },
   {
     text: "Heat detectors are better than smoke detectors everywhere.",
     fact: false,
     why: "Heat detectors are slower. They're for places where smoke detectors would false-alarm, like kitchens and garages. Smoke detectors give earlier warning everywhere else.",
+    ref: "NFPA 72",
   },
   {
     text: "Mounting a smoke detector right next to an air vent is fine.",
     fact: false,
     why: "Keep detectors at least 3 feet from supply vents. Moving air blows smoke away from the sensor.",
+    ref: "NFPA 72",
   },
   {
     text: "Water flowing in a sprinkler system sets off the fire alarm.",
     fact: true,
     why: "A flow switch on the riser senses water moving and tells the panel to go into alarm.",
+    ref: "NFPA 72 & NFPA 25",
   },
   {
     text: "A battery smoke alarm from the hardware store covers a building that requires a fire alarm system.",
     fact: false,
     why: "Single-station smoke alarms only warn the room they're in. A required system needs detectors, notification, and monitoring tied to a listed control panel.",
+    ref: "NFPA 72",
   },
   {
     text: "Pulling a fire alarm as a prank is a crime in Texas.",
     fact: true,
     why: "Knowingly setting off a false alarm is a criminal offense under Texas law. It also pulls firefighters away from real emergencies.",
+    ref: "Texas Penal Code §42.06",
   },
   {
     text: "When a monitored system goes into alarm, the monitoring company sends the fire department.",
     fact: true,
     why: "That's what monitoring is for. The central station gets the signal and dispatches help, even if nobody's in the building.",
+    ref: "NFPA 72",
   },
 ];
 
 export function AlarmMyths(props: LevelProps) {
   return <MythOrFactLevel {...props} title="Alarm Myth or Fact" statements={ALARM_MYTHS} />;
 }
+
+/* ---------- Question bank for the final exam ---------- */
+
+export const ALARM_EXAM_BANK: QuizQuestion[] = [
+  ...SIGNAL_QUESTIONS.map((q) => ({ ...q, options: SIGNALS, ref: "NFPA 72" })),
+  ...DETECTOR_QUESTIONS.map((q) => ({ ...q, options: DETECTORS, ref: "NFPA 72" })),
+];

@@ -8,7 +8,9 @@ import {
   Award,
   CircleCheck,
   ClipboardCheck,
+  BookOpen,
   GraduationCap,
+  Medal,
   Phone,
   Play,
   Printer,
@@ -21,7 +23,8 @@ import { Flames, MiniHead, Spray, SprayDefs } from "./art";
 import { HornStrobe, SmokeDetector } from "./art-alarm";
 import { Extinguisher } from "./art-extinguisher";
 import { type LevelResult, starsFor } from "./ui";
-import { COURSES, type Course, type CourseId, findLevel } from "./courses";
+import { COURSES, type Course, type CourseId, EXAM, findLevel } from "./courses";
+import { EXAM_LENGTH, EXAM_PASS } from "./content/exam";
 
 type Best = { score: number; max: number; stars: number };
 type Progress = Partial<Record<string, Best>>;
@@ -89,7 +92,8 @@ export default function AcademyGame() {
 
   useEffect(() => {
     if (view.kind !== "hub") {
-      document.getElementById("academy-play")?.scrollIntoView({ block: "start" });
+      // Jump, don't glide: the page's smooth scrolling makes level changes feel slow.
+      document.getElementById("academy-play")?.scrollIntoView({ block: "start", behavior: "instant" });
     }
   }, [view]);
 
@@ -97,6 +101,8 @@ export default function AcademyGame() {
   const stats = courseStats(course, progress);
   const completedCourses = COURSES.filter((c) => courseStats(c, progress).complete);
   const anyPlayed = COURSES.some((c) => courseStats(c, progress).done > 0);
+  const exam = progress[EXAM.id];
+  const examPassed = !!exam && exam.score / exam.max >= EXAM_PASS;
 
   const chooseCourse = (id: CourseId) => {
     setCourseId(id);
@@ -108,7 +114,7 @@ export default function AcademyGame() {
 
   const play = (id: string) => {
     const found = findLevel(id);
-    if (found) setCourseId(found.course.id);
+    if (found?.course) setCourseId(found.course.id);
     setView({ kind: "play", id, run: Date.now() });
   };
 
@@ -138,8 +144,69 @@ export default function AcademyGame() {
     );
   }
 
+  if (view.kind === "done" && view.id === EXAM.id) {
+    const pct = Math.round((view.result.score / view.result.max) * 100);
+    const passed = view.result.score / view.result.max >= EXAM_PASS;
+    return (
+      <section id="academy-play" className="academy-grid min-h-[calc(100svh-5rem)] scroll-mt-20">
+        <div className="mx-auto max-w-lg px-4 sm:px-6 py-10 text-center">
+          <p className="text-sm font-bold uppercase tracking-wider text-orange-700">Final Exam</p>
+          <motion.div
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 220, damping: 14 }}
+            className={`mx-auto mt-5 w-28 h-28 rounded-full flex items-center justify-center ${
+              passed ? "bg-green-600 text-white" : "bg-gray-200 text-gray-500"
+            }`}
+          >
+            {passed ? <Medal className="w-14 h-14" /> : <GraduationCap className="w-14 h-14" />}
+          </motion.div>
+          <h2 className="mt-5 text-3xl font-extrabold text-gray-900">{passed ? "You passed!" : "Not yet"}</h2>
+          <p className="mt-3 text-5xl font-black text-gray-900 tabular-nums">{pct}%</p>
+          <p className="mt-1 text-gray-600">
+            {view.result.score / 100} of {view.result.max / 100} correct · {Math.round(EXAM_PASS * 100)}% to pass
+            {view.newBest ? " · new personal best!" : ""}
+          </p>
+          <p className="mt-4 text-gray-700">
+            {passed
+              ? "That's a real grasp of sprinklers, alarms, extinguishers, and the NFPA codes behind them. It's on your certificate."
+              : "Brush up with the courses where you missed questions, then try again. Every attempt draws a new mix."}
+          </p>
+          <div className="mt-8 grid gap-3">
+            {passed && (
+              <button
+                onClick={() => toHub("academy-certificate")}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 transition-colors"
+              >
+                <Award className="w-5 h-5" />
+                See your certificate
+              </button>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => play(EXAM.id)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-800 font-bold py-3 transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Retake
+              </button>
+              <button
+                onClick={() => toHub()}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-800 font-bold py-3 transition-colors"
+              >
+                All courses
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (view.kind === "done") {
-    const { course: c, level, index } = findLevel(view.id)!;
+    const found = findLevel(view.id)!;
+    const c = found.course!;
+    const { level, index } = found;
     const following = c.levels[index + 1];
     const cStats = courseStats(c, progress);
     // The next unfinished course after this one, wrapping around.
@@ -252,11 +319,11 @@ export default function AcademyGame() {
               Fire Protection <span className="text-orange-500">Academy</span>
             </h1>
             <p className="mt-3 text-xl text-neutral-200 font-semibold">
-              Learn how fire sprinklers, fire alarms, and extinguishers actually work.
+              Learn how fire sprinklers, fire alarms, and extinguishers actually work, and the NFPA codes behind them.
             </p>
             <p className="mt-3 text-neutral-400 max-w-xl">
-              Three courses, five quick levels each. Name the parts, read an alarm panel, put out a fire with P.A.S.S.,
-              and walk a building like a fire marshal. About 10 minutes per course. No sign-up.
+              Four courses and a final exam. Name the parts, read an alarm panel, put out a fire with P.A.S.S., match
+              NFPA standards, schedule inspections, and walk a building like a fire marshal. No sign-up.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <button
@@ -266,6 +333,13 @@ export default function AcademyGame() {
                 <Play className="w-5 h-5 fill-white" />
                 {heroLabel}
               </button>
+              <Link
+                href="/academy/nfpa"
+                className="inline-flex items-center gap-2 px-5 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-full transition-colors"
+              >
+                <BookOpen className="w-5 h-5" />
+                NFPA study guide
+              </Link>
               {completedCourses.length > 0 && (
                 <span className="text-sm text-neutral-400">
                   {completedCourses.length}/{COURSES.length} courses complete
@@ -281,7 +355,7 @@ export default function AcademyGame() {
       <section id="academy-play" className="academy-grid py-10 sm:py-14 scroll-mt-20 print:hidden">
         <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Choose a course</h2>
-          <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4" role="tablist" aria-label="Courses">
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4" role="tablist" aria-label="Courses">
             {COURSES.map((c) => {
               const s = courseStats(c, progress);
               const active = c.id === courseId;
@@ -318,6 +392,13 @@ export default function AcademyGame() {
             <div>
               <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">{course.name}</h3>
               <p className="text-gray-600 mt-1">{course.tagline}</p>
+              {course.id === "nfpa" && (
+                <Link href="/academy/nfpa" className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-orange-700 hover:text-orange-800">
+                  <BookOpen className="w-4 h-4" />
+                  Read the NFPA study guide first
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
             {stats.done > 0 && (
               <div className="flex items-center gap-3 rounded-2xl bg-white border border-gray-200 px-4 py-2.5 shadow-sm">
@@ -392,16 +473,43 @@ export default function AcademyGame() {
               <p className="mt-1 text-sm text-gray-600">
                 {stats.complete
                   ? `${course.name} is done. It's on your certificate below.`
-                  : `Finish all five ${course.name.toLowerCase()} levels to add this course to a printable certificate. ${
+                  : `Finish all ${course.levels.length} ${course.name} levels to add this course to a printable certificate. ${
                       course.levels.length - stats.done
                     } to go.`}
               </p>
             </div>
           </div>
+
+          {/* Final exam */}
+          <div className="mt-10 rounded-3xl bg-neutral-900 text-white p-6 sm:p-8 grid md:grid-cols-[auto_1fr_auto] gap-5 md:gap-8 items-center">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${examPassed ? "bg-green-600" : "bg-orange-600"}`}>
+              {examPassed ? <Medal className="w-9 h-9" /> : <GraduationCap className="w-9 h-9" />}
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold">Final Exam</h3>
+              <p className="mt-1 text-neutral-400">
+                {EXAM_LENGTH} questions drawn from all {COURSES.length} courses, a new mix every time. Score{" "}
+                {Math.round(EXAM_PASS * 100)}% to pass and earn honors on your certificate.
+                {completedCourses.length < COURSES.length && " Best taken after the courses."}
+              </p>
+              {exam && (
+                <p className={`mt-2 text-sm font-bold ${examPassed ? "text-green-400" : "text-orange-300"}`}>
+                  Best: {Math.round((exam.score / exam.max) * 100)}% · {examPassed ? "Passed" : "Not passed yet"}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => play(EXAM.id)}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full transition-colors"
+            >
+              {exam ? "Retake the exam" : "Take the exam"}
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </section>
 
-      {completedCourses.length > 0 && (
+      {(completedCourses.length > 0 || examPassed) && (
         <Certificate
           name={name}
           setName={(n) => {
@@ -410,7 +518,8 @@ export default function AcademyGame() {
               localStorage.setItem(NAME_KEY, n);
             } catch {}
           }}
-          courses={completedCourses.map((c) => ({ name: c.name, ...courseStats(c, progress) }))}
+          courses={completedCourses.map((c) => ({ name: c.name, levels: c.levels.length, ...courseStats(c, progress) }))}
+          examPct={examPassed && exam ? Math.round((exam.score / exam.max) * 100) : null}
         />
       )}
 
@@ -458,24 +567,28 @@ export default function AcademyGame() {
   );
 }
 
-type CertCourse = { name: string; score: number; max: number; stars: number };
+type CertCourse = { name: string; levels: number; score: number; max: number; stars: number };
 
 function Certificate({
   name,
   setName,
   courses,
+  examPct,
 }: {
   name: string;
   setName: (n: string) => void;
   courses: CertCourse[];
+  examPct: number | null;
 }) {
   const [shared, setShared] = useState("");
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const score = courses.reduce((s, c) => s + c.score, 0);
   const max = courses.reduce((s, c) => s + c.max, 0);
   const stars = courses.reduce((s, c) => s + c.stars, 0);
-  const rank = rankFor(max ? score / max : 0);
+  const starsMax = courses.reduce((s, c) => s + c.levels * 3, 0);
+  const rank = rankFor(max ? score / max : (examPct ?? 0) / 100);
   const graduate = courses.length === COURSES.length;
+  const honors = graduate && examPct !== null;
 
   const share = async () => {
     const url = "https://www.chatmansecurityandfire.com/academy";
@@ -498,9 +611,11 @@ function Certificate({
         <div className="print:hidden mb-6">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Your certificate</h2>
           <p className="text-gray-600 mt-1">
-            {graduate
-              ? "All three courses done. Add your name, then print it or share your score."
-              : `It lists every course you finish. ${COURSES.length - courses.length} more to graduate.`}
+            {honors
+              ? "Every course and the final exam. Add your name, then print it or share your score."
+              : graduate
+                ? "Every course done. Pass the final exam to add honors."
+                : `It lists every course you finish. ${COURSES.length - courses.length} more to graduate.`}
           </p>
           <div className="mt-4 flex flex-col sm:flex-row gap-3">
             <input
@@ -531,15 +646,28 @@ function Certificate({
         <div className="relative rounded-2xl border-[10px] border-double border-orange-600 bg-[#fffdf7] px-6 py-10 sm:px-12 text-center shadow-xl print:shadow-none">
           <img src="/csf_wide_logo.png" alt="Chatman Security & Fire" width={300} height={100} className="mx-auto h-14 w-auto" />
           <p className="mt-6 text-xs sm:text-sm font-bold uppercase tracking-[0.3em] text-orange-700">
-            {graduate ? "Academy Graduate" : "Certificate of Completion"}
+            {honors ? "Graduate with Honors" : graduate ? "Academy Graduate" : "Certificate of Completion"}
           </p>
           <h3 className="mt-2 text-3xl sm:text-4xl font-extrabold text-gray-900">Fire Protection Academy</h3>
           <p className="mt-6 text-gray-600">This certifies that</p>
           <p className="mt-2 text-3xl sm:text-4xl font-serif italic text-gray-900 border-b-2 border-gray-300 inline-block min-w-[60%] pb-1">
             {name.trim() || "Your Name"}
           </p>
-          <p className="mt-4 text-gray-600">completed {graduate ? "every course" : courses.length === 1 ? "the course" : "the courses"}:</p>
+          <p className="mt-4 text-gray-600">
+            {courses.length === 0
+              ? "passed:"
+              : `completed ${graduate ? "every course" : courses.length === 1 ? "the course" : "the courses"}${
+                  examPct !== null ? " and passed the final exam" : ""
+                }:`}
+          </p>
           <ul className="mt-3 inline-grid gap-1.5 text-left">
+            {examPct !== null && (
+              <li className="flex items-center gap-2 text-gray-900">
+                <Medal className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                <span className="font-bold">Final Exam</span>
+                <span className="text-gray-500 tabular-nums text-sm">passed, {examPct}%</span>
+              </li>
+            )}
             {courses.map((c) => (
               <li key={c.name} className="flex items-center gap-2 text-gray-900">
                 <CircleCheck className="w-5 h-5 text-green-600 flex-shrink-0" />
@@ -555,12 +683,14 @@ function Certificate({
               <div className="text-xs uppercase tracking-wider text-gray-500 font-semibold">Rank</div>
               <div className="font-extrabold text-gray-900 text-lg">{rank}</div>
             </div>
-            <div>
-              <div className="text-xs uppercase tracking-wider text-gray-500 font-semibold">Stars</div>
-              <div className="font-extrabold text-gray-900 text-lg">
-                {stars} / {courses.length * 15}
+            {courses.length > 0 && (
+              <div>
+                <div className="text-xs uppercase tracking-wider text-gray-500 font-semibold">Stars</div>
+                <div className="font-extrabold text-gray-900 text-lg">
+                  {stars} / {starsMax}
+                </div>
               </div>
-            </div>
+            )}
             <div>
               <div className="text-xs uppercase tracking-wider text-gray-500 font-semibold">Date</div>
               <div className="font-extrabold text-gray-900 text-lg">{today}</div>

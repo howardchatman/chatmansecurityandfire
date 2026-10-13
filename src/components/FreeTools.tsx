@@ -23,7 +23,7 @@ const tools = [
   },
   {
     name: "Fire Protection Academy",
-    description: "Quick games that teach how fire sprinklers, fire alarms, and extinguishers actually work, and how to spot code violations.",
+    description: "Quick games that teach fire sprinklers, alarms, extinguishers, and the NFPA codes behind them, plus a final exam.",
     href: "/academy",
     icon: GraduationCap,
     cta: "Play the Games",
