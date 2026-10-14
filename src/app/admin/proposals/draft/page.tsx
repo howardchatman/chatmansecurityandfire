@@ -18,11 +18,28 @@ interface Customer { id: string; name: string; company: string | null; city: str
 import AgreementDocument from "@/components/proposal/AgreementDocument";
 import type { ProposalDocument } from "@/lib/proposal-doc";
 
+interface DraftUsage {
+  model: string;
+  effort: string;
+  mode: "standard" | "thorough";
+  cost_usd: number;
+  approximate?: boolean;
+}
+
 interface Draft {
   document: ProposalDocument;
   dropped_items: string[];
   attempts: number;
+  usage?: DraftUsage;
 }
+
+const EFFORT_LABEL: Record<string, string> = { high: "high effort", xhigh: "extra-high effort" };
+
+/** "31¢" under a dollar, "$1.24" above. */
+const cost = (n: number) => (n < 1 ? `${Math.max(1, Math.round(n * 100))}¢` : `$${n.toFixed(2)}`);
+
+// Thorough drafts run in Anthropic's batch queue; check back this often.
+const POLL_MS = 15_000;
 
 const usd = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n || 0);
@@ -39,6 +56,10 @@ export default function ProposalsPage() {
   // The proposal_history row this draft is saved as, once saved or reopened.
   const [savedId, setSavedId] = useState<string | null>(null);
   const [savedFor, setSavedFor] = useState<string>("");
+  // Thorough mode: extra-high effort, run in the background.
+  const [thorough, setThorough] = useState(false);
+  // The saved row of a thorough draft that is still being written.
+  const [pendingId, setPendingId] = useState<string | null>(null);
   // Saved, and still pointing at the customer it was saved for.
   const isSaved = !!savedId && !!customerId && savedFor === customerId;
 
@@ -61,7 +82,21 @@ export default function ProposalsPage() {
       try {
         const res = await fetch(`/api/proposal-agent/proposals?id=${encodeURIComponent(id)}`);
         const json = await res.json();
-        const pd = json.data?.proposal_data as (Draft & { customer_id?: string | null; description?: string }) | null;
+        const pd = json.data?.proposal_data as
+          | (Draft & { customer_id?: string | null; description?: string; pending?: { error?: string } })
+          | null;
+        if (res.ok && pd?.pending) {
+          setCustomerId(pd.customer_id || json.data.customer_id || "");
+          setDescription(pd.description || "");
+          setSavedId(json.data.id);
+          setSavedFor(pd.customer_id || json.data.customer_id || "");
+          if (pd.pending.error) setError(pd.pending.error);
+          else {
+            setPendingId(json.data.id);
+            setNotice("This Thorough draft is still being written. It will appear here when it's ready.");
+          }
+          return;
+        }
         if (!res.ok || !pd?.document) {
           setError(json.error || "That saved proposal couldn't be opened.");
           return;
@@ -78,13 +113,44 @@ export default function ProposalsPage() {
     })();
   }, []);
 
+  // Check on a thorough draft until it's done (or fails).
+  useEffect(() => {
+    if (!pendingId) return;
+    let stopped = false;
+    const check = async () => {
+      try {
+        const res = await fetch(`/api/proposal-agent/generate?id=${encodeURIComponent(pendingId)}`);
+        const json = await res.json().catch(() => null);
+        if (stopped || !json) return;
+        if (json.success && !json.data.pending) {
+          const d = json.data.draft as Draft;
+          setDraft({ document: d.document, dropped_items: d.dropped_items || [], attempts: d.attempts || 1, usage: d.usage });
+          setPendingId(null);
+          setNotice("Your Thorough draft is ready. It's saved in the customer's file under Proposals.");
+        } else if (!json.success && !json.retry) {
+          setPendingId(null);
+          setNotice("");
+          setError(json.error || "The Thorough draft failed. Start it again.");
+        }
+      } catch {
+        /* network blip: try again next tick */
+      }
+    };
+    check();
+    const timer = setInterval(check, POLL_MS);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+    };
+  }, [pendingId]);
+
   const generate = async () => {
-    setError(""); setNotice(""); setGenerating(true); setDraft(null); setSavedId(null);
+    setError(""); setNotice(""); setGenerating(true); setDraft(null); setSavedId(null); setPendingId(null);
     try {
       const res = await fetch("/api/proposal-agent/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer_id: customerId || undefined, description }),
+        body: JSON.stringify({ customer_id: customerId || undefined, description, thorough }),
       });
       // A platform timeout or crash comes back as an HTML page, not JSON.
       const data = await res.json().catch(() => null);
@@ -97,6 +163,16 @@ export default function ProposalsPage() {
         return;
       }
       if (!data.success) { setError(data.error || "Couldn't draft the proposal."); return; }
+      if (data.data.pending) {
+        // Already saved to the customer's file; it fills in when the batch finishes.
+        setSavedId(data.data.id);
+        setSavedFor(customerId);
+        setPendingId(data.data.id);
+        setNotice(
+          "Thorough draft started. It usually takes a few minutes, sometimes longer. You can leave this page; it will be saved in the customer's file under Proposals."
+        );
+        return;
+      }
       setDraft(data.data);
     } catch {
       setError("Couldn't reach the proposal service. Check your connection and try again.");
@@ -182,14 +258,37 @@ export default function ProposalsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={thorough}
+            onChange={(e) => setThorough(e.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-orange-600"
+          />
+          <span className="text-sm">
+            <span className="font-medium text-gray-900">Thorough</span>
+            <span className="text-gray-600">
+              {" "}
+              for big, multi-system jobs. Opus thinks longer (extra-high effort) and the draft runs in the background,
+              usually a few minutes, at half price. Needs a customer selected.
+            </span>
+          </span>
+        </label>
+
+        <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={generate}
-            disabled={generating || !description.trim()}
+            disabled={generating || !!pendingId || !description.trim()}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-xl text-sm font-medium"
           >
-            {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            {generating ? "Drafting…" : "Draft proposal"}
+            {generating || pendingId ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {pendingId
+              ? "Thorough draft in progress…"
+              : generating
+                ? "Drafting… (usually 1–2 minutes)"
+                : thorough
+                  ? "Start thorough draft"
+                  : "Draft proposal"}
           </button>
           {draft && (
             <button
@@ -241,7 +340,9 @@ export default function ProposalsPage() {
             <p className="text-sm text-gray-500">
               {draft.document.scopes.length} scope{draft.document.scopes.length === 1 ? "" : "s"} ·{" "}
               {usd(draft.document.total)} total
-              {draft.attempts > 1 ? ` · drafted on attempt ${draft.attempts}` : ""}
+              {draft.usage
+                ? ` · Opus, ${EFFORT_LABEL[draft.usage.effort] || draft.usage.effort} · cost ${draft.usage.approximate ? "about " : ""}${cost(draft.usage.cost_usd)}`
+                : ""}
             </p>
             <button
               onClick={() => window.print()}
@@ -285,7 +386,7 @@ export default function ProposalsPage() {
         </>
       )}
 
-      {!draft && !generating && (
+      {!draft && !generating && !pendingId && (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
           <FileText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="font-medium text-gray-900">No draft yet</p>

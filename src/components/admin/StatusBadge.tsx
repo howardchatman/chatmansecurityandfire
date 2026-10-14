@@ -60,6 +60,8 @@ const statusConfig: Record<string, { bg: string; text: string; label?: string }>
 
   // Invoice statuses
   draft: { bg: "bg-gray-100", text: "text-gray-600", label: "Draft" },
+  drafting: { bg: "bg-blue-100", text: "text-blue-700", label: "Drafting…" },
+  failed: { bg: "bg-red-100", text: "text-red-700", label: "Failed" },
   sent: { bg: "bg-blue-100", text: "text-blue-700", label: "Sent" },
   paid: { bg: "bg-green-100", text: "text-green-700", label: "Paid" },
   partial: { bg: "bg-amber-100", text: "text-amber-700", label: "Partial" },

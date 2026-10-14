@@ -79,7 +79,22 @@ export async function GET(
         .limit(20) as typeof proposalsRes;
     }
     const proposals = (proposalsRes.data || []).map((p) => {
-      const pd = (p.proposal_data || {}) as { document?: { project_name?: string; total?: number } };
+      const pd = (p.proposal_data || {}) as {
+        document?: { project_name?: string; total?: number };
+        description?: string;
+        pending?: { error?: string };
+      };
+      // A thorough draft still being written (or one that failed) has no document yet.
+      if (pd.pending) {
+        const about = (pd.description || "").slice(0, 60);
+        return {
+          id: p.id,
+          title: `${pd.pending.error ? "Draft failed" : "Drafting…"}${about ? `: ${about}` : ""}`,
+          status: pd.pending.error ? "failed" : "drafting",
+          total: null,
+          created_at: p.created_at,
+        };
+      }
       return {
         id: p.id,
         title: pd.document?.project_name || p.filename || p.client_name || "Proposal",
