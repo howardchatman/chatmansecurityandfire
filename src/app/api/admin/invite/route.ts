@@ -231,10 +231,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Failed to fetch employees" }, { status: 500 });
     }
     // admin_users stores the person's name in `name`; screens (Team, job
-    // assignment) read `full_name`, as profiles does. Send both.
-    const safe = (data || []).map((u: Record<string, unknown>) => {
+    // assignment) read `full_name`, as profiles does. Team membership lives on
+    // the profiles mirror (profiles.team_id), so merge it in here; without it
+    // every member showed "Unassigned" and every team "0 members".
+    const rows = data || [];
+    const ids = rows.map((u: { id: string }) => u.id);
+    const [{ data: profs }, { data: teamRows }] = await Promise.all([
+      ids.length
+        ? supabaseAdmin.from("profiles").select("id, team_id, phone").in("id", ids)
+        : Promise.resolve({ data: [] as { id: string; team_id: string | null; phone: string | null }[] }),
+      supabaseAdmin.from("teams").select("id, name"),
+    ]);
+    const profileById = new Map((profs || []).map((p) => [p.id, p]));
+    const teamById = new Map((teamRows || []).map((t) => [t.id, t]));
+
+    const safe = rows.map((u: Record<string, unknown>) => {
       const { password_hash: _ph, ...rest } = u;
-      return { ...rest, full_name: rest.full_name ?? rest.name ?? rest.email ?? "" };
+      const prof = profileById.get(rest.id as string);
+      const teamId = prof?.team_id ?? null;
+      return {
+        ...rest,
+        full_name: rest.full_name ?? rest.name ?? rest.email ?? "",
+        phone: rest.phone ?? prof?.phone ?? null,
+        team_id: teamId,
+        team: teamId ? teamById.get(teamId) ?? null : null,
+      };
     });
     return NextResponse.json({ success: true, data: safe });
   } catch (error) {
@@ -313,7 +334,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, role, is_active, name, customer_id } = body;
+    const { id, role, is_active, name, customer_id, phone, team_id } = body;
     if (!id) {
       return NextResponse.json({ success: false, error: "Employee id is required" }, { status: 400 });
     }
@@ -328,6 +349,7 @@ export async function PATCH(request: NextRequest) {
     if (role !== undefined) updates.role = role;
     if (is_active !== undefined) updates.is_active = is_active;
     if (name !== undefined) updates.name = name;
+    if (phone !== undefined) updates.phone = phone || null;
     // Links a customer-role login to its customers row, which is what the
     // portal scopes invoices / payments / projects by. Pass null to unlink.
     if (customer_id !== undefined) updates.customer_id = customer_id;
@@ -336,7 +358,7 @@ export async function PATCH(request: NextRequest) {
       .from("admin_users")
       .update(updates)
       .eq("id", id)
-      .select("id, email, name, role, is_active, customer_id")
+      .select("id, email, name, phone, role, is_active, customer_id")
       .single();
 
     if (error) {
@@ -353,8 +375,11 @@ export async function PATCH(request: NextRequest) {
             id: data.id,
             full_name: data.name,
             email: data.email,
+            phone: data.phone ?? null,
             role: data.role,
             is_active: data.is_active,
+            // Team membership is stored on the profile; null removes it.
+            ...(team_id !== undefined ? { team_id: team_id || null } : {}),
           },
           { onConflict: "id" }
         );

@@ -17,6 +17,7 @@ interface Ticket {
   priority: string;
   status: string;
   assigned_to?: string;
+  assignee?: { id: string; full_name: string } | null;
   scheduled_date?: string;
   notes?: string;
   created_at: string;
@@ -46,7 +47,10 @@ const blank = {
   title: "", customer_name: "", customer_phone: "", customer_email: "",
   site_address: "", site_city: "", service_type: "fire_alarm",
   priority: "normal", status: "open", description: "", notes: "", scheduled_date: "",
+  assigned_to: "",
 };
+
+interface Staff { id: string; full_name: string; role: string; is_active: boolean }
 
 export default function TicketsPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -57,6 +61,17 @@ export default function TicketsPage() {
   const [form, setForm] = useState({ ...blank });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  // People a ticket can be assigned to (active, non-customer logins).
+  const [staff, setStaff] = useState<Staff[]>([]);
+
+  useEffect(() => {
+    fetch("/api/admin/invite")
+      .then((r) => r.json())
+      .then((d) =>
+        setStaff(((d?.data || []) as Staff[]).filter((p) => p.role !== "customer" && p.is_active))
+      )
+      .catch(() => {});
+  }, []);
 
   const fetchTickets = useCallback(async () => {
     setLoading(true);
@@ -70,6 +85,18 @@ export default function TicketsPage() {
 
   useEffect(() => { fetchTickets(); }, [fetchTickets]);
 
+  // /admin/tickets?id=… opens that ticket (linked from a team member's panel).
+  const [openedFromLink, setOpenedFromLink] = useState(false);
+  useEffect(() => {
+    if (openedFromLink || !tickets.length) return;
+    const id = new URLSearchParams(window.location.search).get("id");
+    const t = id && tickets.find((x) => x.id === id);
+    if (t) openEdit(t);
+    setOpenedFromLink(true);
+    // openEdit is stable enough for a one-shot open
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tickets, openedFromLink]);
+
   const openCreate = () => { setEditing(null); setForm({ ...blank }); setError(""); setShowModal(true); };
   const openEdit = (t: Ticket) => {
     setEditing(t);
@@ -79,6 +106,8 @@ export default function TicketsPage() {
       site_city: t.site_city || "", service_type: t.service_type, priority: t.priority,
       status: t.status, description: t.description || "", notes: t.notes || "",
       scheduled_date: t.scheduled_date || "",
+      // Without this, saving any edit wiped the ticket's assignee.
+      assigned_to: t.assigned_to || "",
     });
     setError("");
     setShowModal(true);
@@ -144,14 +173,14 @@ export default function TicketsPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {["Ticket #", "Title", "Customer", "Service", "Priority", "Status", "Scheduled", ""].map(h => (
+                {["Ticket #", "Title", "Customer", "Service", "Priority", "Status", "Assigned", "Scheduled", ""].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {tickets.map(t => (
-                <tr key={t.id} className="hover:bg-gray-50">
+                <tr key={t.id} onClick={() => openEdit(t)} className="hover:bg-orange-50/40 cursor-pointer">
                   <td className="px-4 py-3 font-mono text-xs text-gray-500">{t.ticket_number}</td>
                   <td className="px-4 py-3 font-medium text-gray-900 max-w-[200px] truncate">{t.title}</td>
                   <td className="px-4 py-3">
@@ -165,11 +194,14 @@ export default function TicketsPage() {
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${statusColor[t.status] || "bg-gray-100 text-gray-600"}`}>{t.status.replace("_", " ")}</span>
                   </td>
+                  <td className="px-4 py-3 text-sm">
+                    {t.assignee?.full_name || <span className="text-gray-400">Unassigned</span>}
+                  </td>
                   <td className="px-4 py-3 text-gray-500 text-xs">
                     {t.scheduled_date ? new Date(t.scheduled_date).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                       <button onClick={() => openEdit(t)} className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"><Pencil className="w-4 h-4" /></button>
                       <button onClick={() => handleDelete(t.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </div>
@@ -238,6 +270,35 @@ export default function TicketsPage() {
                     {STATUSES.map(s => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Assigned to</label>
+                <select
+                  value={form.assigned_to}
+                  onChange={(e) => {
+                    const assigned_to = e.target.value;
+                    setForm((prev) => ({
+                      ...prev,
+                      assigned_to,
+                      // Assigning an open ticket moves it to "assigned"; clearing it moves it back.
+                      status:
+                        assigned_to && prev.status === "open"
+                          ? "assigned"
+                          : !assigned_to && prev.status === "assigned"
+                            ? "open"
+                            : prev.status,
+                    }));
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="">Unassigned</option>
+                  {staff.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.full_name} ({p.role})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

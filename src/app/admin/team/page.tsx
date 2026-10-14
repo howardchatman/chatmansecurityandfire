@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Plus,
   MoreHorizontal,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
+import TeamMemberPanel from "@/components/admin/TeamMemberPanel";
 
 interface Team {
   id: string;
@@ -57,6 +58,11 @@ export default function TeamManagementPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("all");
+  const [teamFilter, setTeamFilter] = useState<string | null>(null);
+  const [activeOnly, setActiveOnly] = useState(false);
+  // The member whose side panel is open.
+  const [selected, setSelected] = useState<Profile | null>(null);
+  const teamsRef = useRef<HTMLDivElement>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
 
@@ -188,10 +194,20 @@ export default function TeamManagementPage() {
     }
   };
 
-  const filteredProfiles =
-    roleFilter === "all"
-      ? profiles
-      : profiles.filter((p) => p.role === roleFilter);
+  const filteredProfiles = profiles.filter(
+    (p) =>
+      (roleFilter === "all" || p.role === roleFilter) &&
+      (!teamFilter || p.team_id === teamFilter) &&
+      (!activeOnly || p.is_active)
+  );
+
+  const showAll = () => {
+    setRoleFilter("all");
+    setTeamFilter(null);
+    setActiveOnly(false);
+  };
+  const statCard =
+    "text-left bg-white rounded-xl border border-gray-200 p-4 hover:border-orange-300 hover:shadow-sm transition cursor-pointer";
 
   const roleFilters = [
     { label: "All", value: "all" },
@@ -309,50 +325,81 @@ export default function TeamManagementPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <button onClick={showAll} className={statCard}>
           <p className="text-sm text-gray-500">Total Users</p>
           <p className="text-2xl font-bold text-gray-900">{profiles.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button
+          onClick={() => {
+            showAll();
+            setActiveOnly(true);
+          }}
+          className={statCard}
+        >
           <p className="text-sm text-gray-500">Active</p>
           <p className="text-2xl font-bold text-green-600">
             {profiles.filter((p) => p.is_active).length}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button
+          onClick={() => {
+            showAll();
+            setRoleFilter("technician");
+          }}
+          className={statCard}
+        >
           <p className="text-sm text-gray-500">Technicians</p>
           <p className="text-2xl font-bold text-blue-600">
             {profiles.filter((p) => p.role === "technician").length}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button
+          onClick={() => {
+            showAll();
+            setRoleFilter("inspector");
+          }}
+          className={statCard}
+        >
           <p className="text-sm text-gray-500">Inspectors</p>
           <p className="text-2xl font-bold text-orange-600">
             {profiles.filter((p) => p.role === "inspector").length}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button
+          onClick={() =>
+            teams.length
+              ? teamsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+              : setShowTeamModal(true)
+          }
+          className={statCard}
+        >
           <p className="text-sm text-gray-500">Teams</p>
           <p className="text-2xl font-bold text-purple-600">{teams.length}</p>
-        </div>
+        </button>
       </div>
 
       {/* Teams Section */}
       {teams.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="font-semibold text-gray-900 mb-3">Teams</h3>
+        <div ref={teamsRef} className="bg-white rounded-xl border border-gray-200 p-4">
+          <h3 className="font-semibold text-gray-900 mb-1">Teams</h3>
+          <p className="text-xs text-gray-500 mb-3">Click a team to show its members. Set someone&apos;s team by clicking them below.</p>
           <div className="flex flex-wrap gap-2">
             {teams.map((team) => (
-              <div
+              <button
                 key={team.id}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg"
+                onClick={() => setTeamFilter(teamFilter === team.id ? null : team.id)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
+                  teamFilter === team.id
+                    ? "bg-orange-100 ring-1 ring-orange-300"
+                    : "bg-gray-50 hover:bg-gray-100"
+                }`}
               >
                 <Users className="w-4 h-4 text-gray-500" />
                 <span className="font-medium text-gray-700">{team.name}</span>
                 <span className="text-xs text-gray-500">
                   ({profiles.filter((p) => p.team_id === team.id).length} members)
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -375,12 +422,27 @@ export default function TeamManagementPage() {
         ))}
       </div>
 
+      {(teamFilter || activeOnly) && (
+        <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+          Showing
+          {activeOnly && <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded">active only</span>}
+          {teamFilter && (
+            <span className="px-2 py-0.5 bg-orange-50 text-orange-700 rounded">
+              team: {teams.find((t) => t.id === teamFilter)?.name}
+            </span>
+          )}
+          <button onClick={showAll} className="text-orange-600 hover:underline">
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* Data Table */}
       <DataTable
         columns={columns}
         data={filteredProfiles}
         searchPlaceholder="Search team members..."
-        onRowClick={(profile) => console.log("View profile:", profile.id)}
+        onRowClick={(profile) => setSelected(profile)}
         actions={(profile) => (
           <div className="flex items-center gap-1">
             <button
@@ -397,7 +459,12 @@ export default function TeamManagementPage() {
               {profile.is_active ? "Deactivate" : "Activate"}
             </button>
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelected(profile);
+              }}
+              title="Edit and assign work"
+              aria-label={`Open ${profile.full_name || profile.email}`}
               className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
             >
               <MoreHorizontal className="w-4 h-4" />
@@ -612,6 +679,15 @@ export default function TeamManagementPage() {
             </form>
           </div>
         </div>
+      )}
+      {selected && (
+        <TeamMemberPanel
+          key={selected.id}
+          member={selected}
+          teams={teams}
+          onClose={() => setSelected(null)}
+          onSaved={fetchData}
+        />
       )}
     </div>
   );
