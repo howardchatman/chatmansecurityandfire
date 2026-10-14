@@ -6,7 +6,6 @@ import {
   X,
   Send,
   Loader2,
-  Sparkles,
   Calendar,
   Users,
   ClipboardCheck,
@@ -38,8 +37,7 @@ const quickPrompts = [
   { label: "Inspections", prompt: "Which inspections still need their NFPA 72 report filled out?", icon: ClipboardCheck },
 ];
 
-export default function AdminAIAssistant() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function AdminAIAssistant({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -127,21 +125,14 @@ export default function AdminAIAssistant() {
     sendMessage(prompt);
   };
 
-  if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-full shadow-lg shadow-orange-600/30 transition-all hover:scale-105"
-      >
-        <Sparkles className="w-5 h-5" />
-        <span className="font-medium">AI Assistant</span>
-      </button>
-    );
-  }
+  // Opened from the "AI Assistant" button in the admin header. There is no
+  // floating launcher: it used to sit over page content (table actions) with
+  // no way to dismiss it.
+  if (!open) return null;
 
   return (
     <div
-      className={`fixed bottom-20 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
+      className={`fixed top-20 right-4 sm:right-6 z-50 w-[400px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-6rem)] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
         isMinimized ? "h-auto" : "h-[600px]"
       }`}
     >
@@ -168,7 +159,8 @@ export default function AdminAIAssistant() {
             )}
           </button>
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={onClose}
+            aria-label="Close assistant"
             className="p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
             <X className="w-4 h-4" />

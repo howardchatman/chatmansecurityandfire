@@ -12,11 +12,14 @@ import {
   User,
   Settings,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
+  /** Opens the AI Assistant panel. */
+  onAssistantClick?: () => void;
 }
 
 const getBreadcrumbs = (pathname: string) => {
@@ -33,7 +36,7 @@ const getBreadcrumbs = (pathname: string) => {
   return breadcrumbs;
 };
 
-export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
+export default function AdminHeader({ onMenuClick, onAssistantClick }: AdminHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut } = useAuth();
@@ -118,6 +121,18 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
               />
             </div>
           </div>
+
+          {/* AI Assistant: lives in the header so it never covers page content */}
+          {onAssistantClick && (
+            <button
+              onClick={onAssistantClick}
+              title="AI Assistant: ask about your jobs, invoices, customers, and inspections"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="hidden sm:inline">AI Assistant</span>
+            </button>
+          )}
 
           {/* Notifications */}
           <div className="relative">

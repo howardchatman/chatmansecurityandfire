@@ -15,6 +15,7 @@ export default function AdminLayout({
 }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -67,7 +68,10 @@ export default function AdminLayout({
         }`}
       >
         {/* Header */}
-        <AdminHeader onMenuClick={() => setMobileSidebarOpen(true)} />
+        <AdminHeader
+          onMenuClick={() => setMobileSidebarOpen(true)}
+          onAssistantClick={() => setAssistantOpen((o) => !o)}
+        />
 
         {/* Page Content */}
         <main className="p-4 lg:p-6">{children}</main>
@@ -81,8 +85,8 @@ export default function AdminLayout({
         />
       )}
 
-      {/* AI Assistant */}
-      <AdminAIAssistant />
+      {/* AI Assistant: opened from the header button, closed with its X */}
+      <AdminAIAssistant open={assistantOpen} onClose={() => setAssistantOpen(false)} />
     </div>
   );
 }
