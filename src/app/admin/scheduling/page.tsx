@@ -248,7 +248,7 @@ export default function SchedulingPage() {
                     <div key={p.id} className="p-3 flex items-center gap-3">
                       <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-xs font-bold text-orange-600">
-                          {p.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                          {(p.full_name || "?").split(" ").filter(Boolean).map((n) => n[0]).join("").slice(0, 2)}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">

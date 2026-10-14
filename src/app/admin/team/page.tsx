@@ -211,14 +211,17 @@ export default function TeamManagementPage() {
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
             <span className="text-sm font-semibold text-orange-600">
-              {profile.full_name
+              {(profile.full_name || profile.email || "?")
                 .split(" ")
+                .filter(Boolean)
                 .map((n) => n[0])
-                .join("")}
+                .slice(0, 2)
+                .join("")
+                .toUpperCase()}
             </span>
           </div>
           <div>
-            <p className="font-medium text-gray-900">{profile.full_name}</p>
+            <p className="font-medium text-gray-900">{profile.full_name || profile.email}</p>
             <span
               className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
                 roleColors[profile.role]

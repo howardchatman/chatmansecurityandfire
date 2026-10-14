@@ -230,9 +230,11 @@ export async function GET(request: NextRequest) {
     if (error) {
       return NextResponse.json({ success: false, error: "Failed to fetch employees" }, { status: 500 });
     }
+    // admin_users stores the person's name in `name`; screens (Team, job
+    // assignment) read `full_name`, as profiles does. Send both.
     const safe = (data || []).map((u: Record<string, unknown>) => {
       const { password_hash: _ph, ...rest } = u;
-      return rest;
+      return { ...rest, full_name: rest.full_name ?? rest.name ?? rest.email ?? "" };
     });
     return NextResponse.json({ success: true, data: safe });
   } catch (error) {
