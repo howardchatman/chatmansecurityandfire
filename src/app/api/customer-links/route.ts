@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
 import { supabaseAdmin as supabase } from "@/lib/supabase";
-import crypto from "crypto";
-
-
-// Generate URL-safe random token
-function generateToken(): string {
-  const bytes = crypto.randomBytes(32);
-  return bytes.toString("base64url");
-}
+import { createQuoteLink, generateLinkToken } from "@/lib/customer-links";
+import { sendQuoteEmail } from "@/lib/email";
 
 // GET: List customer links (admin/manager only)
 export async function GET(request: NextRequest) {
@@ -122,61 +116,85 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique token
-    const token = generateToken();
-
-    // Calculate expiration
-    const expiresAt = expires_in_days
-      ? new Date(Date.now() + expires_in_days * 24 * 60 * 60 * 1000)
-      : null;
-
-    // Create the customer link
-    const { data: link, error: createError } = await supabase
-      .from("customer_links")
-      .insert({
-        token,
-        quote_id,
-        job_id,
-        customer_email,
-        customer_name,
-        customer_phone,
-        link_type,
-        expires_at: expiresAt,
-        max_uses,
-        created_by: auth.userId,
-        team_id: auth.teamId,
-      })
-      .select()
-      .single();
-
-    if (createError) {
-      console.error("Error creating customer link:", createError);
-      return NextResponse.json(
-        { success: false, error: "Failed to create customer link" },
-        { status: 500 }
-      );
-    }
-
-    // Generating a signable link IS sending the quote. Move it out of "draft",
-    // or the customer's e-sign is rejected: the accept route only allows
-    // signing when the quote is "sent" or "viewed", and nothing else ever
-    // transitions it out of draft — so without this, no quote could be signed.
+    // Job links keep their own flow below; quote links go through the shared
+    // helper, which also moves the quote from draft to sent.
+    let link;
+    let portalUrl: string;
     if (quote_id && link_type === "quote_approval") {
-      await supabase
-        .from("quotes")
-        .update({ status: "sent", updated_at: new Date().toISOString() })
-        .eq("id", quote_id)
-        .eq("status", "draft");
+      try {
+        const created = await createQuoteLink({
+          quoteId: quote_id,
+          customerEmail: customer_email,
+          customerName: customer_name,
+          customerPhone: customer_phone,
+          createdBy: auth.userId,
+          teamId: auth.teamId,
+          expiresInDays: expires_in_days,
+          maxUses: max_uses,
+        });
+        link = created.link;
+        portalUrl = created.url;
+      } catch (createError) {
+        console.error("Error creating customer link:", createError);
+        return NextResponse.json(
+          { success: false, error: "Failed to create customer link" },
+          { status: 500 }
+        );
+      }
+    } else {
+      const token = generateLinkToken();
+      const expiresAt = expires_in_days
+        ? new Date(Date.now() + expires_in_days * 24 * 60 * 60 * 1000)
+        : null;
+      const { data, error: createError } = await supabase
+        .from("customer_links")
+        .insert({
+          token,
+          quote_id,
+          job_id,
+          customer_email,
+          customer_name,
+          customer_phone,
+          link_type,
+          expires_at: expiresAt,
+          max_uses,
+          created_by: auth.userId,
+          team_id: auth.teamId,
+        })
+        .select()
+        .single();
+      if (createError) {
+        console.error("Error creating customer link:", createError);
+        return NextResponse.json(
+          { success: false, error: "Failed to create customer link" },
+          { status: 500 }
+        );
+      }
+      link = data;
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com";
+      portalUrl = `${baseUrl}/c/${token}`;
     }
 
-    // Build the full URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com";
-    const portalUrl = `${baseUrl}/c/${token}`;
-
-    // TODO: Send email if requested
-    if (send_email) {
-      // Email sending will be implemented with the email service
-      console.log("Would send email to:", customer_email, "with link:", portalUrl);
+    let emailed = false;
+    if (send_email && quote_id) {
+      const { data: q } = await supabase
+        .from("quotes")
+        .select("quote_number, totals, template_name")
+        .eq("id", quote_id)
+        .maybeSingle();
+      if (q) {
+        const result = await sendQuoteEmail({
+          customerEmail: customer_email,
+          customerName: customer_name || "there",
+          quoteNumber: q.quote_number,
+          total: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+            q.totals?.total || q.totals?.grandTotal || 0
+          ),
+          description: q.template_name || "Fire & Life Safety Services",
+          viewUrl: portalUrl,
+        });
+        emailed = !!result?.success;
+      }
     }
 
     return NextResponse.json({
@@ -184,6 +202,7 @@ export async function POST(request: NextRequest) {
       data: {
         ...link,
         portal_url: portalUrl,
+        emailed,
       },
     });
   } catch (error) {

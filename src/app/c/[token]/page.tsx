@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import AgreementDocument from "@/components/proposal/AgreementDocument";
+import type { ProposalDocument } from "@/lib/proposal-doc";
 import {
   FileText,
   CheckCircle,
@@ -51,6 +53,8 @@ interface Quote {
     zip?: string;
   };
   template_name?: string;
+  // Set when the quote came from an AI-drafted proposal: the full agreement.
+  terms?: { proposal_document?: ProposalDocument | null } | null;
   valid_until?: string;
   created_at: string;
   accepted_at?: string;
@@ -268,9 +272,24 @@ export default function CustomerPortalPage() {
               </div>
             </div>
 
+            {/* The full agreement, when this quote came from a drafted proposal */}
+            {quote.terms?.proposal_document && (
+              <div className="p-6 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-900 mb-1">Your Agreement</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Please read the full scope, inclusions, and exclusions before signing.
+                </p>
+                <div className="bg-gray-100 rounded-xl p-3 sm:p-6 overflow-x-auto">
+                  <AgreementDocument doc={quote.terms.proposal_document} />
+                </div>
+              </div>
+            )}
+
             {/* Line Items */}
             <div className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Scope of Work</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">
+                {quote.terms?.proposal_document ? "Price Summary" : "Scope of Work"}
+              </h3>
               <div className="space-y-3">
                 {quote.line_items?.map((item, index) => (
                   <div

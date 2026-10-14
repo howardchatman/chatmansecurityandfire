@@ -415,6 +415,11 @@ export async function sendAccessRequestNotification(request: {
   });
 }
 
+/** Alert the owner at every LEAD_ALERT_EMAILS inbox (signed quotes and the like). */
+export async function sendOwnerAlert(subject: string, html: string) {
+  return sendEmail({ to: LEAD_ALERT_EMAILS, subject, html });
+}
+
 export async function sendQuoteEmail(data: {
   customerEmail: string;
   customerName: string;

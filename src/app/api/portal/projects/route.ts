@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
 async function loadQuotes(email: string, convertedQuoteIds: Set<string>) {
   const { data: quotes, error } = await supabaseAdmin
     .from("quotes")
-    .select("id, quote_number, status, totals, site, quote_type, created_at, expires_at")
+    .select("id, quote_number, status, totals, site, quote_type, template_name, created_at, expires_at")
     .ilike("customer->>email", likeExact(email))
     .neq("status", "draft")
     .order("created_at", { ascending: false });
@@ -154,7 +154,7 @@ async function loadQuotes(email: string, convertedQuoteIds: Set<string>) {
       id: q.id,
       job_number: q.quote_number,
       job_type: q.quote_type,
-      title: typeLabel ? `${typeLabel} quote` : "Quote",
+      title: q.template_name || (typeLabel ? `${typeLabel} quote` : "Quote"),
       scope: null as string | null,
       site: [site.address, site.city].filter(Boolean).join(", "),
       scheduled_date: null as string | null,

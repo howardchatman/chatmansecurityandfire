@@ -52,6 +52,7 @@ export async function GET(
           customer,
           site,
           template_name,
+          terms,
           valid_until,
           created_at,
           accepted_at,

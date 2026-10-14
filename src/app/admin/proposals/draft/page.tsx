@@ -11,6 +11,9 @@ import {
   Building2,
   Trash2,
   Plus,
+  Send,
+  Copy,
+  CheckCircle2,
 } from "lucide-react";
 
 interface Customer { id: string; name: string; company: string | null; city: string | null }
@@ -31,6 +34,14 @@ interface Draft {
   dropped_items: string[];
   attempts: number;
   usage?: DraftUsage;
+}
+
+interface SentInfo {
+  quote_number: string;
+  link_url: string;
+  email: string;
+  sent_at: string;
+  emailed: boolean;
 }
 
 const EFFORT_LABEL: Record<string, string> = { high: "high effort", xhigh: "extra-high effort" };
@@ -60,6 +71,10 @@ export default function ProposalsPage() {
   const [thorough, setThorough] = useState(false);
   // The saved row of a thorough draft that is still being written.
   const [pendingId, setPendingId] = useState<string | null>(null);
+  // Set once the draft has been emailed to the customer as a quote.
+  const [sent, setSent] = useState<SentInfo | null>(null);
+  const [sending, setSending] = useState(false);
+  const [copied, setCopied] = useState(false);
   // Saved, and still pointing at the customer it was saved for.
   const isSaved = !!savedId && !!customerId && savedFor === customerId;
 
@@ -101,7 +116,8 @@ export default function ProposalsPage() {
           setError(json.error || "That saved proposal couldn't be opened.");
           return;
         }
-        setDraft({ document: pd.document, dropped_items: pd.dropped_items || [], attempts: pd.attempts || 1 });
+        setDraft({ document: pd.document, dropped_items: pd.dropped_items || [], attempts: pd.attempts || 1, usage: pd.usage });
+        setSent((pd as { sent?: SentInfo }).sent || null);
         setCustomerId(pd.customer_id || json.data.customer_id || "");
         setDescription(pd.description || "");
         setSavedId(json.data.id);
@@ -145,7 +161,7 @@ export default function ProposalsPage() {
   }, [pendingId]);
 
   const generate = async () => {
-    setError(""); setNotice(""); setGenerating(true); setDraft(null); setSavedId(null); setPendingId(null);
+    setError(""); setNotice(""); setGenerating(true); setDraft(null); setSavedId(null); setPendingId(null); setSent(null);
     try {
       const res = await fetch("/api/proposal-agent/generate", {
         method: "POST",
@@ -213,6 +229,52 @@ export default function ProposalsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Anything left unpriced prints "PRICING INCOMPLETE" on the agreement; the
+  // server refuses to send it, so don't offer to.
+  const unpricedCount = draft ? draft.document.scopes.reduce((n, s) => n + (s.unpriced?.length || 0), 0) : 0;
+
+  const send = async () => {
+    if (!draft || !savedId) return;
+    const warnings = draft.document.gaps.length + draft.dropped_items.length;
+    const ok = window.confirm(
+      `${sent ? "Resend" : "Email"} this proposal (${usd(draft.document.total)}) to the customer with a link to review and sign it?` +
+        (warnings ? `
+
+Note: ${warnings} item(s) were flagged as missing from your catalogue and are not in the price.` : "")
+    );
+    if (!ok) return;
+    setSending(true); setError(""); setNotice("");
+    try {
+      const res = await fetch("/api/proposal-agent/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ proposal_id: savedId }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!json?.success) {
+        setError(json?.error || "Couldn't send the proposal.");
+        return;
+      }
+      setSent(json.data);
+      setNotice(
+        json.data.emailed
+          ? `Sent to ${json.data.email} as quote ${json.data.quote_number}. You'll get an email when they sign.`
+          : `Quote ${json.data.quote_number} is ready, but the email didn't go out. Copy the link below and send it yourself.`
+      );
+    } catch {
+      setError("Couldn't reach the server. Check your connection and try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const copyLink = async () => {
+    if (!sent) return;
+    await navigator.clipboard.writeText(sent.link_url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -300,6 +362,20 @@ export default function ProposalsPage() {
               {isSaved ? "Saved" : "Save draft"}
             </button>
           )}
+          {draft && isSaved && (
+            <button
+              onClick={send}
+              disabled={sending || unpricedCount > 0}
+              title={unpricedCount > 0 ? "Price every item before sending" : undefined}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0D1B2A] hover:bg-[#16293d] disabled:opacity-50 text-white rounded-xl text-sm font-medium"
+            >
+              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {sent ? "Resend to customer" : "Send to customer"}
+            </button>
+          )}
+          {draft && !isSaved && !pendingId && (
+            <span className="text-xs text-gray-500">Save the draft to a customer to send it.</span>
+          )}
           {isSaved && (
             <Link href={`/admin/customers/${customerId}`} className="text-sm text-orange-600 hover:underline">
               Open customer file
@@ -314,6 +390,25 @@ export default function ProposalsPage() {
           </div>
         )}
         {notice && <div className="text-sm text-green-800 bg-green-50 rounded-lg px-3 py-2">{notice}</div>}
+        {draft && isSaved && unpricedCount > 0 && (
+          <p className="text-xs text-amber-700">
+            {unpricedCount} item{unpricedCount === 1 ? " has" : "s have"} no price yet, so this can&apos;t be sent. Set the
+            rate in Inventory, then draft it again.
+          </p>
+        )}
+        {sent && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+            <span className="inline-flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              Quote {sent.quote_number} sent to {sent.email} on{" "}
+              {new Date(sent.sent_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            </span>
+            <button onClick={copyLink} className="inline-flex items-center gap-1.5 text-orange-600 hover:underline">
+              <Copy className="w-3.5 h-3.5" />
+              {copied ? "Copied" : "Copy sign link"}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* The agreement, exactly as the customer will receive it */}

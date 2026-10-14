@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { supabaseAdmin as supabase } from "@/lib/supabase";
+import { sendOwnerAlert } from "@/lib/email";
+import { sendSms } from "@/lib/sms";
 import Stripe from "stripe";
 
 // Lazy initialization to avoid build errors when STRIPE_SECRET_KEY is not set
@@ -46,7 +48,9 @@ export async function POST(
           status,
           totals,
           deposit_amount,
-          customer
+          customer,
+          template_name,
+          terms
         )
       `)
       .eq("token", token)
@@ -145,6 +149,43 @@ export async function POST(
     if (quoteUpdateError) {
       console.error("Error updating quote:", quoteUpdateError);
     }
+
+    // Tell the owner the moment a customer signs, and close out the AI
+    // proposal the quote came from. after() so Vercel doesn't cut these off.
+    after(async () => {
+      const total = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+        quote.totals?.total || quote.totals?.grandTotal || 0
+      );
+      const esc = (v: unknown) =>
+        String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const what = quote.template_name || `Quote ${quote.quote_number}`;
+      const company = quote.customer?.company ? ` (${quote.customer.company})` : "";
+      try {
+        await sendOwnerAlert(
+          `Signed: ${what} — ${total}`,
+          `<p><strong>${esc(signature_name)}</strong>${esc(company)} signed quote <strong>${esc(quote.quote_number)}</strong>: ${esc(what)}.</p>
+           <p>Total: <strong>${total}</strong><br/>Signed by: ${esc(signature_name)} &lt;${esc(signature_email)}&gt;<br/>
+           Payment choice: ${esc(payment_option)}</p>
+           <p><a href="https://www.chatmansecurityandfire.com/admin/quotes">Open quotes</a> to convert it to a job.</p>`
+        );
+      } catch (err) {
+        console.error("Signed-quote email alert failed:", err);
+      }
+      try {
+        await sendSms({
+          name: "CSF Quote Signed",
+          phone: process.env.OWNER_ALERT_PHONE || "+13468525540",
+          message: `Signed: ${what} — ${total} by ${signature_name}${company}. Quote ${quote.quote_number}.`,
+        });
+      } catch (err) {
+        console.error("Signed-quote text alert failed:", err);
+      }
+      const proposalId = (quote.terms as { proposal_id?: string } | null)?.proposal_id;
+      if (proposalId) {
+        const { error } = await supabase.from("proposal_history").update({ status: "won" }).eq("id", proposalId);
+        if (error) console.error("Failed to mark proposal won:", error);
+      }
+    });
 
     // Record link access
     await supabase.from("customer_link_access_log").insert({
