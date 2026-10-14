@@ -14,6 +14,8 @@ import {
   Send,
   Copy,
   CheckCircle2,
+  Paperclip,
+  X,
 } from "lucide-react";
 
 interface Customer { id: string; name: string; company: string | null; city: string | null }
@@ -29,12 +31,30 @@ interface DraftUsage {
   approximate?: boolean;
 }
 
+interface DraftFile { path: string; name: string; type: string }
+
 interface Draft {
   document: ProposalDocument;
   dropped_items: string[];
   attempts: number;
   usage?: DraftUsage;
+  files?: DraftFile[];
 }
+
+/** A plan set or photo being attached to the next draft. */
+interface Upload {
+  key: string;
+  name: string;
+  type: string;
+  size: number;
+  status: "uploading" | "ready" | "error";
+  path?: string;
+  error?: string;
+}
+
+const READABLE_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_UPLOADS = 10;
+const mb = (n: number) => `${(n / 1024 / 1024).toFixed(n < 1024 * 1024 ? 2 : 1)} MB`;
 
 interface SentInfo {
   quote_number: string;
@@ -75,6 +95,11 @@ export default function ProposalsPage() {
   const [sent, setSent] = useState<SentInfo | null>(null);
   const [sending, setSending] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [uploads, setUploads] = useState<Upload[]>([]);
+  const uploading = uploads.some((u) => u.status === "uploading");
+  const readyFiles = uploads
+    .filter((u) => u.status === "ready" && u.path)
+    .map((u) => ({ path: u.path!, name: u.name, type: u.type }));
   // Saved, and still pointing at the customer it was saved for.
   const isSaved = !!savedId && !!customerId && savedFor === customerId;
 
@@ -116,7 +141,13 @@ export default function ProposalsPage() {
           setError(json.error || "That saved proposal couldn't be opened.");
           return;
         }
-        setDraft({ document: pd.document, dropped_items: pd.dropped_items || [], attempts: pd.attempts || 1, usage: pd.usage });
+        setDraft({
+          document: pd.document,
+          dropped_items: pd.dropped_items || [],
+          attempts: pd.attempts || 1,
+          usage: pd.usage,
+          files: pd.files,
+        });
         setSent((pd as { sent?: SentInfo }).sent || null);
         setCustomerId(pd.customer_id || json.data.customer_id || "");
         setDescription(pd.description || "");
@@ -140,7 +171,13 @@ export default function ProposalsPage() {
         if (stopped || !json) return;
         if (json.success && !json.data.pending) {
           const d = json.data.draft as Draft;
-          setDraft({ document: d.document, dropped_items: d.dropped_items || [], attempts: d.attempts || 1, usage: d.usage });
+          setDraft({
+            document: d.document,
+            dropped_items: d.dropped_items || [],
+            attempts: d.attempts || 1,
+            usage: d.usage,
+            files: d.files,
+          });
           setPendingId(null);
           setNotice("Your Thorough draft is ready. It's saved in the customer's file under Proposals.");
         } else if (!json.success && !json.retry) {
@@ -160,13 +197,63 @@ export default function ProposalsPage() {
     };
   }, [pendingId]);
 
+  const patchUpload = (key: string, patch: Partial<Upload>) =>
+    setUploads((prev) => prev.map((u) => (u.key === key ? { ...u, ...patch } : u)));
+
+  // Each file goes straight from the browser to storage through a one-time
+  // signed URL, so big plan sets never hit the server's request size limit.
+  const addFiles = (list: FileList | null) => {
+    if (!list) return;
+    const room = MAX_UPLOADS - uploads.length;
+    const picked = Array.from(list).slice(0, Math.max(0, room));
+    if (list.length > picked.length) setError(`Up to ${MAX_UPLOADS} files per draft.`);
+    for (const file of picked) {
+      const key = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const base: Upload = { key, name: file.name, type: file.type, size: file.size, status: "uploading" };
+      if (!READABLE_TYPES.includes(file.type)) {
+        setUploads((prev) => [
+          ...prev,
+          { ...base, status: "error", error: "Only PDF, JPG, PNG, WebP, or GIF. Save iPhone (HEIC) photos as JPG." },
+        ]);
+        continue;
+      }
+      setUploads((prev) => [...prev, base]);
+      (async () => {
+        try {
+          const res = await fetch("/api/proposal-agent/files", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: file.name, type: file.type, size: file.size }),
+          });
+          const json = await res.json().catch(() => null);
+          if (!json?.success) throw new Error(json?.error || "Couldn't start the upload.");
+          const form = new FormData();
+          form.append("cacheControl", "3600");
+          form.append("", file);
+          const put = await fetch(json.data.signedUrl, {
+            method: "PUT",
+            headers: {
+              apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+              "x-upsert": "false",
+            },
+            body: form,
+          });
+          if (!put.ok) throw new Error(`Upload failed (HTTP ${put.status}).`);
+          patchUpload(key, { status: "ready", path: json.data.path });
+        } catch (e) {
+          patchUpload(key, { status: "error", error: e instanceof Error ? e.message : "Upload failed." });
+        }
+      })();
+    }
+  };
+
   const generate = async () => {
     setError(""); setNotice(""); setGenerating(true); setDraft(null); setSavedId(null); setPendingId(null); setSent(null);
     try {
       const res = await fetch("/api/proposal-agent/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer_id: customerId || undefined, description, thorough }),
+        body: JSON.stringify({ customer_id: customerId || undefined, description, thorough, files: readyFiles }),
       });
       // A platform timeout or crash comes back as an HTML page, not JSON.
       const data = await res.json().catch(() => null);
@@ -320,6 +407,54 @@ Note: ${warnings} item(s) were flagged as missing from your catalogue and are no
           </p>
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Plans &amp; photos (optional)</label>
+          <label className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 hover:border-orange-400 px-4 py-4 text-sm text-gray-600 cursor-pointer">
+            <Paperclip className="w-4 h-4" />
+            Attach plan sets (PDF) or site photos
+            <input
+              type="file"
+              multiple
+              accept=".pdf,image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={(e) => {
+                addFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          </label>
+          <p className="text-xs text-gray-500 mt-1">
+            Opus reads the drawings to count devices and check the scope. Up to 50 MB each, {MAX_UPLOADS} files. Large
+            plan sets work best with Thorough.
+          </p>
+          {uploads.length > 0 && (
+            <ul className="mt-2 space-y-1.5">
+              {uploads.map((u) => (
+                <li
+                  key={u.key}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                >
+                  <span className="min-w-0 flex items-center gap-2">
+                    {u.status === "uploading" && <Loader2 className="w-4 h-4 animate-spin text-gray-400 flex-shrink-0" />}
+                    {u.status === "ready" && <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />}
+                    {u.status === "error" && <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />}
+                    <span className="truncate text-gray-800">{u.name}</span>
+                    <span className="text-xs text-gray-400 flex-shrink-0">{mb(u.size)}</span>
+                    {u.error && <span className="text-xs text-red-600">{u.error}</span>}
+                  </span>
+                  <button
+                    onClick={() => setUploads((prev) => prev.filter((x) => x.key !== u.key))}
+                    className="text-gray-400 hover:text-gray-700 flex-shrink-0"
+                    aria-label={`Remove ${u.name}`}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 cursor-pointer">
           <input
             type="checkbox"
@@ -340,7 +475,7 @@ Note: ${warnings} item(s) were flagged as missing from your catalogue and are no
         <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={generate}
-            disabled={generating || !!pendingId || !description.trim()}
+            disabled={generating || !!pendingId || uploading || !description.trim()}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-xl text-sm font-medium"
           >
             {generating || pendingId ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
@@ -438,6 +573,7 @@ Note: ${warnings} item(s) were flagged as missing from your catalogue and are no
               {draft.usage
                 ? ` · Opus, ${EFFORT_LABEL[draft.usage.effort] || draft.usage.effort} · cost ${draft.usage.approximate ? "about " : ""}${cost(draft.usage.cost_usd)}`
                 : ""}
+              {draft.files?.length ? ` · read ${draft.files.length} attached file${draft.files.length === 1 ? "" : "s"}` : ""}
             </p>
             <button
               onClick={() => window.print()}

@@ -4,7 +4,9 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAuth } from "@/lib/auth";
 import {
   anthropicClient,
+  attachDraftFiles,
   buildPrompts,
+  cleanDraftFiles,
   draftParams,
   draftUsage,
   priceDraft,
@@ -82,6 +84,7 @@ export async function POST(request: NextRequest) {
   const description: string = (body.description || "").trim();
   const customerId: string | null = body.customer_id || null;
   const thorough = body.thorough === true;
+  const files = cleanDraftFiles(body.files);
 
   if (!description) {
     return NextResponse.json({ success: false, error: "Describe the job and I'll draft the proposal." }, { status: 400 });
@@ -97,8 +100,18 @@ export async function POST(request: NextRequest) {
   }
 
   const [{ inventory, procedures }, customer] = await Promise.all([loadCatalogue(), loadCustomer(customerId)]);
-  const prompts = buildPrompts({ inventory, procedures, customer, description });
+  const prompts = buildPrompts({ inventory, procedures, customer, description, attachments: files.map((f) => f.name) });
   const client = anthropicClient();
+
+  let attachments: Awaited<ReturnType<typeof attachDraftFiles>> = [];
+  if (files.length) {
+    try {
+      attachments = await attachDraftFiles(client, files);
+    } catch (err) {
+      console.error("Attaching draft files failed:", err);
+      return NextResponse.json({ success: false, error: explainApiError(err) }, { status: 400 });
+    }
+  }
 
   if (thorough) {
     // Save a placeholder first so the batch's custom_id can be the row id.
@@ -111,7 +124,12 @@ export async function POST(request: NextRequest) {
           status: "draft",
           proposal_type: "ai_draft",
           filename: "Drafting…",
-          proposal_data: { pending: { mode: "thorough", submitted_at: new Date().toISOString() }, customer_id: customerId, description },
+          proposal_data: {
+            pending: { mode: "thorough", submitted_at: new Date().toISOString() },
+            customer_id: customerId,
+            description,
+            files,
+          },
         },
       ])
       .select("id, proposal_data")
@@ -125,7 +143,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const batch = await client.messages.batches.create({
-        requests: [{ custom_id: row.id, params: draftParams(prompts, "thorough") }],
+        requests: [{ custom_id: row.id, params: draftParams(prompts, "thorough", attachments) }],
       });
       await supabaseAdmin
         .from("proposal_history")
@@ -145,7 +163,7 @@ export async function POST(request: NextRequest) {
   try {
     const stream = client.beta.messages.stream(
       {
-        ...draftParams(prompts, "standard"),
+        ...draftParams(prompts, "standard", attachments),
         // If a safety classifier declines, Anthropic re-runs it on its
         // recommended fallback model inside the same call.
         betas: ["server-side-fallback-2026-07-01"],
@@ -159,7 +177,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: { document, dropped_items, attempts: 1, usage: draftUsage(message, "standard") },
+      data: { document, dropped_items, attempts: 1, usage: draftUsage(message, "standard"), files },
     });
   } catch (err) {
     console.error("Standard draft failed:", err);
@@ -239,6 +257,7 @@ export async function GET(request: NextRequest) {
         usage,
         customer_id: pd.customer_id ?? row.customer_id,
         description: pd.description,
+        files: pd.files || [],
       };
 
       await supabaseAdmin

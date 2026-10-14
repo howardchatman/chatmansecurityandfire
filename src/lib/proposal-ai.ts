@@ -1,4 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
+import Anthropic, { toFile } from "@anthropic-ai/sdk";
+import { supabaseAdmin } from "@/lib/supabase";
 import type { ProposalDocument, ScopeLineItem } from "@/lib/proposal-doc";
 
 // Everything the proposal drafter shares between its two paths:
@@ -16,6 +17,63 @@ import type { ProposalDocument, ScopeLineItem } from "@/lib/proposal-doc";
 export const PROPOSAL_MODEL = "claude-opus-5-5";
 
 export type DraftMode = "standard" | "thorough";
+
+// ---- plans & site photos attached to a draft ----
+export const PROPOSAL_FILES_BUCKET = "proposal-files";
+/** What Claude can read, and how each type is attached. */
+export const PROPOSAL_FILE_TYPES: Record<string, "document" | "image"> = {
+  "application/pdf": "document",
+  "image/jpeg": "image",
+  "image/png": "image",
+  "image/webp": "image",
+  "image/gif": "image",
+};
+export const PROPOSAL_FILE_MAX_BYTES = 50 * 1024 * 1024;
+export const PROPOSAL_MAX_FILES = 10;
+// Copies sent to Anthropic expire on their own; thorough batches can take up to a day.
+const ANTHROPIC_FILE_TTL_SECONDS = 3 * 24 * 60 * 60;
+
+export interface DraftFile { path: string; name: string; type: string }
+
+/** Keep only well-formed attachments that live in our drafts folder. */
+export function cleanDraftFiles(input: unknown): DraftFile[] {
+  if (!Array.isArray(input)) return [];
+  return input
+    .filter(
+      (f): f is DraftFile =>
+        !!f &&
+        typeof f.path === "string" &&
+        f.path.startsWith("drafts/") &&
+        !f.path.includes("..") &&
+        typeof f.type === "string" &&
+        f.type in PROPOSAL_FILE_TYPES
+    )
+    .slice(0, PROPOSAL_MAX_FILES)
+    .map((f) => ({ path: f.path, name: String(f.name || f.path.split("/").pop()), type: f.type }));
+}
+
+/**
+ * Copy each stored file to Anthropic's Files API and return the content blocks
+ * that reference them. A plan set sent as a file reference avoids the 32 MB
+ * request cap that inlining it as base64 would hit.
+ */
+export async function attachDraftFiles(client: Anthropic, files: DraftFile[]) {
+  return Promise.all(
+    files.map(async (f) => {
+      const { data, error } = await supabaseAdmin.storage.from(PROPOSAL_FILES_BUCKET).download(f.path);
+      if (error || !data) throw new Error(`Couldn't read the uploaded file ${f.name}. Remove it and upload it again.`);
+      const uploaded = await client.files.upload({
+        file: await toFile(data, f.name, { type: f.type }),
+        expires_in_seconds: ANTHROPIC_FILE_TTL_SECONDS,
+      });
+      return PROPOSAL_FILE_TYPES[f.type] === "document"
+        ? { type: "document" as const, source: { type: "file" as const, file_id: uploaded.id }, title: f.name }
+        : { type: "image" as const, source: { type: "file" as const, file_id: uploaded.id } };
+    })
+  );
+}
+
+export type DraftAttachment = Awaited<ReturnType<typeof attachDraftFiles>>[number];
 export const EFFORT: Record<DraftMode, "high" | "xhigh"> = { standard: "high", thorough: "xhigh" };
 
 // Opus 5.5 list prices, USD per million tokens. Batches bill at half.
@@ -124,6 +182,8 @@ export function buildPrompts(input: {
   procedures: Procedure[];
   customer: DraftCustomer | null;
   description: string;
+  /** Names of attached plans/photos, if any. */
+  attachments?: string[];
 }) {
   const catalogue = input.inventory
     .map(
@@ -156,6 +216,10 @@ Rules:
   const user = [
     c ? `Customer: ${c.company || c.name}${c.city ? `, ${c.city}, ${c.state || ""}` : ""}` : null,
     `Job: ${input.description}`,
+    input.attachments?.length
+      ? `
+Attached: ${input.attachments.join(", ")}. Use these drawings and photos to count devices, confirm the building layout, and check the scope. Where the attachments and the description disagree, follow the attachments and say so in notes. If a sheet is unreadable or missing information you need, list what's missing in gaps.`
+      : null,
     input.procedures.length
       ? `\nOur standard procedures:\n${input.procedures.map((p) => `- ${p.name}: ${p.steps}`).join("\n")}`
       : null,
@@ -167,14 +231,25 @@ Rules:
 }
 
 /** The request body shared by both paths (model, prompt, structured output). */
-export function draftParams(prompts: { system: string; user: string }, mode: DraftMode) {
+export function draftParams(
+  prompts: { system: string; user: string },
+  mode: DraftMode,
+  attachments: DraftAttachment[] = []
+) {
   return {
     model: PROPOSAL_MODEL,
     // Streamed (standard) or batched (thorough), so a large ceiling is safe;
     // extra-high effort spends more of it on thinking before the answer.
     max_tokens: mode === "thorough" ? 64000 : 32000,
     system: prompts.system,
-    messages: [{ role: "user" as const, content: prompts.user }],
+    messages: [
+      {
+        role: "user" as const,
+        content: attachments.length
+          ? [...attachments, { type: "text" as const, text: prompts.user }]
+          : prompts.user,
+      },
+    ],
     output_config: {
       effort: EFFORT[mode],
       format: { type: "json_schema" as const, schema: DRAFT_SCHEMA as unknown as Record<string, unknown> },
