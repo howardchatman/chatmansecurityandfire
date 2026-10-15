@@ -58,14 +58,23 @@ export async function GET(
           thumbnail_url,
           caption,
           photo_type,
-          location,
           created_at
         )
       `)
       .eq("id", id)
       .single();
 
-    if (error || !job) {
+    // .single() reports "no rows" as PGRST116; anything else is a real query
+    // failure and its message says why (a missing column once made every job
+    // look "not found").
+    if (error && error.code !== "PGRST116") {
+      console.error("Job lookup failed:", error);
+      return NextResponse.json(
+        { success: false, error: dbErrorText(error, "Couldn't load the job") },
+        { status: 500 }
+      );
+    }
+    if (!job) {
       return NextResponse.json(
         { success: false, error: "Job not found" },
         { status: 404 }

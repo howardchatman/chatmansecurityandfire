@@ -89,6 +89,10 @@ export default function ProjectTracker({ jobId }: { jobId: string }) {
   const [staff, setStaff] = useState<Option[]>([]);
 
   const load = useCallback(async () => {
+    if (!jobId || jobId === "undefined") {
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/jobs/${jobId}/project`);
       const json = await res.json().catch(() => null);

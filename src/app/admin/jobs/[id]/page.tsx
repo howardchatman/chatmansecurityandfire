@@ -199,6 +199,7 @@ export default function JobDetailPage({
   const [technicians, setTechnicians] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"details" | "project" | "notes" | "photos" | "checklists" | "history">("details");
+  const [jobError, setJobError] = useState("");
   // ?tab=project opens the project tracker directly (linked from Projects).
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("tab") === "project") setActiveTab("project");
@@ -231,6 +232,9 @@ export default function JobDetailPage({
       if (jobRes.ok) {
         const data = await jobRes.json();
         setJob(data.data);
+      } else {
+        const data = await jobRes.json().catch(() => null);
+        setJobError(data?.error || `HTTP ${jobRes.status}`);
       }
 
       if (techsRes.ok) {
@@ -394,6 +398,7 @@ export default function JobDetailPage({
     return (
       <div className="text-center py-12">
         <h2 className="text-xl font-semibold text-gray-900">Job not found</h2>
+        {jobError && jobError !== "Job not found" && <p className="text-sm text-red-600 mt-1">{jobError}</p>}
         <Link href="/admin/jobs" className="text-orange-600 hover:underline mt-2">
           Back to jobs
         </Link>

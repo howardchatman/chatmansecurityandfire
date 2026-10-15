@@ -191,13 +191,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const { id } = use(params);
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [showFullNotes, setShowFullNotes] = useState(false);
 
   useEffect(() => {
     fetch(`/api/jobs/${id}`)
       .then((r) => r.json())
-      .then((d) => setJob(d.data || d))
-      .catch(console.error)
+      .then((d) => {
+        // Only a successful reply is a job; an error reply used to be drawn as
+        // a blank project.
+        if (d?.success && d.data?.id) setJob(d.data);
+        else setLoadError(d?.error || "Couldn't load this project.");
+      })
+      .catch(() => setLoadError("Couldn't reach the server."))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -212,7 +218,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   if (!job) {
     return (
       <div className="p-8 text-center text-gray-500">
-        <p>Project not found.</p>
+        <p>{loadError || "Project not found."}</p>
         <Link href="/admin/projects" className="text-orange-600 hover:underline text-sm mt-2 inline-block">
           Back to Projects
         </Link>
