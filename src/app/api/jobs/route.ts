@@ -101,6 +101,7 @@ export async function POST(request: NextRequest) {
       scheduled_time_end,
       estimated_duration_hours,
       team_id,
+      prime_contractor,
       assigned_users, // Array of { user_id, role }
     } = body;
 
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
       // Only sent for multi-day jobs, so one-day jobs keep working even before
       // the 20261014_multi_day_jobs migration adds the column.
       ...(scheduled_end_date ? { scheduled_end_date } : {}),
+      ...(typeof prime_contractor === "string" && prime_contractor.trim() ? { prime_contractor: prime_contractor.trim() } : {}),
       scheduled_time_start,
       scheduled_time_end,
       estimated_duration_hours,
@@ -181,6 +183,8 @@ export async function POST(request: NextRequest) {
         success: false,
         error: /scheduled_end_date/i.test(String((error as { message?: string })?.message))
           ? "Multi-day jobs need one database update first: run supabase/migrations/20261014_multi_day_jobs.sql in Supabase, then save again."
+          : /prime_contractor/i.test(String((error as { message?: string })?.message))
+          ? "Subcontract jobs need one database update first: run supabase/migrations/20261014b_project_tracking.sql in Supabase, then save again."
           : dbErrorText(error, "Failed to create job"),
       },
       { status: 500 }

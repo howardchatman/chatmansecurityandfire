@@ -206,6 +206,7 @@ export default function JobsPage() {
     scheduled_time_start: "",
     scheduled_time_end: "",
     scheduled_end_date: "",
+    prime_contractor: "",
     estimated_duration_hours: "",
     team_id: "",
     assigned_users: [] as { user_id: string; role: string }[],
@@ -295,6 +296,7 @@ export default function JobsPage() {
         scheduled_time_start: "",
         scheduled_time_end: "",
         scheduled_end_date: "",
+        prime_contractor: "",
         estimated_duration_hours: "",
         team_id: "",
         assigned_users: [],
@@ -698,7 +700,32 @@ export default function JobsPage() {
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={jobForm.customer_email}
+                      onChange={(e) => setJobForm({ ...jobForm, customer_email: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Subcontracted through <span className="text-gray-400 font-normal">(if any)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={jobForm.prime_contractor}
+                      onChange={(e) => setJobForm({ ...jobForm, prime_contractor: e.target.value })}
+                      placeholder="e.g. Alarmmasters"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
                 </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  On a subcontract, enter the end customer here and the prime contractor above. Set their project
+                  contact, billing, and daily updates in the job&apos;s Project tab after saving.
+                </p>
               </div>
 
               {/* Site Address */}

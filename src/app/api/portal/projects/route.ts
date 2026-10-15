@@ -31,13 +31,33 @@ export async function GET(request: NextRequest) {
 
     const email = customer?.email || auth.email;
 
-    const { data: jobs, error } = await supabaseAdmin
+    // Jobs billed to this company (jobs.customer_id) or addressed to its email.
+    // Every login tied to the company sees the same jobs, so a GC's project
+    // manager and install manager each get their own login to one shared view.
+    const BASE_COLS =
+      "id, job_number, job_type, status, description, scope_summary, site_address, site_city, scheduled_date, actual_start_time, completed_at, created_at, quote_id";
+    type PortalJob = {
+      id: string; job_number: string; job_type: string; status: string; description: string | null;
+      scope_summary: string | null; site_address: string | null; site_city: string | null;
+      scheduled_date: string | null; actual_start_time: string | null; completed_at: string | null;
+      created_at: string; quote_id: string | null;
+      scheduled_end_date?: string | null; percent_complete?: number | null;
+    };
+    let jobsRes = await supabaseAdmin
       .from("jobs")
-      .select(
-        "id, job_number, job_type, status, description, scope_summary, site_address, site_city, scheduled_date, actual_start_time, completed_at, created_at, quote_id"
-      )
-      .eq("customer_email", email)
+      .select(`${BASE_COLS}, scheduled_end_date, percent_complete`)
+      .or(`customer_id.eq.${customerId},customer_email.eq."${email.replace(/"/g, "")}"`)
       .order("created_at", { ascending: false });
+    if (jobsRes.error && /customer_id|scheduled_end_date|percent_complete/i.test(jobsRes.error.message)) {
+      // Before the project-tracking migration: match by email only.
+      jobsRes = (await supabaseAdmin
+        .from("jobs")
+        .select(BASE_COLS)
+        .eq("customer_email", email)
+        .order("created_at", { ascending: false })) as typeof jobsRes;
+    }
+    const jobs = jobsRes.data as PortalJob[] | null;
+    const error = jobsRes.error;
 
     if (error) {
       console.error("Error loading customer projects:", error);
@@ -46,6 +66,30 @@ export async function GET(request: NextRequest) {
 
     const jobIds = (jobs || []).map((j) => j.id);
     let notesByJob: Record<string, { id: string; note: string; created_at: string }[]> = {};
+
+    // Project updates emailed to the company, newest first (shown in full).
+    const updatesByJob: Record<string, { id: string; sent_at: string; subject: string; body_html: string | null }[]> = {};
+    const milestonesByJob: Record<string, { title: string; target_date: string | null; done: boolean }[]> = {};
+    if (jobIds.length) {
+      const [{ data: ups }, { data: ms }] = await Promise.all([
+        supabaseAdmin
+          .from("project_updates")
+          .select("id, job_id, sent_at, subject, body_html")
+          .in("job_id", jobIds)
+          .order("sent_at", { ascending: false })
+          .limit(200),
+        supabaseAdmin
+          .from("project_milestones")
+          .select("job_id, title, target_date, done, sort")
+          .in("job_id", jobIds)
+          .order("sort"),
+      ]);
+      for (const u of ups || []) {
+        const list = (updatesByJob[u.job_id] ||= []);
+        if (list.length < 30) list.push({ id: u.id, sent_at: u.sent_at, subject: u.subject, body_html: u.body_html });
+      }
+      for (const m of ms || []) (milestonesByJob[m.job_id] ||= []).push({ title: m.title, target_date: m.target_date, done: m.done });
+    }
 
     if (jobIds.length) {
       const { data: notes } = await supabaseAdmin
@@ -63,6 +107,9 @@ export async function GET(request: NextRequest) {
 
     const jobItems = (jobs || []).map((jb) => {
       const stage = stageForStatus(jb.status);
+      // A long project reports its own percent complete once work is under way.
+      const pct = Number(jb.percent_complete) || 0;
+      const progress = !stage.isComplete && pct > 0 ? pct : stage.progress;
       return {
         kind: "job" as const,
         id: jb.id,
@@ -72,25 +119,29 @@ export async function GET(request: NextRequest) {
         scope: jb.scope_summary,
         site: [jb.site_address, jb.site_city].filter(Boolean).join(", "),
         scheduled_date: jb.scheduled_date,
+        scheduled_end_date: jb.scheduled_end_date ?? null,
         started_at: jb.actual_start_time,
         completed_at: jb.completed_at,
         created_at: jb.created_at,
         stage: stage.key,
         stage_label: stage.label,
         stage_index: stage.index,
-        progress: stage.progress,
+        progress,
+        percent_complete: pct || null,
         is_complete: stage.isComplete,
         is_on_hold: stage.isOnHold,
         note: stage.note,
         is_waiting_on_permit: stage.isWaitingOnPermit,
         updates: notesByJob[jb.id] || [],
+        project_updates: updatesByJob[jb.id] || [],
+        milestones: milestonesByJob[jb.id] || [],
         quote: null as null | { number: string; total: number | null; sign_url: string | null; expires_at: string | null },
         needs_signature: false,
         is_closed: false,
       };
     });
 
-    const quoteItems = await loadQuotes(email, new Set((jobs || []).map((j) => j.quote_id).filter(Boolean)));
+    const quoteItems = await loadQuotes(email, new Set((jobs || []).map((j) => j.quote_id).filter((q): q is string => !!q)));
 
     // Quotes first while they wait on the customer, then work in flight.
     const data = [...quoteItems, ...jobItems];
@@ -170,6 +221,10 @@ async function loadQuotes(email: string, convertedQuoteIds: Set<string>) {
       note: stage.note,
       is_waiting_on_permit: false,
       updates: [] as { id: string; note: string; created_at: string }[],
+      project_updates: [] as { id: string; sent_at: string; subject: string; body_html: string | null }[],
+      milestones: [] as { title: string; target_date: string | null; done: boolean }[],
+      percent_complete: null as number | null,
+      scheduled_end_date: null as string | null,
       quote: {
         number: q.quote_number,
         total,

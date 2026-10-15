@@ -3,6 +3,10 @@
     {
       "path": "/api/bids/fetch",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/project-updates",
+      "schedule": "0 23 * * 1-5"
     }
   ]
 }

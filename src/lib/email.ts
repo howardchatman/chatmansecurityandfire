@@ -23,7 +23,7 @@ const LEAD_ALERT_EMAILS = (
 const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com").replace(/\/$/, "");
 const EMAIL_LOGO_URL = `${SITE_URL}/csf_wide_logo.png`;
 
-function emailHeader(title: string) {
+export function emailHeader(title: string) {
   return `
         <div style="background-color:#ffffff;padding:20px;text-align:center;border-bottom:3px solid #E85D04;">
           <img src="${EMAIL_LOGO_URL}" alt="Chatman Security &amp; Fire" width="220" style="width:220px;max-width:75%;height:auto;display:inline-block;" />

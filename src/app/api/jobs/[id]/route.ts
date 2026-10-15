@@ -13,6 +13,7 @@ import { supabaseAdmin as supabase,
   acknowledgeAssignment,
 } from "@/lib/supabase";
 import { blanksToNull, dbErrorText } from "@/lib/job-input";
+import { syncJobToCalendar } from "@/lib/google-calendar";
 
 
 // GET: Get job details with all related data
@@ -239,6 +240,14 @@ export async function PATCH(
           assigned_by: auth.userId,
           role: data.role || "technician",
         });
+        // Invite the tech to the job's calendar event (lands on their calendar).
+        after(async () => {
+          try {
+            await syncJobToCalendar(await getJobById(id));
+          } catch (e) {
+            console.error("Calendar resync after assignment failed:", e);
+          }
+        });
         return NextResponse.json({ success: true, data: assignment });
       }
 
@@ -250,6 +259,13 @@ export async function PATCH(
           );
         }
         await removeJobAssignment(id, data.user_id);
+        after(async () => {
+          try {
+            await syncJobToCalendar(await getJobById(id));
+          } catch (e) {
+            console.error("Calendar resync after unassignment failed:", e);
+          }
+        });
         return NextResponse.json({ success: true });
       }
 
@@ -289,6 +305,14 @@ export async function PATCH(
       default: {
         // Regular update
         const job = await updateJob(id, blanksToNull(data));
+        // Keep the calendar event in step with date/site edits.
+        after(async () => {
+          try {
+            await syncJobToCalendar(await getJobById(id));
+          } catch (e) {
+            console.error("Calendar resync after job edit failed:", e);
+          }
+        });
         return NextResponse.json({ success: true, data: job });
       }
     }

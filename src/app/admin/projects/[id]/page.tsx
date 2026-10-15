@@ -8,6 +8,7 @@ import {
   ChevronUp, AlertCircle, RefreshCw, Calendar,
 } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
+import ProjectTracker from "@/components/admin/ProjectTracker";
 
 interface Job {
   id: string;
@@ -278,6 +279,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </Link>
         </div>
       </div>
+
+      {/* Project tracker: progress, owner updates, milestones, draws, crew log */}
+      <ProjectTracker jobId={job.id} />
 
       {/* Critical Action Items */}
       {criticalItems.length > 0 && (

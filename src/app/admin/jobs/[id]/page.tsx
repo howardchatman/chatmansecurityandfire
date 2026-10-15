@@ -32,6 +32,8 @@ import {
 } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { formatJobDates } from "@/lib/job-dates";
+import ProjectTracker from "@/components/admin/ProjectTracker";
+import { BarChart3 } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -196,7 +198,11 @@ export default function JobDetailPage({
   const [events, setEvents] = useState<JobEvent[]>([]);
   const [technicians, setTechnicians] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"details" | "notes" | "photos" | "checklists" | "history">("details");
+  const [activeTab, setActiveTab] = useState<"details" | "project" | "notes" | "photos" | "checklists" | "history">("details");
+  // ?tab=project opens the project tracker directly (linked from Projects).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("tab") === "project") setActiveTab("project");
+  }, []);
 
   // Note form state
   const [showNoteForm, setShowNoteForm] = useState(false);
@@ -507,9 +513,10 @@ export default function JobDetailPage({
         <div className="lg:col-span-2 space-y-6">
           {/* Tabs */}
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div className="flex border-b">
+            <div className="flex border-b overflow-x-auto">
               {[
                 { id: "details", label: "Details", icon: FileText },
+                { id: "project", label: "Project", icon: BarChart3 },
                 { id: "notes", label: "Notes", icon: MessageSquare, count: job.job_notes?.length },
                 { id: "photos", label: "Photos", icon: Camera, count: job.job_photos?.length },
                 { id: "checklists", label: "Checklists", icon: ClipboardList, count: checklists.length },
@@ -898,6 +905,12 @@ export default function JobDetailPage({
               )}
 
               {/* History Tab */}
+              {activeTab === "project" && (
+                <div className="p-4 bg-gray-50">
+                  <ProjectTracker jobId={job.id} />
+                </div>
+              )}
+
               {activeTab === "history" && (
                 <div className="space-y-4">
                   <h3 className="font-semibold text-gray-900">Activity History</h3>

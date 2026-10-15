@@ -179,6 +179,8 @@ export interface CalendarEvent {
   start: string;
   /** ISO datetime; defaults to +1h for timed, same day for all-day. */
   end?: string;
+  /** Invitees; Google emails each one and puts the event on their calendar. */
+  attendees?: string[];
 }
 
 function toGoogleTimes(ev: CalendarEvent) {
@@ -247,11 +249,15 @@ export async function upsertEvent(
     description: ev.description,
     location: ev.location,
     ...toGoogleTimes(ev),
+    // Sent whenever provided (an empty list removes earlier invitees).
+    ...(ev.attendees ? { attendees: ev.attendees.map((email) => ({ email })) } : {}),
   });
 
+  // With invitees, ask Google to email them the invite / update.
+  const notify = ev.attendees?.length ? "?sendUpdates=all" : "";
   const url = existingEventId
-    ? `${CAL_BASE}/calendars/${encodeURIComponent(auth.calendarId)}/events/${existingEventId}`
-    : `${CAL_BASE}/calendars/${encodeURIComponent(auth.calendarId)}/events`;
+    ? `${CAL_BASE}/calendars/${encodeURIComponent(auth.calendarId)}/events/${existingEventId}${notify}`
+    : `${CAL_BASE}/calendars/${encodeURIComponent(auth.calendarId)}/events${notify}`;
 
   const res = await fetch(url, {
     method: existingEventId ? "PATCH" : "POST",
@@ -316,8 +322,21 @@ function combine(date?: string | null, time?: string | null): string | null {
   return `${date}T${t}`;
 }
 
+/** Emails of the techs assigned to a job, so the job lands on their calendars. */
+async function assignedEmails(jobId: string): Promise<string[]> {
+  const { data } = await supabaseAdmin
+    .from("job_assignments")
+    .select("user:profiles!job_assignments_user_id_fkey(email)")
+    .eq("job_id", jobId);
+  const emails = (data || [])
+    .map((a) => (a as { user?: { email?: string | null } | null }).user?.email)
+    .filter((e): e is string => !!e && e.includes("@"));
+  return Array.from(new Set(emails.map((e) => e.toLowerCase())));
+}
+
 export async function syncJobToCalendar(job: JobLike): Promise<void> {
   if (!job.scheduled_date) return; // nothing to put on a calendar yet
+  const attendees = await assignedEmails(job.id).catch(() => [] as string[]);
   const title = `${job.job_type ? titleCase(job.job_type) : "Job"} — ${job.customer_name || "Customer"}`;
   const multiDay = !!job.scheduled_end_date && job.scheduled_end_date > job.scheduled_date;
   const hours = job.scheduled_time_start
@@ -330,6 +349,7 @@ export async function syncJobToCalendar(job: JobLike): Promise<void> {
         .filter(Boolean)
         .join("\n"),
       location: [job.site_address, job.site_city].filter(Boolean).join(", ") || undefined,
+      attendees,
       // A multi-day project is one all-day event spanning start..end; a one-day
       // job is a timed event using its start and end times.
       ...(multiDay
@@ -344,6 +364,27 @@ export async function syncJobToCalendar(job: JobLike): Promise<void> {
   if (eventId && eventId !== job.google_event_id) {
     await supabaseAdmin.from("jobs").update({ google_event_id: eventId }).eq("id", job.id);
   }
+}
+
+/**
+ * A single all-day reminder tied to a project (a milestone or a payment draw).
+ * Returns the event id to store, or null when there's nothing to show.
+ */
+export async function syncProjectDateEvent(item: {
+  summary: string;
+  date: string | null | undefined;
+  description?: string;
+  location?: string;
+  google_event_id?: string | null;
+}): Promise<string | null> {
+  if (!item.date) {
+    if (item.google_event_id) await deleteEvent(item.google_event_id);
+    return null;
+  }
+  return upsertEvent(
+    { summary: item.summary, description: item.description, location: item.location, start: item.date.slice(0, 10) },
+    item.google_event_id
+  );
 }
 
 interface InspectionLike {

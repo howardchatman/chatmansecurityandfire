@@ -16,6 +16,7 @@ import {
   FileText,
   Info,
 } from "lucide-react";
+import { formatJobDates } from "@/lib/job-dates";
 
 interface Update {
   id: string;
@@ -42,6 +43,11 @@ interface Project {
   is_on_hold: boolean;
   note: string | null;
   updates: Update[];
+  /** Project update emails, as sent. */
+  project_updates?: { id: string; sent_at: string; subject: string; body_html: string | null }[];
+  milestones?: { title: string; target_date: string | null; done: boolean }[];
+  percent_complete?: number | null;
+  scheduled_end_date?: string | null;
   quote: { number: string; total: number | null; sign_url: string | null; expires_at: string | null } | null;
   needs_signature: boolean;
   is_closed: boolean;
@@ -192,9 +198,12 @@ export default function PortalProjectsPage() {
           {fmt(p.scheduled_date) && (
             <span className="text-gray-600 flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-gray-400" />
-              Scheduled {fmt(p.scheduled_date)}
+              Scheduled {formatJobDates(p.scheduled_date, p.scheduled_end_date)}
             </span>
           )}
+          {p.percent_complete ? (
+            <span className="text-gray-900 font-medium">{p.percent_complete}% complete</span>
+          ) : null}
           {fmt(p.completed_at) && (
             <span className="text-green-700 flex items-center gap-1.5">
               <CheckCircle className="w-3.5 h-3.5" />
@@ -204,6 +213,27 @@ export default function PortalProjectsPage() {
         </div>
         )}
 
+        {p.milestones && p.milestones.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <p className="text-xs font-medium text-gray-500 mb-2">Milestones</p>
+            <ul className="space-y-1.5">
+              {p.milestones.map((m, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm">
+                  {m.done ? (
+                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  ) : (
+                    <span className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0" />
+                  )}
+                  <span className={m.done ? "text-gray-500" : "text-gray-900"}>{m.title}</span>
+                  {m.target_date && (
+                    <span className="text-xs text-gray-400 ml-auto">{formatJobDates(m.target_date)}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {p.scope && (
           <div className="mt-4 pt-4 border-t border-gray-100">
             <p className="text-xs font-medium text-gray-500 mb-1">Scope of work</p>
@@ -211,6 +241,34 @@ export default function PortalProjectsPage() {
           </div>
         )}
       </div>
+
+      {/* Project update emails, in full */}
+      {p.project_updates && p.project_updates.length > 0 && (
+        <div className="border-t border-gray-100 p-5">
+          <p className="text-xs font-medium text-gray-500 mb-3 flex items-center gap-1.5">
+            <MessageSquare className="w-3.5 h-3.5" />
+            Project updates ({p.project_updates.length})
+          </p>
+          <div className="space-y-2">
+            {p.project_updates.map((u, i) => (
+              <details key={u.id} open={i === 0} className="rounded-lg border border-gray-200 bg-white">
+                <summary className="cursor-pointer px-3 py-2 text-sm text-gray-800 flex justify-between gap-3">
+                  <span className="truncate">{u.subject}</span>
+                  <span className="text-xs text-gray-400 flex-shrink-0">{fmtShort(u.sent_at)}</span>
+                </summary>
+                {u.body_html && (
+                  <iframe
+                    title={u.subject}
+                    srcDoc={u.body_html}
+                    sandbox=""
+                    className="w-full h-[520px] border-t border-gray-100 rounded-b-lg"
+                  />
+                )}
+              </details>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Crew updates */}
       {p.updates.length > 0 && (

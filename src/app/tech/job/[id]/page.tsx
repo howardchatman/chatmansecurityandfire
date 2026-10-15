@@ -24,6 +24,7 @@ import {
   Send,
   Image,
 } from "lucide-react";
+import TechDailyLog from "@/components/tech/TechDailyLog";
 
 interface JobPhoto {
   id: string;
@@ -377,6 +378,9 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           )}
         </div>
       </div>
+
+      {/* Daily log for multi-day projects */}
+      <TechDailyLog jobId={job.id} />
 
       {/* Description */}
       {job.description && (
