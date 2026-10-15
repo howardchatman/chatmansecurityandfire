@@ -229,7 +229,7 @@ export default function JobsPage() {
       const [jobsRes, teamsRes, techsRes] = await Promise.all([
         fetch(`/api/jobs?${params}`),
         fetch("/api/admin/teams"),
-        fetch("/api/admin/invite?role=technician"),
+        fetch("/api/admin/invite"),
       ]);
 
       if (jobsRes.ok) {
@@ -244,7 +244,13 @@ export default function JobsPage() {
 
       if (techsRes.ok) {
         const data = await techsRes.json();
-        setTechnicians(data.data || []);
+        // Anyone on staff can be put on a job, the owner included, not just
+        // technician-role logins.
+        setTechnicians(
+          ((data.data || []) as (Profile & { is_active?: boolean })[]).filter(
+            (p) => p.role !== "customer" && p.is_active !== false
+          )
+        );
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -945,7 +951,7 @@ export default function JobsPage() {
 
               {/* Assignment */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-3">Assign Technicians</h3>
+                <h3 className="font-medium text-gray-900 mb-3">Assign Crew</h3>
                 <div className="flex flex-wrap gap-2">
                   {technicians.map((tech) => {
                     const isAssigned = jobForm.assigned_users.some(
@@ -968,7 +974,7 @@ export default function JobsPage() {
                               ...jobForm,
                               assigned_users: [
                                 ...jobForm.assigned_users,
-                                { user_id: tech.id, role: "technician" },
+                                { user_id: tech.id, role: tech.role === "inspector" ? "inspector" : "technician" },
                               ],
                             });
                           }
@@ -980,6 +986,9 @@ export default function JobsPage() {
                         }`}
                       >
                         {tech.full_name}
+                        {tech.role !== "technician" && (
+                          <span className="ml-1 text-xs opacity-70">({tech.role})</span>
+                        )}
                       </button>
                     );
                   })}

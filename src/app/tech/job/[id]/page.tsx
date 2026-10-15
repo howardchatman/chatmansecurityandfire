@@ -25,6 +25,7 @@ import {
   Image,
 } from "lucide-react";
 import TechDailyLog from "@/components/tech/TechDailyLog";
+import OnSiteCard from "@/components/tech/OnSiteCard";
 
 interface JobPhoto {
   id: string;
@@ -378,6 +379,9 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           )}
         </div>
       </div>
+
+      {/* Check in / out on site (time clock, tied to this job) */}
+      <OnSiteCard jobId={job.id} />
 
       {/* Daily log for multi-day projects */}
       <TechDailyLog jobId={job.id} />

@@ -33,6 +33,7 @@ import {
   QrCode,
   Upload,
   Radar,
+  HardHat,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -82,6 +83,8 @@ const navigation = [
       { name: "Work Orders", href: "/admin/work-orders", icon: FileCheck },
       { name: "Tickets", href: "/admin/tickets", icon: Ticket },
       { name: "Schedule", href: "/admin/scheduling", icon: Calendar },
+      // The field view for anyone on staff who goes out on jobs (owner included).
+      { name: "My Field Jobs", href: "/tech/today", icon: HardHat },
     ],
   },
   {

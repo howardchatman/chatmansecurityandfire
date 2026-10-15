@@ -62,7 +62,9 @@ export default function TechPortalLayout({
     router.push("/");
   };
 
-  const roleLabel = user.role === "inspector" ? "Inspector" : "Technician";
+  const roleLabel =
+    user.role === "inspector" ? "Inspector" : user.role === "admin" ? "Admin · field view" : user.role === "manager" ? "Manager · field view" : "Technician";
+  const office = user.role === "admin" || user.role === "manager";
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -103,6 +105,14 @@ export default function TechPortalLayout({
 
             {/* User Menu */}
             <div className="flex items-center gap-4">
+              {office && (
+                <Link
+                  href="/admin/dashboard"
+                  className="px-3 py-1.5 text-sm font-medium text-orange-300 hover:text-white border border-orange-400/40 hover:bg-white/10 rounded-lg"
+                >
+                  Back to admin
+                </Link>
+              )}
               <div className="hidden sm:flex items-center gap-3">
                 <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
                   <User className="w-4 h-4 text-white" />

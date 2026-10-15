@@ -13,10 +13,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Only techs and inspectors use this endpoint
-    if (!["technician", "inspector"].includes(auth.role)) {
+    // The field view: jobs assigned to the caller. Admins and managers who go
+    // out on jobs use it too.
+    if (!["technician", "inspector", "admin", "manager"].includes(auth.role)) {
       return NextResponse.json(
-        { success: false, error: "This endpoint is for technicians and inspectors" },
+        { success: false, error: "This endpoint is for field staff" },
         { status: 403 }
       );
     }

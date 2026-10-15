@@ -226,7 +226,7 @@ export default function JobDetailPage({
     try {
       const [jobRes, techsRes] = await Promise.all([
         fetch(`/api/jobs/${resolvedParams.id}`),
-        fetch("/api/admin/invite?role=technician"),
+        fetch("/api/admin/invite"),
       ]);
 
       if (jobRes.ok) {
@@ -239,7 +239,13 @@ export default function JobDetailPage({
 
       if (techsRes.ok) {
         const data = await techsRes.json();
-        setTechnicians(data.data || []);
+        // Anyone on staff can be put on a job, the owner included, not just
+        // technician-role logins.
+        setTechnicians(
+          ((data.data || []) as (Profile & { is_active?: boolean })[]).filter(
+            (p) => p.role !== "customer" && p.is_active !== false
+          )
+        );
       }
 
       // Also fetch checklists and events if available
@@ -1095,7 +1101,7 @@ export default function JobDetailPage({
         <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 overflow-y-auto">
           <div className="my-auto bg-white rounded-xl shadow-2xl w-full max-w-md">
             <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Assign Technician</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Assign Crew</h2>
               <button
                 onClick={() => setShowAssignModal(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg"
@@ -1115,19 +1121,22 @@ export default function JobDetailPage({
                     >
                       <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                         <span className="text-gray-600 font-medium">
-                          {tech.full_name.charAt(0)}
+                          {(tech.full_name || tech.email || "?").charAt(0)}
                         </span>
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{tech.full_name}</p>
-                        <p className="text-sm text-gray-500">{tech.email}</p>
+                        <p className="text-sm text-gray-500">
+                          {tech.email}
+                          {tech.role && tech.role !== "technician" ? ` · ${tech.role}` : ""}
+                        </p>
                       </div>
                     </button>
                   ))}
                 </div>
               ) : (
                 <p className="text-center text-gray-500 py-4">
-                  All technicians are already assigned to this job.
+                  Everyone on staff is already assigned to this job.
                 </p>
               )}
             </div>
