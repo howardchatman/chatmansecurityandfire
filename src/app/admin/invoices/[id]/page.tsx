@@ -467,8 +467,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Record Payment Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 mx-4">
+        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto">
+          <div className="my-auto bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Record Payment</h3>
             <div className="space-y-4">
               <div>

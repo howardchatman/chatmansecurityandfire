@@ -616,8 +616,8 @@ export default function JobsPage() {
 
       {/* Create Job Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-auto">
             <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white rounded-t-2xl">
               <h2 className="text-lg font-semibold text-gray-900">Create New Job</h2>
               <button

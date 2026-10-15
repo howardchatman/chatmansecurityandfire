@@ -286,8 +286,8 @@ export default function QrCodesPage() {
 
       {/* Create/Edit Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/40 flex items-start justify-center z-50 overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="my-auto bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6" onClick={e => e.stopPropagation()}>
             <h2 className="text-lg font-bold text-gray-900 mb-4">{editing ? "Edit QR Code" : "New QR Code"}</h2>
 
             <div className="space-y-4">

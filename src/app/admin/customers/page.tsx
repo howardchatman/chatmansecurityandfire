@@ -214,8 +214,8 @@ export default function CustomersPage() {
 
       {/* New Customer Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 mx-4">
+        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto">
+          <div className="my-auto bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Add Customer</h3>
               <button onClick={() => setShowNewModal(false)} className="p-1 hover:bg-gray-100 rounded-lg">
