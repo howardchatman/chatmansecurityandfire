@@ -173,7 +173,7 @@ export default function DashboardPage() {
           icon={ClipboardCheck}
           color="green"
           subtitle="In progress"
-          href="/admin/jobs"
+          href="/admin/jobs?group=field"
         />
         <StatCard
           title="Customers"
@@ -189,7 +189,7 @@ export default function DashboardPage() {
           icon={Ticket}
           color="amber"
           subtitle="Pending"
-          href="/admin/tickets"
+          href="/admin/tickets?status=open"
         />
         <StatCard
           title="Scheduled"
@@ -209,7 +209,7 @@ export default function DashboardPage() {
           icon={UserPlus}
           color="blue"
           subtitle="This month"
-          href="/admin/leads"
+          href="/admin/leads?status=new"
         />
         <StatCard
           title="Pending Invoices"
@@ -217,7 +217,7 @@ export default function DashboardPage() {
           icon={AlertTriangle}
           color="red"
           subtitle="Outstanding"
-          href="/admin/invoices"
+          href="/admin/invoices?card=outstanding"
         />
         <StatCard
           title="Revenue"
@@ -225,7 +225,7 @@ export default function DashboardPage() {
           icon={DollarSign}
           color="green"
           subtitle="This month"
-          href="/admin/payments"
+          href="/admin/payments?status=completed"
         />
         <StatCard
           title="Calls"

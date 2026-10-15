@@ -23,6 +23,7 @@ import {
 import DeleteButton from "@/components/admin/DeleteButton";
 import { jobCalendarUrl, jobOutlookUrl } from "@/lib/calendar-link";
 import StatusBadge from "@/components/admin/StatusBadge";
+import { filterCardClass, readQuery } from "@/lib/filter-cards";
 
 interface Team {
   id: string;
@@ -155,12 +156,34 @@ const allLifecycleStatuses = [
   "cancelled",
 ];
 
+// Card groups: several statuses behind one summary card.
+const JOB_GROUPS: Record<string, string[]> = {
+  prework: ["lead", "quoted", "approved", "pending", "scheduled"],
+  field: ["in_progress", "awaiting_inspection", "corrections_required", "passed"],
+  post: ["completed", "invoiced", "paid", "closed"],
+  attention: ["corrections_required", "on_hold"],
+  open: ["lead", "quoted", "approved", "pending", "scheduled", "in_progress", "awaiting_inspection", "corrections_required", "passed", "on_hold"],
+};
+
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [technicians, setTechnicians] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  // Set by a summary card (or ?group=): a set of statuses.
+  const [group, setGroup] = useState<string | null>(null);
+  // Deep links from other pages' cards: ?status=… / ?group=… / ?card=…
+  useEffect(() => {
+    const s = readQuery("status");
+    const g = readQuery("group");
+    if (s) setStatusFilter(s);
+    if (g && JOB_GROUPS[g]) setGroup(g);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (statusFilter !== "all") setGroup(null);
+  }, [statusFilter]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
@@ -293,6 +316,7 @@ export default function JobsPage() {
   };
 
   const filteredJobs = jobs.filter((job) => {
+    if (group && !JOB_GROUPS[group].includes(job.status)) return false;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -370,41 +394,41 @@ export default function JobsPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <button type="button" onClick={() => { setStatusFilter("all"); setGroup(null); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "all" && !group)}>
           <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
             <ClipboardList className="w-4 h-4" />
             Total Jobs
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("all"); setGroup("prework"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", group === "prework")}>
           <div className="flex items-center gap-2 text-blue-600 text-sm mb-1">
             <Calendar className="w-4 h-4" />
             Pre-Work
           </div>
           <p className="text-2xl font-bold text-blue-600">{stats.preWork}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("all"); setGroup("field"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", group === "field")}>
           <div className="flex items-center gap-2 text-orange-600 text-sm mb-1">
             <Clock className="w-4 h-4" />
             In Field
           </div>
           <p className="text-2xl font-bold text-orange-600">{stats.inField}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("all"); setGroup("post"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", group === "post")}>
           <div className="flex items-center gap-2 text-green-600 text-sm mb-1">
             <CheckCircle className="w-4 h-4" />
             Post-Work
           </div>
           <p className="text-2xl font-bold text-green-600">{stats.postWork}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("all"); setGroup("attention"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", group === "attention")}>
           <div className="flex items-center gap-2 text-rose-600 text-sm mb-1">
             <AlertTriangle className="w-4 h-4" />
             Needs Attention
           </div>
           <p className="text-2xl font-bold text-rose-600">{stats.needsAttention}</p>
-        </div>
+        </button>
       </div>
 
       {/* Filters */}

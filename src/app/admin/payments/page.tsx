@@ -6,6 +6,7 @@ import { CreditCard, ExternalLink, CheckCircle, XCircle, Clock } from "lucide-re
 import DataTable from "@/components/admin/DataTable";
 import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
+import { filterCardClass, readQuery } from "@/lib/filter-cards";
 
 interface Payment {
   id: string;
@@ -42,6 +43,12 @@ export default function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  // Deep links from other pages' cards: ?status=… / ?group=… / ?card=…
+  useEffect(() => {
+    const s = readQuery("status");
+    if (s) setStatusFilter(s);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetchPayments();
@@ -176,11 +183,11 @@ export default function PaymentsPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <button type="button" onClick={() => { setStatusFilter("all"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "all")}>
           <p className="text-sm text-gray-500">Total Payments</p>
           <p className="text-2xl font-bold text-gray-900">{payments.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("completed"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "completed")}>
           <div className="flex items-center gap-1 mb-1">
             <CheckCircle className="w-4 h-4 text-green-500" />
             <p className="text-sm text-gray-500">Collected</p>
@@ -188,8 +195,8 @@ export default function PaymentsPage() {
           <p className="text-2xl font-bold text-green-600">
             ${totalCollected.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("pending"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "pending")}>
           <div className="flex items-center gap-1 mb-1">
             <Clock className="w-4 h-4 text-yellow-500" />
             <p className="text-sm text-gray-500">Pending</p>
@@ -197,8 +204,8 @@ export default function PaymentsPage() {
           <p className="text-2xl font-bold text-yellow-600">
             ${totalPending.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("refunded"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "refunded")}>
           <div className="flex items-center gap-1 mb-1">
             <XCircle className="w-4 h-4 text-red-500" />
             <p className="text-sm text-gray-500">Refunded</p>
@@ -206,7 +213,7 @@ export default function PaymentsPage() {
           <p className="text-2xl font-bold text-red-600">
             ${totalRefunded.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-        </div>
+        </button>
       </div>
 
       {/* Status Filter */}

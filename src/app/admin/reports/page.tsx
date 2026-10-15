@@ -55,15 +55,24 @@ function Stat({
   sub,
   icon: Icon,
   alert,
+  href,
 }: {
   label: string;
   value: string;
   sub?: string;
   icon: React.ElementType;
   alert?: boolean;
+  /** Where the card drills through to. */
+  href?: string;
 }) {
+  const Wrapper = (href ? Link : "div") as React.ElementType;
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
+    <Wrapper
+      {...(href ? { href } : {})}
+      className={`block bg-white rounded-xl border border-gray-200 p-5 ${
+        href ? "hover:shadow-md hover:border-orange-300 transition cursor-pointer" : ""
+      }`}
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</span>
         <Icon className={`w-4 h-4 ${alert ? "text-orange-600" : "text-gray-300"}`} />
@@ -72,7 +81,7 @@ function Stat({
         {value}
       </p>
       {sub && <p className="mt-1 text-xs text-gray-500">{sub}</p>}
-    </div>
+    </Wrapper>
   );
 }
 
@@ -220,12 +229,14 @@ export default function ReportsPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
           label="Collected"
+          href="/admin/payments?status=completed"
           value={usd(m.collected)}
           sub={`${usd(m.collected_this_month)} this month · ${m.invoice_count} invoice${m.invoice_count === 1 ? "" : "s"}`}
           icon={DollarSign}
         />
         <Stat
           label="Outstanding"
+          href="/admin/invoices?card=outstanding"
           value={usd(m.outstanding)}
           sub={
             m.overdue_count > 0
@@ -237,12 +248,14 @@ export default function ReportsPage() {
         />
         <Stat
           label="Open Jobs"
+          href="/admin/jobs?group=open"
           value={String(data.jobs.open)}
           sub={`${data.jobs.total} total on record`}
           icon={Briefcase}
         />
         <Stat
           label="Inspections"
+          href="/admin/inspections"
           value={String(data.inspections.total)}
           sub={
             data.inspections.missing_report > 0

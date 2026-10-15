@@ -6,6 +6,7 @@ import { Plus, Building2, MapPin, X } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
 import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
+import { filterCardClass, readQuery } from "@/lib/filter-cards";
 
 interface Customer {
   id: string;
@@ -24,6 +25,12 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  // Deep links from other pages' cards: ?status=… / ?group=… / ?card=…
+  useEffect(() => {
+    const s = readQuery("status");
+    if (s) setStatusFilter(s);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
     name: "", email: "", phone: "", company: "", address: "", city: "", state: "TX", zip: "",
@@ -148,28 +155,28 @@ export default function CustomersPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <button type="button" onClick={() => { setStatusFilter("all"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "all")}>
           <p className="text-sm text-gray-500">Total Customers</p>
           <p className="text-2xl font-bold text-gray-900">{customers.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("active"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "active")}>
           <p className="text-sm text-gray-500">Active</p>
           <p className="text-2xl font-bold text-green-600">
             {customers.filter((c) => c.status === "active").length}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("prospect"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "prospect")}>
           <p className="text-sm text-gray-500">Prospects</p>
           <p className="text-2xl font-bold text-blue-600">
             {customers.filter((c) => c.status === "prospect").length}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("inactive"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "inactive")}>
           <p className="text-sm text-gray-500">Inactive</p>
           <p className="text-2xl font-bold text-gray-600">
             {customers.filter((c) => c.status === "inactive").length}
           </p>
-        </div>
+        </button>
       </div>
 
       {/* Status Filter */}

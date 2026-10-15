@@ -7,6 +7,7 @@ import { Plus, MoreHorizontal, FileText } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
 import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
+import { filterCardClass, readQuery } from "@/lib/filter-cards";
 
 interface Invoice {
   id: string;
@@ -40,6 +41,19 @@ export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  // Card rules that aren't a single status (outstanding, overdue).
+  const [card, setCard] = useState<string | null>(null);
+  // Deep links from other pages' cards: ?status=… / ?group=… / ?card=…
+  useEffect(() => {
+    const s = readQuery("status");
+    const c = readQuery("card");
+    if (s) setStatusFilter(s);
+    if (c === "outstanding" || c === "overdue") setCard(c);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (statusFilter !== "all") setCard(null);
+  }, [statusFilter]);
 
   useEffect(() => {
     fetchInvoices();
@@ -60,6 +74,12 @@ export default function InvoicesPage() {
       setLoading(false);
     }
   };
+
+  // The Outstanding / Overdue cards filter by the same rules they total by.
+  const isOutstanding = (i: Invoice) => ["sent", "partial", "overdue"].includes(i.status);
+  const isOverdue = (i: Invoice) => i.status === "overdue" || (i.due_date && new Date(i.due_date) < new Date() && !["paid", "cancelled", "draft"].includes(i.status));
+  const shownInvoices =
+    card === "outstanding" ? invoices.filter(isOutstanding) : card === "overdue" ? invoices.filter(isOverdue) : invoices;
 
   const totalOutstanding = invoices
     .filter((i) => ["sent", "partial", "overdue"].includes(i.status))
@@ -165,28 +185,28 @@ export default function InvoicesPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <button type="button" onClick={() => { setStatusFilter("all"); setCard(null); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "all" && !card)}>
           <p className="text-sm text-gray-500">Total Invoices</p>
           <p className="text-2xl font-bold text-gray-900">{invoices.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("all"); setCard("outstanding"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", card === "outstanding")}>
           <p className="text-sm text-gray-500">Outstanding</p>
           <p className="text-2xl font-bold text-blue-600">
             ${totalOutstanding.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("all"); setCard("overdue"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", card === "overdue")}>
           <p className="text-sm text-gray-500">Overdue</p>
           <p className="text-2xl font-bold text-red-600">
             ${totalOverdue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("paid"); setCard(null); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "paid")}>
           <p className="text-sm text-gray-500">Paid</p>
           <p className="text-2xl font-bold text-green-600">
             ${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-        </div>
+        </button>
       </div>
 
       {/* Status Filter */}
@@ -214,7 +234,7 @@ export default function InvoicesPage() {
       ) : (
         <DataTable
           columns={columns}
-          data={invoices}
+          data={shownInvoices}
           searchPlaceholder="Search invoices..."
           onRowClick={(invoice) => router.push(`/admin/invoices/${invoice.id}`)}
           actions={(invoice) => (

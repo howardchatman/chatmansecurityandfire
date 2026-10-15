@@ -6,6 +6,7 @@ import { Plus, MoreHorizontal, Mail, Phone, RefreshCw, UserPlus, Loader2, X, Che
 import DataTable from "@/components/admin/DataTable";
 import DeleteButton from "@/components/admin/DeleteButton";
 import StatusBadge from "@/components/admin/StatusBadge";
+import { filterCardClass, readQuery } from "@/lib/filter-cards";
 
 interface Lead {
   id: string;
@@ -42,11 +43,29 @@ const sourceFilters = [
   { label: "Referral", value: "referral" },
 ];
 
+const LEAD_GROUPS: Record<string, string[]> = {
+  working: ["contacted", "qualified", "proposal"],
+};
+
 export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
+  const [group, setGroup] = useState<string | null>(null);
+  // Deep links from other pages' cards: ?status=… / ?group=… / ?card=…
+  useEffect(() => {
+    const s = readQuery("status");
+    const src = readQuery("source");
+    const g = readQuery("group");
+    if (s) setStatusFilter(s);
+    if (src) setSourceFilter(src);
+    if (g && LEAD_GROUPS[g]) setGroup(g);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (statusFilter !== "all") setGroup(null);
+  }, [statusFilter]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isGranting, setIsGranting] = useState(false);
   const [grantSuccess, setGrantSuccess] = useState<{ portalUrl: string } | null>(null);
@@ -73,7 +92,8 @@ export default function LeadsPage() {
   const filteredLeads = leads.filter((lead) => {
     const statusMatch = statusFilter === "all" || lead.status === statusFilter;
     const sourceMatch = sourceFilter === "all" || lead.source === sourceFilter;
-    return statusMatch && sourceMatch;
+    const groupMatch = !group || LEAD_GROUPS[group].includes(lead.status);
+    return statusMatch && sourceMatch && groupMatch;
   });
 
   const accessRequestCount = leads.filter((l) => l.source === "account_request").length;
@@ -228,32 +248,32 @@ export default function LeadsPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <button type="button" onClick={() => { setStatusFilter("all"); setSourceFilter("all"); setGroup(null); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "all" && sourceFilter === "all" && !group)}>
           <p className="text-sm text-gray-500">Total Leads</p>
           <p className="text-2xl font-bold text-gray-900">{leads.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("new"); setGroup(null); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "new")}>
           <p className="text-sm text-gray-500">New</p>
           <p className="text-2xl font-bold text-blue-600">
             {leads.filter((l) => l.status === "new").length}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("all"); setGroup("working"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", group === "working")}>
           <p className="text-sm text-gray-500">In Progress</p>
           <p className="text-2xl font-bold text-amber-600">
             {leads.filter((l) => ["contacted", "qualified", "proposal"].includes(l.status)).length}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("won"); setGroup(null); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", statusFilter === "won")}>
           <p className="text-sm text-gray-500">Won</p>
           <p className="text-2xl font-bold text-green-600">
             {leads.filter((l) => l.status === "won").length}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-purple-200 p-4 border-2">
+        </button>
+        <button type="button" onClick={() => { setStatusFilter("all"); setGroup(null); setSourceFilter("account_request"); }} className={filterCardClass("bg-white rounded-xl border border-purple-200 p-4 border-2", sourceFilter === "account_request")}>
           <p className="text-sm text-purple-600 font-medium">Access Requests</p>
           <p className="text-2xl font-bold text-purple-600">{accessRequestCount}</p>
-        </div>
+        </button>
       </div>
 
       {/* Filters */}

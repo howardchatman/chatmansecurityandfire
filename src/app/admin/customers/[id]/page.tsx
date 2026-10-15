@@ -21,6 +21,7 @@ import {
 import StatusBadge from "@/components/admin/StatusBadge";
 import CustomerSystems from "@/components/admin/CustomerSystems";
 import PortalAccess from "@/components/admin/PortalAccess";
+import { filterCardClass } from "@/lib/filter-cards";
 
 interface CustomerData {
   id: string;
@@ -199,24 +200,24 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <button type="button" onClick={() => { setActiveTab("invoices"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", activeTab === "invoices")}>
           <p className="text-sm text-gray-500">Total Invoiced</p>
           <p className="text-2xl font-bold text-gray-900">${totalInvoiced.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setActiveTab("invoices"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", activeTab === "invoices")}>
           <p className="text-sm text-gray-500">Total Paid</p>
           <p className="text-2xl font-bold text-green-600">${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setActiveTab("invoices"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", activeTab === "invoices")}>
           <p className="text-sm text-gray-500">Outstanding</p>
           <p className={`text-2xl font-bold ${outstanding > 0 ? "text-orange-600" : "text-green-600"}`}>
             ${outstanding.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        </button>
+        <button type="button" onClick={() => { setActiveTab("jobs"); }} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", activeTab === "jobs")}>
           <p className="text-sm text-gray-500">Jobs</p>
           <p className="text-2xl font-bold text-blue-600">{customer.jobs.length}</p>
-        </div>
+        </button>
       </div>
 
       {/* Customer Info + Tabs */}

@@ -23,6 +23,7 @@ import {
   ExternalLink,
   RefreshCw,
 } from "lucide-react";
+import { filterCardClass, readQuery } from "@/lib/filter-cards";
 
 interface Quote {
   id: string;
@@ -53,6 +54,11 @@ const fmt = (n: number) =>
 const fmtDate = (s?: string) =>
   s ? new Date(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
+const QUOTE_GROUPS: Record<string, string[]> = {
+  pending: ["sent", "viewed"],
+  won: ["accepted", "paid"],
+};
+
 export default function QuotesPage() {
   const router = useRouter();
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -60,6 +66,18 @@ export default function QuotesPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [group, setGroup] = useState<string | null>(null);
+  // Deep links from other pages' cards: ?status=… / ?group=… / ?card=…
+  useEffect(() => {
+    const s = readQuery("status");
+    const g = readQuery("group");
+    if (s) setStatusFilter(s);
+    if (g && QUOTE_GROUPS[g]) setGroup(g);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (statusFilter !== "all") setGroup(null);
+  }, [statusFilter]);
   const [convertingId, setConvertingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -164,6 +182,7 @@ export default function QuotesPage() {
   };
 
   const filtered = quotes.filter((q) => {
+    if (group && !QUOTE_GROUPS[group].includes(q.status)) return false;
     const name = q.customer?.name ?? "";
     const company = q.customer?.company ?? "";
     const term = searchTerm.toLowerCase();
@@ -212,12 +231,16 @@ export default function QuotesPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Quotes", value: stats.total, icon: FileText, bg: "bg-gray-100", iconColor: "text-gray-600" },
-          { label: "Pending",      value: stats.pending, icon: Clock, bg: "bg-blue-100", iconColor: "text-blue-600" },
-          { label: "Accepted",     value: stats.accepted, icon: CheckCircle, bg: "bg-green-100", iconColor: "text-green-600" },
-          { label: "Won Value",    value: fmt(stats.wonValue), icon: DollarSign, bg: "bg-orange-100", iconColor: "text-orange-600" },
-        ].map(({ label, value, icon: Icon, bg, iconColor }) => (
-          <div key={label} className="bg-white rounded-xl border border-gray-200 p-4">
+          { label: "Total Quotes", value: stats.total, icon: FileText, bg: "bg-gray-100", iconColor: "text-gray-600",
+            pick: () => { setStatusFilter("all"); setGroup(null); }, on: statusFilter === "all" && !group },
+          { label: "Pending",      value: stats.pending, icon: Clock, bg: "bg-blue-100", iconColor: "text-blue-600",
+            pick: () => { setStatusFilter("all"); setGroup("pending"); }, on: group === "pending" },
+          { label: "Accepted",     value: stats.accepted, icon: CheckCircle, bg: "bg-green-100", iconColor: "text-green-600",
+            pick: () => { setStatusFilter("accepted"); setGroup(null); }, on: statusFilter === "accepted" },
+          { label: "Won Value",    value: fmt(stats.wonValue), icon: DollarSign, bg: "bg-orange-100", iconColor: "text-orange-600",
+            pick: () => { setStatusFilter("all"); setGroup("won"); }, on: group === "won" },
+        ].map(({ label, value, icon: Icon, bg, iconColor, pick, on }) => (
+          <button key={label} type="button" onClick={pick} className={filterCardClass("bg-white rounded-xl border border-gray-200 p-4", on)}>
             <div className="flex items-center gap-3">
               <div className={`p-2 ${bg} rounded-lg`}>
                 <Icon className={`w-5 h-5 ${iconColor}`} />
@@ -227,7 +250,7 @@ export default function QuotesPage() {
                 <p className="text-2xl font-bold text-gray-900">{value}</p>
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
