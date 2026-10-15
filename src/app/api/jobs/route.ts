@@ -96,12 +96,20 @@ export async function POST(request: NextRequest) {
       description,
       notes,
       scheduled_date,
+      scheduled_end_date,
       scheduled_time_start,
       scheduled_time_end,
       estimated_duration_hours,
       team_id,
       assigned_users, // Array of { user_id, role }
     } = body;
+
+    if (scheduled_end_date && (!scheduled_date || scheduled_end_date < scheduled_date)) {
+      return NextResponse.json(
+        { success: false, error: "The end date must be on or after the start date." },
+        { status: 400 }
+      );
+    }
 
     // Validate required fields
     if (!customer_name || !site_address || !job_type) {
@@ -130,6 +138,9 @@ export async function POST(request: NextRequest) {
       description,
       notes,
       scheduled_date,
+      // Only sent for multi-day jobs, so one-day jobs keep working even before
+      // the 20261014_multi_day_jobs migration adds the column.
+      ...(scheduled_end_date ? { scheduled_end_date } : {}),
       scheduled_time_start,
       scheduled_time_end,
       estimated_duration_hours,
@@ -166,7 +177,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating job:", error);
     return NextResponse.json(
-      { success: false, error: dbErrorText(error, "Failed to create job") },
+      {
+        success: false,
+        error: /scheduled_end_date/i.test(String((error as { message?: string })?.message))
+          ? "Multi-day jobs need one database update first: run supabase/migrations/20261014_multi_day_jobs.sql in Supabase, then save again."
+          : dbErrorText(error, "Failed to create job"),
+      },
       { status: 500 }
     );
   }

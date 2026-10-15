@@ -295,7 +295,9 @@ interface JobLike {
   job_type?: string | null;
   description?: string | null;
   scheduled_date?: string | null;
+  scheduled_end_date?: string | null;
   scheduled_time_start?: string | null;
+  scheduled_time_end?: string | null;
   google_event_id?: string | null;
 }
 
@@ -317,14 +319,25 @@ function combine(date?: string | null, time?: string | null): string | null {
 export async function syncJobToCalendar(job: JobLike): Promise<void> {
   if (!job.scheduled_date) return; // nothing to put on a calendar yet
   const title = `${job.job_type ? titleCase(job.job_type) : "Job"} — ${job.customer_name || "Customer"}`;
+  const multiDay = !!job.scheduled_end_date && job.scheduled_end_date > job.scheduled_date;
+  const hours = job.scheduled_time_start
+    ? `Daily hours: ${job.scheduled_time_start.slice(0, 5)}${job.scheduled_time_end ? `–${job.scheduled_time_end.slice(0, 5)}` : ""}`
+    : null;
   const eventId = await upsertEvent(
     {
       summary: title,
-      description: [job.job_number && `Job ${job.job_number}`, job.description]
+      description: [job.job_number && `Job ${job.job_number}`, multiDay ? hours : null, job.description]
         .filter(Boolean)
         .join("\n"),
       location: [job.site_address, job.site_city].filter(Boolean).join(", ") || undefined,
-      start: combine(job.scheduled_date, job.scheduled_time_start) || job.scheduled_date,
+      // A multi-day project is one all-day event spanning start..end; a one-day
+      // job is a timed event using its start and end times.
+      ...(multiDay
+        ? { start: job.scheduled_date, end: job.scheduled_end_date! }
+        : {
+            start: combine(job.scheduled_date, job.scheduled_time_start) || job.scheduled_date,
+            end: combine(job.scheduled_date, job.scheduled_time_end) || undefined,
+          }),
     },
     job.google_event_id
   );

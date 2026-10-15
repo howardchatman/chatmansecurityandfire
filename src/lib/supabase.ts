@@ -558,6 +558,8 @@ export interface Job {
   description?: string;
   notes?: string;
   scheduled_date?: string;
+  /** Last day of a multi-day job; empty for a one-day job. */
+  scheduled_end_date?: string | null;
   scheduled_time_start?: string;
   scheduled_time_end?: string;
   estimated_duration_hours?: number;
@@ -724,9 +726,10 @@ export async function getJobs(filters?: {
   created_by?: string;
   scheduled_date?: string;
 }) {
-  let query = supabaseAdmin
-    .from("jobs")
-    .select(`
+  const build = () => {
+    let query = supabaseAdmin
+      .from("jobs")
+      .select(`
       *,
       team:teams(id, name),
       creator:profiles!jobs_created_by_fkey(id, full_name),
@@ -736,23 +739,29 @@ export async function getJobs(filters?: {
         user:profiles!job_assignments_user_id_fkey(id, full_name, phone)
       )
     `)
-    .order("scheduled_date", { ascending: true, nullsFirst: false })
-    .order("created_at", { ascending: false });
+      .order("scheduled_date", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false });
+    if (filters?.status) query = query.eq("status", filters.status);
+    if (filters?.team_id) query = query.eq("team_id", filters.team_id);
+    if (filters?.created_by) query = query.eq("created_by", filters.created_by);
+    return query;
+  };
 
-  if (filters?.status) {
-    query = query.eq("status", filters.status);
-  }
-  if (filters?.team_id) {
-    query = query.eq("team_id", filters.team_id);
-  }
-  if (filters?.created_by) {
-    query = query.eq("created_by", filters.created_by);
-  }
-  if (filters?.scheduled_date) {
-    query = query.eq("scheduled_date", filters.scheduled_date);
+  const day = filters?.scheduled_date;
+  if (day && /^\d{4}-\d{2}-\d{2}$/.test(day)) {
+    // A multi-day job shows on every day from its start through its end date.
+    const ranged = await build().or(
+      `scheduled_date.eq.${day},and(scheduled_date.lte.${day},scheduled_end_date.gte.${day})`
+    );
+    if (!ranged.error) return ranged.data as Job[];
+    // Before the multi-day migration there is no scheduled_end_date column.
+    if (!/scheduled_end_date/i.test(ranged.error.message)) throw ranged.error;
+    const { data, error } = await build().eq("scheduled_date", day);
+    if (error) throw error;
+    return data as Job[];
   }
 
-  const { data, error } = await query;
+  const { data, error } = await build();
   if (error) throw error;
   return data as Job[];
 }

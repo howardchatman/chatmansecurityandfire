@@ -31,6 +31,7 @@ import {
   Upload,
 } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
+import { formatJobDates } from "@/lib/job-dates";
 
 interface Profile {
   id: string;
@@ -109,6 +110,7 @@ interface Job {
   scope_summary?: string;
   billing_notes?: string;
   scheduled_date?: string;
+  scheduled_end_date?: string | null;
   scheduled_time_start?: string;
   scheduled_time_end?: string;
   estimated_duration_hours?: number;
@@ -616,8 +618,8 @@ export default function JobDetailPage({
                     <h3 className="font-semibold text-gray-900 mb-3">Schedule</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
-                        <p className="text-xs text-gray-500">Scheduled Date</p>
-                        <p className="font-medium text-gray-900">{formatDate(job.scheduled_date)}</p>
+                        <p className="text-xs text-gray-500">{job.scheduled_end_date ? "Scheduled Dates" : "Scheduled Date"}</p>
+                        <p className="font-medium text-gray-900">{formatJobDates(job.scheduled_date, job.scheduled_end_date)}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Scheduled Time</p>
@@ -1004,7 +1006,7 @@ export default function JobDetailPage({
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">Scheduled:</span>
-                  <span className="text-gray-900">{formatDate(job.scheduled_date)}</span>
+                  <span className="text-gray-900">{formatJobDates(job.scheduled_date, job.scheduled_end_date)}</span>
                 </div>
               )}
               {job.completed_at && (

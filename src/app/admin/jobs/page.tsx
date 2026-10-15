@@ -24,6 +24,7 @@ import DeleteButton from "@/components/admin/DeleteButton";
 import { jobCalendarUrl, jobOutlookUrl } from "@/lib/calendar-link";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { filterCardClass, readQuery } from "@/lib/filter-cards";
+import { formatJobDates, spanOf } from "@/lib/job-dates";
 
 interface Team {
   id: string;
@@ -55,6 +56,7 @@ interface Job {
   priority: string;
   status: string;
   scheduled_date?: string;
+  scheduled_end_date?: string | null;
   scheduled_time_start?: string;
   scheduled_time_end?: string;
   estimated_duration_hours?: number;
@@ -203,6 +205,7 @@ export default function JobsPage() {
     scheduled_date: "",
     scheduled_time_start: "",
     scheduled_time_end: "",
+    scheduled_end_date: "",
     estimated_duration_hours: "",
     team_id: "",
     assigned_users: [] as { user_id: string; role: string }[],
@@ -251,6 +254,10 @@ export default function JobsPage() {
 
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (jobForm.scheduled_end_date && (!jobForm.scheduled_date || jobForm.scheduled_end_date < jobForm.scheduled_date)) {
+      setFormError("Pick a start date, and an end date on or after it.");
+      return;
+    }
     setFormLoading(true);
     setFormError("");
 
@@ -287,6 +294,7 @@ export default function JobsPage() {
         scheduled_date: "",
         scheduled_time_start: "",
         scheduled_time_end: "",
+        scheduled_end_date: "",
         estimated_duration_hours: "",
         team_id: "",
         assigned_users: [],
@@ -550,7 +558,7 @@ export default function JobsPage() {
                     </span>
                     <div className="flex items-center gap-1 text-sm text-gray-500">
                       <Calendar className="w-3.5 h-3.5" />
-                      {formatDate(job.scheduled_date)}
+                      {formatJobDates(job.scheduled_date, job.scheduled_end_date)}
                       {job.scheduled_time_start && (
                         <>
                           <Clock className="w-3.5 h-3.5 ml-2" />
@@ -833,62 +841,79 @@ export default function JobsPage() {
 
               {/* Scheduling */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-3">Scheduling</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <h3 className="font-medium text-gray-900 mb-1">Scheduling</h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  One-day job: set the start date and times. Multi-week project: also set an end date; the times are
+                  the crew&apos;s daily hours.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Date
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Start date</label>
                     <input
                       type="date"
                       value={jobForm.scheduled_date}
-                      onChange={(e) =>
-                        setJobForm({ ...jobForm, scheduled_date: e.target.value })
-                      }
+                      onChange={(e) => setJobForm({ ...jobForm, scheduled_date: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Start Time
+                      End date <span className="text-gray-400 font-normal">(multi-day)</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={jobForm.scheduled_end_date}
+                      min={jobForm.scheduled_date || undefined}
+                      onChange={(e) => setJobForm({ ...jobForm, scheduled_end_date: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Est. total hours</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={jobForm.estimated_duration_hours}
+                      onChange={(e) => setJobForm({ ...jobForm, estimated_duration_hours: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {jobForm.scheduled_end_date ? "Daily start" : "Start time"}
                     </label>
                     <input
                       type="time"
                       value={jobForm.scheduled_time_start}
-                      onChange={(e) =>
-                        setJobForm({ ...jobForm, scheduled_time_start: e.target.value })
-                      }
+                      onChange={(e) => setJobForm({ ...jobForm, scheduled_time_start: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      End Time
+                      {jobForm.scheduled_end_date ? "Daily end" : "End time"}
                     </label>
                     <input
                       type="time"
                       value={jobForm.scheduled_time_end}
-                      onChange={(e) =>
-                        setJobForm({ ...jobForm, scheduled_time_end: e.target.value })
-                      }
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Est. Hours
-                    </label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={jobForm.estimated_duration_hours}
-                      onChange={(e) =>
-                        setJobForm({ ...jobForm, estimated_duration_hours: e.target.value })
-                      }
+                      onChange={(e) => setJobForm({ ...jobForm, scheduled_time_end: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500"
                     />
                   </div>
                 </div>
+                {(() => {
+                  const span = spanOf(jobForm.scheduled_date, jobForm.scheduled_end_date);
+                  if (!span || span.days < 2) return null;
+                  const weeks = Math.round((span.days / 7) * 10) / 10;
+                  return (
+                    <p className="mt-3 text-sm text-gray-700 bg-orange-50 rounded-lg px-3 py-2">
+                      Runs {formatJobDates(jobForm.scheduled_date, jobForm.scheduled_end_date)}: {span.days} days
+                      (about {weeks} weeks), {span.workdays} workdays. It shows on the schedule and the crew&apos;s
+                      Today screen every day it runs.
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* Assignment */}

@@ -3,7 +3,7 @@
 // team) failed outright with a generic error. Blank optional fields are null.
 const NULLABLE_JOB_FIELDS = [
   "customer_email", "customer_phone", "site_city", "site_zip", "description", "notes",
-  "scheduled_date", "scheduled_time_start", "scheduled_time_end", "estimated_duration_hours", "team_id",
+  "scheduled_date", "scheduled_end_date", "scheduled_time_start", "scheduled_time_end", "estimated_duration_hours", "team_id",
 ] as const;
 
 export function blanksToNull<T extends Record<string, unknown>>(obj: T): T {

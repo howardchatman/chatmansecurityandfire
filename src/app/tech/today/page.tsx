@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Navigation,
 } from "lucide-react";
+import { houstonToday, runsOn } from "@/lib/job-dates";
 
 interface Job {
   id: string;
@@ -24,6 +25,7 @@ interface Job {
   priority: string;
   status: string;
   scheduled_date?: string;
+  scheduled_end_date?: string | null;
   scheduled_time_start?: string;
   description?: string;
 }
@@ -36,11 +38,6 @@ const priorityRing: Record<string, string> = {
   low: "border-l-gray-300",
 };
 
-const isToday = (d?: string) => {
-  if (!d) return false;
-  const today = new Date().toISOString().slice(0, 10);
-  return d.slice(0, 10) === today;
-};
 
 export default function TechTodayPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -61,7 +58,8 @@ export default function TechTodayPage() {
   }, []);
 
   const todays = jobs
-    .filter((j) => isToday(j.scheduled_date) && !["completed", "cancelled", "closed"].includes(j.status))
+    // Houston's today (not UTC), and multi-day projects on every day they run.
+    .filter((j) => runsOn(j, houstonToday()) && !["completed", "cancelled", "closed"].includes(j.status))
     .sort((a, b) => (a.scheduled_time_start || "").localeCompare(b.scheduled_time_start || ""));
 
   const dateLabel = new Date().toLocaleDateString("en-US", {
