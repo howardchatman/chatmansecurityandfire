@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { verifyAuth } from "@/lib/auth";
 import { sendSms, smsTemplates } from "@/lib/sms";
 import { syncJobToCalendar } from "@/lib/google-calendar";
+import { blanksToNull, dbErrorText } from "@/lib/job-input";
 import {
   getJobs,
   createJob,
@@ -10,6 +11,7 @@ import {
   removeJobAssignment,
   getProfiles,
   JobStatus,
+  supabaseAdmin,
 } from "@/lib/supabase";
 
 
@@ -80,7 +82,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = blanksToNull(await request.json());
     const {
       customer_name,
       customer_email,
@@ -109,6 +111,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // jobs.created_by references profiles. A login without a profiles mirror
+    // would fail the whole insert, so record the creator only when it resolves.
+    const { data: creator } = await supabaseAdmin.from("profiles").select("id").eq("id", auth.userId).maybeSingle();
+
     // Create the job
     const job = await createJob({
       customer_name,
@@ -127,7 +133,7 @@ export async function POST(request: NextRequest) {
       scheduled_time_start,
       scheduled_time_end,
       estimated_duration_hours,
-      created_by: auth.userId,
+      created_by: creator ? auth.userId : undefined,
       team_id: team_id || auth.teamId,
     });
 
@@ -160,7 +166,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating job:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to create job" },
+      { success: false, error: dbErrorText(error, "Failed to create job") },
       { status: 500 }
     );
   }
@@ -177,7 +183,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = blanksToNull(await request.json());
     const { id, ...updates } = body;
 
     if (!id) {
@@ -232,7 +238,7 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     console.error("Error updating job:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to update job" },
+      { success: false, error: dbErrorText(error, "Failed to update job") },
       { status: 500 }
     );
   }

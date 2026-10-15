@@ -12,6 +12,7 @@ import { supabaseAdmin as supabase,
   removeJobAssignment,
   acknowledgeAssignment,
 } from "@/lib/supabase";
+import { blanksToNull, dbErrorText } from "@/lib/job-input";
 
 
 // GET: Get job details with all related data
@@ -287,14 +288,14 @@ export async function PATCH(
 
       default: {
         // Regular update
-        const job = await updateJob(id, data);
+        const job = await updateJob(id, blanksToNull(data));
         return NextResponse.json({ success: true, data: job });
       }
     }
   } catch (error) {
     console.error("Error updating job:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to update job" },
+      { success: false, error: dbErrorText(error, "Failed to update job") },
       { status: 500 }
     );
   }
