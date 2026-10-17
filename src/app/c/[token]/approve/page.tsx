@@ -375,7 +375,7 @@ export default function ApproveQuotePage() {
                 />
                 <span className="text-sm text-gray-600">
                   I have read and agree to the{" "}
-                  <a href="/terms" className="text-orange-600 hover:underline">
+                  <a href="/terms-and-conditions" className="text-orange-600 hover:underline">
                     terms and conditions
                   </a>
                   . I authorize Chatman Security & Fire to perform the work described in this estimate.

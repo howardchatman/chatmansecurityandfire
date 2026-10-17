@@ -8,6 +8,19 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    // A lead typed in by the office (Leads → Add Lead) rather than submitted
+    // from the website. Only staff can mark one; it skips the "new lead"
+    // alerts to the owner (who just entered it) and only emails the customer
+    // when asked to.
+    let staffEntered = false;
+    if (body.entered_by_staff === true) {
+      const auth = await verifyAuth(request);
+      if (!auth || !["admin", "manager"].includes(auth.role)) {
+        return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      }
+      staffEntered = true;
+    }
+
     // Validate required fields
     if (!body.name) {
       return NextResponse.json(
@@ -21,7 +34,15 @@ export async function POST(request: NextRequest) {
     // checklist) are email-only lead magnets and are exempt.
     const PHONE_EXEMPT_SOURCES = ["checklist_page", "checklist", "checklist_pdf", "newsletter"];
     const source = String(body.source || "website");
-    if (!PHONE_EXEMPT_SOURCES.includes(source)) {
+    if (staffEntered) {
+      // The office may only have an email for someone; require one way to reach them.
+      if (!String(body.phone || "").replace(/\D/g, "") && !body.email) {
+        return NextResponse.json(
+          { success: false, error: "Enter a phone number or an email." },
+          { status: 400 }
+        );
+      }
+    } else if (!PHONE_EXEMPT_SOURCES.includes(source)) {
       const digits = String(body.phone || "").replace(/\D/g, "");
       if (!digits) {
         return NextResponse.json(
@@ -71,6 +92,17 @@ export async function POST(request: NextRequest) {
     };
 
     const data = await createLead(lead);
+
+    if (staffEntered) {
+      if (lead.email && body.send_confirmation === true) {
+        after(sendCustomerConfirmation({
+          customerEmail: lead.email,
+          customerName: lead.name,
+          service: body.serviceNeed || undefined,
+        }).catch((err) => console.error("Failed to send customer confirmation:", err)));
+      }
+      return NextResponse.json({ success: true, data });
+    }
 
     // Send email notification (don't await to avoid slowing down response)
     after(sendLeadNotification({

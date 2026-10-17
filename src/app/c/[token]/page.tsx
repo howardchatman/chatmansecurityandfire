@@ -361,7 +361,7 @@ export default function CustomerPortalPage() {
                 </div>
                 <p className="text-center text-sm text-gray-500 mt-4">
                   By approving, you agree to our{" "}
-                  <a href="/terms" className="text-orange-600 hover:underline">
+                  <a href="/terms-and-conditions" className="text-orange-600 hover:underline">
                     terms of service
                   </a>
                 </p>
@@ -438,13 +438,6 @@ export default function CustomerPortalPage() {
               )}
             </div>
 
-            <button
-              onClick={() => router.push(`/c/${token}/job`)}
-              className="w-full p-4 flex items-center justify-between text-orange-600 hover:bg-orange-50 transition-colors"
-            >
-              <span className="font-medium">View Job Details & Timeline</span>
-              <ChevronRight className="w-5 h-5" />
-            </button>
           </div>
         )}
 
@@ -476,9 +469,9 @@ export default function CustomerPortalPage() {
         <footer className="mt-8 text-center text-sm text-gray-500">
           <p>&copy; {new Date().getFullYear()} Chatman Security & Fire. All rights reserved.</p>
           <p className="mt-1">
-            <a href="/privacy" className="hover:text-orange-600">Privacy Policy</a>
+            <a href="/privacy-policy" className="hover:text-orange-600">Privacy Policy</a>
             {" · "}
-            <a href="/terms" className="hover:text-orange-600">Terms of Service</a>
+            <a href="/terms-and-conditions" className="hover:text-orange-600">Terms of Service</a>
           </p>
         </footer>
       </main>

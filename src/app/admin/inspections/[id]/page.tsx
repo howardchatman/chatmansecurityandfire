@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import DocumentsCard from "@/components/DocumentsCard";
+import InspectionEditModal from "@/components/admin/InspectionEditModal";
 import {
   ArrowLeft,
   Calendar,
@@ -144,6 +145,7 @@ export default function InspectionDetailPage({ params }: { params: Promise<{ id:
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [showAddDeficiency, setShowAddDeficiency] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [generatingQuote, setGeneratingQuote] = useState(false);
   const [selectedDeficiencies, setSelectedDeficiencies] = useState<string[]>([]);
 
@@ -337,7 +339,7 @@ export default function InspectionDetailPage({ params }: { params: Promise<{ id:
             </button>
           )}
           <button
-            onClick={() => router.push(`/admin/inspections/${resolvedParams.id}/edit`)}
+            onClick={() => setEditing(true)}
             className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
           >
             <Edit className="w-5 h-5" />
@@ -767,6 +769,18 @@ export default function InspectionDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
       </div>
+
+      {editing && (
+        <InspectionEditModal
+          inspection={inspection}
+          typeLabels={inspectionTypeLabels}
+          onClose={() => setEditing(false)}
+          onSaved={() => {
+            setEditing(false);
+            fetchInspection();
+          }}
+        />
+      )}
     </div>
   );
 }

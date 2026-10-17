@@ -22,7 +22,6 @@ const footerLinks = {
   ],
   company: [
     { name: "About Us", href: "/about" },
-    { name: "Our Team", href: "/about/team" },
     { name: "Service Areas", href: "/service-areas" },
     { name: "Government & Schools", href: "/government" },
     { name: "Blog", href: "/blog" },
