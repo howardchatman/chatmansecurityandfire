@@ -11,10 +11,10 @@ const SERVICE_PROFILE = `Chatman Security & Fire (Houston, TX) is a licensed low
 and life-safety contractor. We bid on: commercial fire alarm systems (design, install,
 inspection), fire sprinkler systems, fire extinguishers, emergency lighting, fire lane
 striping, security/burglar alarm and camera systems, access control, structured cabling,
-fiber optic cabling, commercial WiFi/wireless networks, and security guard / patrol
-services. We are a small business with an active SAM.gov registration and bid
-nationwide: Texas work (primarily Greater Houston) we self-perform; work outside Texas
-and guard services we deliver as prime with vetted local subcontractors. Location is
+fiber optic cabling, and commercial WiFi/wireless networks. We are a small business
+with an active SAM.gov registration and bid nationwide: Texas work (primarily Greater
+Houston) we self-perform; work outside Texas we deliver as prime with vetted local
+subcontractors. We do not provide security guard or patrol services; score those low. Location is
 not a reason to score low; score on how well the scope matches our trades.`;
 
 const SEARCH_KEYWORDS = [
@@ -26,9 +26,8 @@ const SEARCH_KEYWORDS = [
   "fiber optic",
   "access control",
   "video surveillance",
-  "security guard",
-  "guard services",
-  "security officer",
+  "fire extinguisher",
+  "emergency lighting",
 ];
 
 // Searched nationwide; Texas or not is shown on each bid. Newest first, and
@@ -195,7 +194,6 @@ const SERVICE_MATCHES = [
   "security",
   "fiber_optics",
   "wireless",
-  "security_guard",
   "multi",
   "other",
 ];

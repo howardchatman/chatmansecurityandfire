@@ -164,7 +164,7 @@ export default function BidsPage() {
           <h3 className="text-lg font-medium text-gray-900 mb-2">No opportunities yet</h3>
           <p className="text-gray-500 max-w-md mx-auto text-sm">
             Click &quot;Run Agent Now&quot; to search federal (SAM.gov) solicitations nationwide
-            for fire alarm, sprinkler, cabling, security systems, and security guard work. The
+            for fire alarm, sprinkler, extinguisher, emergency lighting, cabling, and security systems work. The
             agent also runs automatically every morning.
           </p>
         </div>
@@ -247,7 +247,7 @@ export default function BidsPage() {
       <p className="text-xs text-gray-400 flex items-center gap-1.5">
         <RefreshCw className="w-3.5 h-3.5" />
         The agent checks SAM.gov daily, nationwide, for solicitations matching fire alarm, sprinkler,
-        suppression, cabling, fiber, access control, surveillance, and security guard work, then
+        suppression, extinguisher, emergency lighting, cabling, fiber, access control, and surveillance work, then
         AI-scores each for fit.
       </p>
     </div>
