@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyToken, AUTH_COOKIE_NAME } from "@/lib/auth";
+import { sendOwnerAlert, emailHeader } from "@/lib/email";
+import { sendSms } from "@/lib/sms";
 
 export const maxDuration = 120;
 
@@ -46,14 +48,97 @@ interface SamOpportunity {
   placeOfPerformance?: { state?: { code?: string }; city?: { name?: string } };
 }
 
-async function authorized(request: NextRequest): Promise<boolean> {
+async function authorized(request: NextRequest): Promise<"cron" | "admin" | null> {
   // Vercel cron (Authorization: Bearer CRON_SECRET) or a signed-in admin
   const header = request.headers.get("authorization");
-  if (process.env.CRON_SECRET && header === `Bearer ${process.env.CRON_SECRET}`) return true;
+  if (process.env.CRON_SECRET && header === `Bearer ${process.env.CRON_SECRET}`) return "cron";
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-  if (!token) return false;
+  if (!token) return null;
   const payload = await verifyToken(token);
-  return !!payload && ["admin", "manager"].includes((payload as { role: string }).role);
+  return payload && ["admin", "manager"].includes((payload as { role: string }).role) ? "admin" : null;
+}
+
+// The morning digest: new bids worth a look, best fit first. Only the cron
+// run sends it (a manual run means you're already looking at the page), and
+// only when something scored at least DIGEST_MIN_FIT.
+const DIGEST_MIN_FIT = 50;
+const DIGEST_MAX = 25;
+const SITE = (process.env.NEXT_PUBLIC_BASE_URL || "https://www.chatmansecurityandfire.com").replace(/\/$/, "");
+
+const esc = (t: string) =>
+  t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+interface DigestBid {
+  title: string;
+  agency: string | null;
+  location: string | null;
+  due_date: string | null;
+  url: string | null;
+  fit_score: number | null;
+  fit_reason: string | null;
+  service_match: string | null;
+}
+
+async function sendDigest(rows: DigestBid[]) {
+  const good = rows
+    .filter((r) => (r.fit_score ?? 0) >= DIGEST_MIN_FIT)
+    .sort((a, b) => (b.fit_score ?? 0) - (a.fit_score ?? 0));
+  if (good.length === 0) return;
+
+  const inTexas = (r: DigestBid) => !r.location || /\bTX$/.test(r.location.trim());
+  const due = (d: string | null) =>
+    d ? new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "no due date";
+
+  const items = good
+    .slice(0, DIGEST_MAX)
+    .map((r) => {
+      const fit = r.fit_score ?? 0;
+      const color = fit >= 80 ? "#15803d" : fit >= 65 ? "#c2410c" : "#4b5563";
+      const tags = [
+        r.service_match ? r.service_match.replace(/_/g, " ") : null,
+        inTexas(r) ? null : "out of state · subcontract",
+      ].filter(Boolean);
+      return `
+        <tr><td style="padding:14px 0;border-bottom:1px solid #e5e7eb;">
+          <div style="font-size:12px;margin-bottom:4px;">
+            <b style="color:${color};">Fit ${fit}</b>
+            ${tags.length ? ` · <span style="color:#6b7280;">${esc(tags.join(" · "))}</span>` : ""}
+            · <span style="color:#6b7280;">due ${due(r.due_date)}</span>
+          </div>
+          <div style="font-size:15px;font-weight:bold;color:#111827;">
+            ${r.url ? `<a href="${esc(r.url)}" style="color:#111827;">${esc(r.title)}</a>` : esc(r.title)}
+          </div>
+          <div style="font-size:13px;color:#6b7280;margin-top:2px;">
+            ${esc([r.agency, r.location].filter(Boolean).join(" · "))}
+          </div>
+          ${r.fit_reason ? `<div style="font-size:13px;color:#374151;margin-top:4px;font-style:italic;">${esc(r.fit_reason)}</div>` : ""}
+        </td></tr>`;
+    })
+    .join("");
+
+  const more = good.length > DIGEST_MAX ? good.length - DIGEST_MAX : 0;
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;">
+      ${emailHeader(`${good.length} new bid${good.length === 1 ? "" : "s"} worth a look`)}
+      <div style="padding:24px;background:#f9fafb;">
+        <table style="width:100%;border-collapse:collapse;">${items}</table>
+        ${more ? `<p style="color:#6b7280;font-size:13px;">+${more} more good fits in the Bid Finder.</p>` : ""}
+        <p style="text-align:center;margin-top:20px;">
+          <a href="${SITE}/admin/bids" style="background:#E85D04;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:bold;">Open Bid Finder</a>
+        </p>
+      </div>
+    </div>`;
+
+  const best = good[0];
+  await Promise.allSettled([
+    sendOwnerAlert(`${good.length} new bid${good.length === 1 ? "" : "s"}: best is Fit ${best.fit_score}, ${best.title.slice(0, 60)}`, html),
+    // No-op until Twilio is live.
+    sendSms({
+      name: "CSF Bid Alert",
+      phone: process.env.OWNER_ALERT_PHONE || "+13468525540",
+      message: `${good.length} new bid${good.length === 1 ? "" : "s"} today. Best: Fit ${best.fit_score}, ${best.title.slice(0, 70)}. ${SITE}/admin/bids`,
+    }),
+  ]);
 }
 
 function fmtDate(d: Date) {
@@ -195,7 +280,8 @@ async function scoreFit(
 }
 
 export async function GET(request: NextRequest) {
-  if (!(await authorized(request))) {
+  const caller = await authorized(request);
+  if (!caller) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
   if (!process.env.SAM_GOV_API_KEY) {
@@ -268,6 +354,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
     inserted = count || rows.length;
+    if (caller === "cron") {
+      try {
+        await sendDigest(rows);
+      } catch (e) {
+        console.error("[bids] digest failed:", e);
+      }
+    }
   }
 
   return NextResponse.json({

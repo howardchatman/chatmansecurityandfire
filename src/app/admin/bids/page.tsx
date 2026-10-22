@@ -45,7 +45,7 @@ function daysUntil(date: string | null): number | null {
 
 // Location is saved as "City, ST". No location = treat as Texas (older rows
 // were all Texas-only searches).
-const isTexas = (b: Bid) => !b.location || /TX$/.test(b.location.trim());
+const isTexas = (b: Bid) => !b.location || /\bTX$/.test(b.location.trim());
 
 export default function BidsPage() {
   const [bids, setBids] = useState<Bid[]>([]);
