@@ -9,8 +9,11 @@ const SERVICE_PROFILE = `Chatman Security & Fire (Houston, TX) is a licensed low
 and life-safety contractor. We bid on: commercial fire alarm systems (design, install,
 inspection), fire sprinkler systems, fire extinguishers, emergency lighting, fire lane
 striping, security/burglar alarm and camera systems, access control, structured cabling,
-fiber optic cabling, and commercial WiFi/wireless networks. We serve Texas (primarily
-Greater Houston). We are a small business.`;
+fiber optic cabling, commercial WiFi/wireless networks, and security guard / patrol
+services. We are a small business with an active SAM.gov registration and bid
+nationwide: Texas work (primarily Greater Houston) we self-perform; work outside Texas
+and guard services we deliver as prime with vetted local subcontractors. Location is
+not a reason to score low; score on how well the scope matches our trades.`;
 
 const SEARCH_KEYWORDS = [
   "fire alarm",
@@ -21,7 +24,16 @@ const SEARCH_KEYWORDS = [
   "fiber optic",
   "access control",
   "video surveillance",
+  "security guard",
+  "guard services",
+  "security officer",
 ];
+
+// Searched nationwide; Texas or not is shown on each bid. Newest first, and
+// at most this many new ones per run, so every saved bid gets a fit score
+// (anything past the cap is picked up on the next run).
+const MAX_NEW_PER_RUN = 200;
+const SCORE_CHUNK = 50;
 
 interface SamOpportunity {
   noticeId: string;
@@ -66,8 +78,7 @@ async function fetchSamGov(): Promise<SamOpportunity[]> {
         postedFrom: fmtDate(from),
         postedTo: fmtDate(to),
         title: keyword,
-        state: "TX",
-        limit: "25",
+        limit: "100",
         ptype: "o,p,k", // solicitations, presolicitations, combined synopsis
       });
       const res = await fetch(`https://api.sam.gov/opportunities/v2/search?${params}`);
@@ -99,6 +110,7 @@ const SERVICE_MATCHES = [
   "security",
   "fiber_optics",
   "wireless",
+  "security_guard",
   "multi",
   "other",
 ];
@@ -129,7 +141,7 @@ const FIT_SCHEMA = {
 };
 
 async function scoreFit(
-  opps: { external_id: string; title: string; agency: string }[]
+  opps: { external_id: string; title: string; agency: string; state: string }[]
 ): Promise<Map<string, FitResult>> {
   const results = new Map<string, FitResult>();
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -203,16 +215,28 @@ export async function GET(request: NextRequest) {
     .eq("source", "sam_gov")
     .in("external_id", ids.length ? ids : ["__none__"]);
   const existingIds = new Set((existing || []).map((e) => e.external_id));
-  const fresh = opps.filter((o) => !existingIds.has(o.noticeId));
+  const fresh = opps
+    .filter((o) => !existingIds.has(o.noticeId))
+    .sort((a, b) => (b.postedDate || "").localeCompare(a.postedDate || ""))
+    .slice(0, MAX_NEW_PER_RUN);
 
-  // AI fit scoring (batch, capped)
-  const scores = await scoreFit(
-    fresh.slice(0, 40).map((o) => ({
-      external_id: o.noticeId,
-      title: o.title,
-      agency: o.fullParentPathName || "",
-    }))
+  // AI fit scoring, in parallel chunks
+  const chunks: SamOpportunity[][] = [];
+  for (let i = 0; i < fresh.length; i += SCORE_CHUNK) chunks.push(fresh.slice(i, i + SCORE_CHUNK));
+  const scores = new Map<string, FitResult>();
+  const scored = await Promise.all(
+    chunks.map((c) =>
+      scoreFit(
+        c.map((o) => ({
+          external_id: o.noticeId,
+          title: o.title,
+          agency: o.fullParentPathName || "",
+          state: o.placeOfPerformance?.state?.code || "",
+        }))
+      )
+    )
   );
+  for (const m of scored) for (const [k, v] of m) scores.set(k, v);
 
   const rows = fresh.map((o) => {
     const s = scores.get(o.noticeId);
@@ -224,7 +248,7 @@ export async function GET(request: NextRequest) {
       naics_code: o.naicsCode || null,
       location: [o.placeOfPerformance?.city?.name, o.placeOfPerformance?.state?.code]
         .filter(Boolean)
-        .join(", ") || "TX",
+        .join(", ") || null,
       posted_date: o.postedDate ? o.postedDate.slice(0, 10) : null,
       due_date: o.responseDeadLine ? o.responseDeadLine.slice(0, 10) : null,
       url: o.uiLink || null,

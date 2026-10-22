@@ -43,10 +43,15 @@ function daysUntil(date: string | null): number | null {
   return Math.ceil((new Date(date).getTime() - Date.now()) / 86400000);
 }
 
+// Location is saved as "City, ST". No location = treat as Texas (older rows
+// were all Texas-only searches).
+const isTexas = (b: Bid) => !b.location || /TX$/.test(b.location.trim());
+
 export default function BidsPage() {
   const [bids, setBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [where, setWhere] = useState<"all" | "tx" | "out">("all");
   const [running, setRunning] = useState(false);
   const [runMessage, setRunMessage] = useState("");
 
@@ -78,6 +83,8 @@ export default function BidsPage() {
       setRunning(false);
     }
   };
+
+  const shown = bids.filter((b) => where === "all" || (where === "tx") === isTexas(b));
 
   const updateStatus = async (id: string, status: string) => {
     setBids((prev) => prev.map((b) => (b.id === id ? { ...b, status } : b)));
@@ -126,25 +133,44 @@ export default function BidsPage() {
         ))}
       </div>
 
+      {/* Where filter: Texas we self-perform; outside Texas we subcontract */}
+      <div className="flex gap-2 flex-wrap">
+        {([
+          ["all", "Everywhere"],
+          ["tx", "Texas"],
+          ["out", "Outside Texas"],
+        ] as const).map(([v, label]) => (
+          <button
+            key={v}
+            onClick={() => setWhere(v)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              where === v ? "bg-[#0D1B2A] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
         </div>
-      ) : bids.length === 0 ? (
+      ) : shown.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Radar className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No opportunities yet</h3>
           <p className="text-gray-500 max-w-md mx-auto text-sm">
-            Click &quot;Run Agent Now&quot; to search federal (SAM.gov) solicitations in Texas
-            for fire alarm, sprinkler, cabling, and security work. The agent also runs
-            automatically every morning.
+            Click &quot;Run Agent Now&quot; to search federal (SAM.gov) solicitations nationwide
+            for fire alarm, sprinkler, cabling, security systems, and security guard work. The
+            agent also runs automatically every morning.
           </p>
         </div>
       ) : (
         <div className="grid gap-4">
-          {bids.map((bid) => {
+          {shown.map((bid) => {
             const days = daysUntil(bid.due_date);
             return (
               <div key={bid.id} className="bg-white rounded-2xl border border-gray-200 p-5 hover:border-orange-200 transition-colors">
@@ -164,6 +190,11 @@ export default function BidsPage() {
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 uppercase">
                         {bid.source.replace("_", ".")}
                       </span>
+                      {!isTexas(bid) && (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                          Out of state · subcontract
+                        </span>
+                      )}
                       {days != null && days >= 0 && (
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
                           days <= 7 ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"
@@ -215,8 +246,9 @@ export default function BidsPage() {
 
       <p className="text-xs text-gray-400 flex items-center gap-1.5">
         <RefreshCw className="w-3.5 h-3.5" />
-        The agent checks SAM.gov daily for Texas solicitations matching fire alarm, sprinkler,
-        suppression, cabling, fiber, access control, and surveillance work, then AI-scores each for fit.
+        The agent checks SAM.gov daily, nationwide, for solicitations matching fire alarm, sprinkler,
+        suppression, cabling, fiber, access control, surveillance, and security guard work, then
+        AI-scores each for fit.
       </p>
     </div>
   );
