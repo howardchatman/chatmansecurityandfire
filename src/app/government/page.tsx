@@ -19,11 +19,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
 import { SITE_URL } from "@/lib/site-services";
+import { SAM_UEI, SAM_CAGE, NAICS } from "@/lib/federal";
 
 export const metadata: Metadata = {
   title: "Government, School District & Municipal Fire and Security Contractor | Houston, TX",
   description:
-    "Fire alarm, sprinkler, extinguisher, and security contractor for Texas school districts, cities, counties, and government facilities. We work as the prime contractor or as a subcontractor on public projects. (346) 852-5540",
+    "SAM.gov-registered fire alarm, sprinkler, extinguisher, and security contractor (UEI EHW1C5DP8XX7, CAGE 262B4) for Texas school districts, cities, counties, and federal facilities. Prime contractor or subcontractor. (346) 852-5540",
   keywords: [
     "government fire alarm contractor Texas",
     "school district fire alarm contractor Houston",
@@ -33,12 +34,17 @@ export const metadata: Metadata = {
     "public sector security systems contractor",
     "school security access control Houston",
     "prevailing wage fire alarm contractor",
+    "SAM.gov registered fire alarm contractor Texas",
+    "federal fire protection contractor Houston",
+    "CAGE 262B4",
+    "UEI EHW1C5DP8XX7",
+    "Chatman Security & Fire CAGE code",
   ],
   alternates: { canonical: "/government" },
   openGraph: {
     title: "Fire & Security for Government, School Districts & Municipalities | Chatman Security & Fire",
     description:
-      "Prime contractor or subcontractor for fire alarm, sprinkler, extinguisher, and security work on public facilities across Houston and Texas.",
+      "SAM.gov-registered (UEI EHW1C5DP8XX7, CAGE 262B4). Prime contractor or subcontractor for fire alarm, sprinkler, extinguisher, and security work on public facilities across Houston and Texas.",
     url: `${SITE_URL}/government`,
   },
 };
@@ -102,8 +108,8 @@ const publicWork = [
   },
   {
     icon: BadgeCheck,
-    title: "Licensed, insured, small business",
-    text: "Licensed Texas fire protection contractor with NICET-certified technicians. Certificates of insurance are available on request.",
+    title: "Registered, licensed, insured",
+    text: "Active SAM.gov registration, so agencies can contract with us and pay us directly. Licensed Texas fire protection contractor with NICET-certified technicians. Certificates of insurance are available on request.",
   },
   {
     icon: HardHat,
@@ -112,13 +118,6 @@ const publicWork = [
   },
 ];
 
-const naics = [
-  ["238210", "Electrical & low-voltage contractors: fire alarm, security, access control, cameras, cabling"],
-  ["561621", "Security systems services: installation, inspection, testing, and monitoring"],
-  ["238220", "Fire sprinkler installation and repair"],
-  ["811310", "Fire extinguisher inspection and service"],
-  ["238990", "Fire lane striping and other specialty trade work"],
-];
 
 const faqs = [
   {
@@ -140,6 +139,11 @@ const faqs = [
     question: "Can you inspect fire systems across many buildings or campuses?",
     answer:
       "Yes. We schedule annual NFPA 72 fire alarm inspections, extinguisher service, and emergency lighting tests across multiple sites and deliver a written report for every building, with deficiencies prioritized so you can plan corrections and budget.",
+  },
+  {
+    question: "Are you registered in SAM.gov?",
+    answer:
+      "Yes. Chatman Security & Fire, Inc. has an active SAM.gov registration for all awards (UEI EHW1C5DP8XX7, CAGE 262B4), so federal, state, and local agencies can award to us and pay us directly.",
   },
   {
     question: "Are you a small business?",
@@ -214,6 +218,13 @@ export default function GovernmentPage() {
                 (346) 852-5540
               </a>
             </div>
+            <p className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-300">
+              <span className="inline-flex items-center gap-1.5 text-green-400 font-medium">
+                <BadgeCheck className="w-4 h-4" /> Active SAM.gov registration
+              </span>
+              <span>UEI <span className="font-mono text-white">{SAM_UEI}</span></span>
+              <span>CAGE <span className="font-mono text-white">{SAM_CAGE}</span></span>
+            </p>
           </div>
         </section>
 
@@ -365,7 +376,7 @@ export default function GovernmentPage() {
                   NAICS codes
                 </div>
                 <dl className="divide-y divide-gray-100">
-                  {naics.map(([code, desc]) => (
+                  {NAICS.map(([code, desc]) => (
                     <div key={code} className="flex gap-4 px-5 py-3 text-sm">
                       <dt className="font-mono font-semibold text-[#0D1B2A] w-16 flex-shrink-0">{code}</dt>
                       <dd className="text-gray-600">{desc}</dd>
@@ -375,6 +386,14 @@ export default function GovernmentPage() {
               </div>
               <div className="rounded-2xl border border-gray-200 p-6 text-sm text-gray-700 space-y-3">
                 <p className="font-semibold text-[#0D1B2A]">Chatman Security &amp; Fire, Inc.</p>
+                <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                  <dt className="text-gray-500">UEI</dt>
+                  <dd className="font-mono font-semibold text-[#0D1B2A]">{SAM_UEI}</dd>
+                  <dt className="text-gray-500">CAGE</dt>
+                  <dd className="font-mono font-semibold text-[#0D1B2A]">{SAM_CAGE}</dd>
+                  <dt className="text-gray-500">SAM.gov</dt>
+                  <dd className="text-green-700 font-medium">Active, all awards</dd>
+                </dl>
                 <p>
                   3403 West TC Jester Blvd, #1112
                   <br />

@@ -1,5 +1,6 @@
 import { cities } from "@/lib/cities-data";
 import { siteServices, SITE_URL } from "@/lib/site-services";
+import { LEGAL_NAME, SAM_UEI, SAM_CAGE, NAICS } from "@/lib/federal";
 
 // The business's identity card for search engines and AI assistants
 // (Google, Bing/Copilot, ChatGPT, Siri, Alexa, Perplexity…). Rendered on every
@@ -17,6 +18,14 @@ export default function LocalBusinessSchema() {
     "@type": ["LocalBusiness", "HomeAndConstructionBusiness"],
     "@id": `${SITE_URL}/#business`,
     name: "Chatman Security & Fire",
+    legalName: LEGAL_NAME,
+    // SAM.gov registration, so procurement searches and AI assistants can
+    // match the business to its federal identifiers.
+    identifier: [
+      { "@type": "PropertyValue", propertyID: "UEI", name: "SAM.gov Unique Entity ID", value: SAM_UEI },
+      { "@type": "PropertyValue", propertyID: "CAGE", name: "CAGE code", value: SAM_CAGE },
+    ],
+    naics: NAICS.map(([code]) => code),
     description:
       "Commercial fire protection, life safety, and security contractor based in Houston, Texas, serving Houston and cities across Texas. Fire alarm and fire sprinkler installation and inspection, fire marshal violation corrections, fire extinguishers, emergency lighting, fire lane marking, access control, security cameras, and Brinks security systems.",
     url: SITE_URL,
