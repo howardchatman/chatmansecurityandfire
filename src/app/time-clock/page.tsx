@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Clock, LogIn, MapPin, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
+import LocationGate, { currentPosition, locationErrorText } from "@/components/tech/LocationGate";
 
 interface TimeEntry {
   id: string;
@@ -19,22 +20,6 @@ interface Me {
 }
 
 type Coords = { lat: number; lng: number; accuracy: number } | null;
-
-function getPosition(): Promise<Coords> {
-  return new Promise((resolve) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) return resolve(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        resolve({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy,
-        }),
-      () => resolve(null),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
-    );
-  });
-}
 
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
@@ -123,12 +108,20 @@ export default function TimeClockPage() {
   const punch = async () => {
     setPunching(true);
     setMessage(null);
-    const coords = await getPosition();
+    // Location is required; the server also checks it's at today's job site.
+    let coords: Coords;
+    try {
+      coords = await currentPosition();
+    } catch (err) {
+      setMessage({ type: "error", text: locationErrorText(err) });
+      setPunching(false);
+      return;
+    }
     try {
       const res = await fetch("/api/time", {
         method: openEntry ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(coords ? coords : {}),
+        body: JSON.stringify(coords),
       });
       const data = await res.json();
       if (!data.success) {
@@ -136,14 +129,8 @@ export default function TimeClockPage() {
         return;
       }
       setMessage({
-        type: coords ? "ok" : "warn",
-        text: openEntry
-          ? coords
-            ? "Clocked out — location recorded."
-            : "Clocked out — location unavailable."
-          : coords
-            ? "Clocked in — location recorded."
-            : "Clocked in — location unavailable. Enable location for GPS stamps.",
+        type: "ok",
+        text: openEntry ? "Clocked out. Location recorded." : "Clocked in on site. Location recorded.",
       });
       await loadData();
     } catch {
@@ -205,7 +192,7 @@ export default function TimeClockPage() {
     );
   }
 
-  return (
+  const page = (
     <div className="min-h-screen bg-[#0D1B2A] flex flex-col items-center p-6 pt-10">
       <img src="/csf_wide_logo.png" alt="Chatman Security & Fire" className="h-10 w-auto mb-6 brightness-0 invert" />
 
@@ -300,4 +287,14 @@ export default function TimeClockPage() {
       </p>
     </div>
   );
+
+  // Field staff can't use the clock until the phone shares its location.
+  if (["technician", "inspector"].includes(me.role)) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LocationGate>{page}</LocationGate>
+      </div>
+    );
+  }
+  return page;
 }

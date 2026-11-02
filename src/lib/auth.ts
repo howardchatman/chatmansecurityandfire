@@ -68,9 +68,16 @@ export async function createToken(user: User): Promise<string> {
   return token;
 }
 
+// Every login issued before this moment is void, which signs everyone out.
+// Move it forward to do that again (e.g. after a policy change everyone has
+// to see on their next sign-in).
+// 2026-11-02: location became required for the time clock.
+const SESSIONS_VALID_AFTER = Date.parse("2026-11-02T17:06:00Z") / 1000;
+
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
+    if (!payload.iat || payload.iat < SESSIONS_VALID_AFTER) return null;
     const parsed = payload as unknown as Omit<JWTPayload, "userId"> & { userId?: string };
     // Expose `userId` as an alias of `id` for routes migrating off the old ad-hoc verifier.
     if (parsed.userId === undefined) {

@@ -5,23 +5,14 @@ import Link from "next/link";
 import { Loader2, MapPin, LogIn, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { houstonToday } from "@/lib/job-dates";
+import { currentPosition, locationErrorText } from "@/components/tech/LocationGate";
 
 // "I'm on site" for one job: clocks the signed-in person in on the time clock
-// (with GPS when the phone allows it) tied to this job, and out again. On the
-// way out, the hours go onto that day's crew log for the job.
+// tied to this job, and out again. Location is required; the server refuses a
+// check-in away from the job site. On the way out, the hours go onto that
+// day's crew log for the job.
 
 interface Entry { id: string; job_id: string | null; clock_in: string; clock_out: string | null }
-
-function position(): Promise<{ lat?: number; lng?: number; accuracy?: number }> {
-  return new Promise((resolve) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) return resolve({});
-    navigator.geolocation.getCurrentPosition(
-      (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy }),
-      () => resolve({}), // denied or unavailable: clock in without a location
-      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 }
-    );
-  });
-}
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" });
@@ -51,7 +42,9 @@ export default function OnSiteCard({ jobId }: { jobId: string }) {
     setBusy(true);
     setMessage(null);
     try {
-      const pos = await position();
+      const pos = await currentPosition().catch((err) => {
+        throw new Error(locationErrorText(err));
+      });
       const res = await fetch("/api/time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,7 +53,7 @@ export default function OnSiteCard({ jobId }: { jobId: string }) {
       const json = await res.json().catch(() => null);
       if (!json?.success) throw new Error(json?.error || "Couldn't check in.");
       setOpen(json.data);
-      setMessage({ ok: true, text: pos.lat ? "Checked in on site." : "Checked in (location wasn't available)." });
+      setMessage({ ok: true, text: "Checked in on site." });
     } catch (e) {
       setMessage({ ok: false, text: e instanceof Error ? e.message : "Couldn't check in." });
     } finally {
@@ -72,7 +65,9 @@ export default function OnSiteCard({ jobId }: { jobId: string }) {
     setBusy(true);
     setMessage(null);
     try {
-      const pos = await position();
+      const pos = await currentPosition().catch((err) => {
+        throw new Error(locationErrorText(err));
+      });
       const res = await fetch("/api/time", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -141,7 +136,7 @@ export default function OnSiteCard({ jobId }: { jobId: string }) {
         </button>
       ) : (
         <>
-          <p className="text-sm text-gray-500">Check in when you arrive. It records the time and your location.</p>
+          <p className="text-sm text-gray-500">Check in when you arrive. You have to be at the job site, with location on.</p>
           <button
             onClick={clockIn}
             disabled={busy}

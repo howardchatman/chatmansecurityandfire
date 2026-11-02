@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyToken, AUTH_COOKIE_NAME } from "@/lib/auth";
+import { checkOnSite, readPosition, LOCATION_REQUIRED } from "@/lib/on-site";
 
 async function getUser(request: NextRequest) {
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
@@ -63,7 +64,8 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ success: true, data });
 }
 
-// POST: clock in (one open entry per employee at a time)
+// POST: clock in (one open entry per employee at a time). Location is
+// required, and it has to be at the job site (lib/on-site).
 export async function POST(request: NextRequest) {
   const user = await getUser(request);
   if (!user) {
@@ -71,7 +73,11 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { lat, lng, accuracy, job_id, project_id, notes } = body;
+  const { job_id, project_id, notes } = body;
+  const position = readPosition(body);
+  if (!position) {
+    return NextResponse.json({ success: false, error: LOCATION_REQUIRED, code: "location_required" }, { status: 400 });
+  }
 
   // Refuse a second open entry
   const { data: open } = await supabaseAdmin
@@ -87,18 +93,30 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Techs and inspectors on the general time clock are checked against their
+  // jobs for today. The office (admin/manager) can clock in from anywhere
+  // there unless they're checking into a specific job.
+  const fieldRole = ["technician", "inspector"].includes(user.role);
+  const site =
+    job_id || fieldRole
+      ? await checkOnSite({ userId: user.id, position, jobId: job_id || null, strict: true })
+      : { ok: true as const, jobId: null, note: null };
+  if (!site.ok) {
+    return NextResponse.json({ success: false, error: site.error, code: "off_site" }, { status: 403 });
+  }
+
   const { data, error } = await supabaseAdmin
     .from("time_entries")
     .insert({
       employee_id: user.id,
       employee_name: user.name,
       clock_in: new Date().toISOString(),
-      clock_in_lat: typeof lat === "number" ? lat : null,
-      clock_in_lng: typeof lng === "number" ? lng : null,
-      clock_in_accuracy: typeof accuracy === "number" ? accuracy : null,
-      job_id: job_id || null,
+      clock_in_lat: position.lat,
+      clock_in_lng: position.lng,
+      clock_in_accuracy: position.accuracy,
+      job_id: site.jobId || job_id || null,
       project_id: project_id || null,
-      notes: notes || null,
+      notes: [notes, site.note].filter(Boolean).join("\n") || null,
     })
     .select("*")
     .single();
@@ -117,11 +135,15 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { lat, lng, accuracy, notes } = body;
+  const { notes } = body;
+  const position = readPosition(body);
+  if (!position) {
+    return NextResponse.json({ success: false, error: LOCATION_REQUIRED, code: "location_required" }, { status: 400 });
+  }
 
   const { data: open, error: findErr } = await supabaseAdmin
     .from("time_entries")
-    .select("id, notes")
+    .select("id, notes, job_id")
     .eq("employee_id", user.id)
     .is("clock_out", null)
     .order("clock_in", { ascending: false })
@@ -138,14 +160,24 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
+  // Checking out away from the site is allowed (so a forgotten check-out can
+  // still be closed) but noted on the entry for the office to see.
+  const fieldRole = ["technician", "inspector"].includes(user.role);
+  const site =
+    open.job_id || fieldRole
+      ? await checkOnSite({ userId: user.id, position, jobId: open.job_id, strict: false })
+      : null;
+  const offSiteNote =
+    site?.ok && site.note?.startsWith("[Off site") ? site.note.replace("[Off site", "[Checked out off site") : null;
+
   const { data, error } = await supabaseAdmin
     .from("time_entries")
     .update({
       clock_out: new Date().toISOString(),
-      clock_out_lat: typeof lat === "number" ? lat : null,
-      clock_out_lng: typeof lng === "number" ? lng : null,
-      clock_out_accuracy: typeof accuracy === "number" ? accuracy : null,
-      notes: notes ? [open.notes, notes].filter(Boolean).join("\n") : open.notes,
+      clock_out_lat: position.lat,
+      clock_out_lng: position.lng,
+      clock_out_accuracy: position.accuracy,
+      notes: [open.notes, notes, offSiteNote].filter(Boolean).join("\n") || null,
     })
     .eq("id", open.id)
     .select("*")

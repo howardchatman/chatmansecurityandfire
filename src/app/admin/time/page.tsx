@@ -14,7 +14,12 @@ interface TimeEntry {
   clock_out_lat: number | null;
   clock_out_lng: number | null;
   minutes: number | null;
+  notes: string | null;
 }
+
+// The time clock stamps "[...]" lines into notes when it couldn't confirm
+// someone was on site (see lib/on-site). Pull them out to flag the row.
+const siteFlags = (notes: string | null) => (notes || "").split("\n").filter((l) => l.startsWith("["));
 
 interface Employee {
   id: string;
@@ -179,7 +184,17 @@ export default function TimePage() {
               <tbody className="divide-y divide-gray-100">
                 {entries.map((e) => (
                   <tr key={e.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900">{e.employee_name || "—"}</td>
+                    <td className="px-4 py-3 font-medium text-gray-900">
+                      {e.employee_name || "—"}
+                      {siteFlags(e.notes).map((f) => (
+                        <p
+                          key={f}
+                          className={`mt-1 text-xs font-normal ${f.includes("off site") || f.includes("Off site") ? "text-red-600" : "text-amber-700"}`}
+                        >
+                          {f.slice(1, -1)}
+                        </p>
+                      ))}
+                    </td>
                     <td className="px-4 py-3 text-gray-600">
                       {new Date(e.clock_in).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
                     </td>

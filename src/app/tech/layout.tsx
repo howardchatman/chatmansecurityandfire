@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import BrandHeader from "@/components/BrandHeader";
+import LocationGate from "@/components/tech/LocationGate";
 import {
   Briefcase,
   Calendar,
@@ -180,7 +181,7 @@ export default function TechPortalLayout({
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {children}
+        {["technician", "inspector"].includes(user.role || "") ? <LocationGate>{children}</LocationGate> : children}
       </main>
     </div>
   );
