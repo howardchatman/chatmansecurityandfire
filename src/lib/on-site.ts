@@ -1,18 +1,16 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { geocode, distanceMeters, formatDistance } from "@/lib/geocode";
 import { houstonToday, runsOn } from "@/lib/job-dates";
+import { SITE_RADIUS_M, MAX_SLACK_M, MAX_ACCURACY_M } from "@/lib/location-rules";
 
 // The on-site rule for the time clock: a check-in has to come from the job
 // site. The phone's GPS position is compared with the site address of the
 // job being checked into, or, from the general time clock, with every job
 // and inspection the person is scheduled on today.
-
-/** How close counts as "on site": about a quarter mile, for big campuses and job trailers. */
-export const SITE_RADIUS_M = 400;
-/** GPS error we give the benefit of the doubt for, on top of the radius. */
-const MAX_SLACK_M = 100;
-/** Coarser than this is a Wi-Fi/cell guess, not GPS: ask for precise location. */
-export const MAX_ACCURACY_M = 1000;
+//
+// Only a map point on the building itself counts. When the address only
+// matches a street or neighborhood, the check-in goes through flagged for the
+// office instead of measuring the tech against the middle of a road.
 
 export interface Position {
   lat: number;
@@ -122,17 +120,25 @@ export async function checkOnSite(opts: {
   const here = { lat: position.lat, lon: position.lng };
   const slack = Math.min(position.accuracy ?? 0, MAX_SLACK_M);
   let nearest: { site: Site; meters: number } | null = null;
-  let located = 0;
+  let roughOnly = false;
   for (const site of sites) {
     const point = await geocode(site.address).catch(() => null);
     if (!point) continue;
-    located++;
+    if (!point.precise) {
+      roughOnly = true;
+      continue;
+    }
     const meters = distanceMeters(here, point);
     if (!nearest || meters < nearest.meters) nearest = { site, meters };
   }
 
-  if (located === 0 || !nearest) {
-    return { ok: true, jobId: opts.jobId || null, note: "[Location not verified: the site address couldn't be found on the map]" };
+  if (!nearest) {
+    const why = roughOnly
+      ? "the map only places the site address on the street, not the building"
+      : "the site address couldn't be found on the map";
+    // From the general clock, link the job when there's only one it could be.
+    const only = sites.length === 1 && sites[0].kind === "job" ? sites[0].id : null;
+    return { ok: true, jobId: opts.jobId || only, note: `[Location not verified: ${why}]` };
   }
 
   const jobIdFor = (s: Site) => opts.jobId || (s.kind === "job" ? s.id : null);
@@ -146,7 +152,22 @@ export async function checkOnSite(opts: {
 
   const away = `${formatDistance(nearest.meters)} from ${nearest.site.label} (${nearest.site.address})`;
   if (strict) {
-    return { ok: false, error: `You're ${away}. You have to be on site to check in.` };
+    // Vercel logs keep the details for diagnosing a refusal someone disputes.
+    console.warn("[on-site] refused check-in", {
+      userId: opts.userId,
+      jobId: opts.jobId || null,
+      site: nearest.site.address,
+      meters: Math.round(nearest.meters),
+      accuracy: position.accuracy,
+    });
+    return {
+      ok: false,
+      error: `You're ${away}. You have to be on site to check in.${
+        position.accuracy && position.accuracy > 150
+          ? ` (Your phone's location is only accurate to ${formatDistance(position.accuracy)}; step outside and try again.)`
+          : ""
+      }`,
+    };
   }
   return { ok: true, jobId: jobIdFor(nearest.site), note: `[Off site: ${away}]` };
 }
